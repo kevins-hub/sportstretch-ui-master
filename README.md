@@ -19,7 +19,7 @@ npm start
 ## Note:
 
 1. Please follow the folder structure and the common styling as much as you can. Refer the similar components to maintain uniform styling.
-2. Please do not checkin any code to App.js for now. Use it only for testing your component in local, by loading just your component in the container view in App.js. The component should work fine without any styling in App.js.
+2. Please do not checkin any code to App.js for now. Use it only for testing your component in local, by loading just your component in the fragment in App.js. The component should work fine without any styling in App.js.
 
 For example, if you need to test your Dashboard component, App.js would look like:
 ```jsx
