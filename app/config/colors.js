@@ -1,6 +1,6 @@
 export default {
-    primary: '#000',
-    secondary: '#fff',
+    primary: '#000', //black
+    secondary: '#fff', //white
     grey: '#808080',
     dullblack: '#3F3F3F',
     gold: '#FFC107',
