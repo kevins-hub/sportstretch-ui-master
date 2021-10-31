@@ -1,9 +1,12 @@
 import React from 'react';
 import { View,StyleSheet,Text } from 'react-native';
+import { Rating } from 'react-native-ratings';
 
 import colors from '../../config/colors';
 
-function AthleteUpcomingCard({BookingMonth,BookingDay,BookingTime,fname,bookingId,confirmationStatus}) {
+
+
+function AthletePastCard({BookingMonth,BookingDay,fname,bookingId=4,starRating=0}) {
     return (
         <View style = {styles.OuterContainer}>
             <View style = {styles.Container} >
@@ -16,10 +19,7 @@ function AthleteUpcomingCard({BookingMonth,BookingDay,BookingTime,fname,bookingI
                     <View style={styles.VerticalLine}></View>
 
                     <View style = {styles.BookingDetailsContainer}>
-                        <View style = {styles.DetailsContainer}>
-                            <Text>Booking Time : </Text> 
-                            <Text >{BookingTime}</Text>   
-                        </View>
+                        
                         <View style = {styles.DetailsContainer}>
                             <Text >Therapist : </Text> 
                             <Text>{fname}</Text> 
@@ -29,8 +29,14 @@ function AthleteUpcomingCard({BookingMonth,BookingDay,BookingTime,fname,bookingI
                             <Text>{bookingId}</Text> 
                         </View>
                         <View style = {styles.DetailsContainer}>
-                            <Text >Status : </Text> 
-                            <Text>{confirmationStatus}</Text> 
+                            <Text></Text>
+                            <Rating
+                                startingValue = {starRating}
+                                imageSize = {20}
+                                jumpValue = {0.5}
+                                onFinishRating ={(starRating) => {alert('You rated the rating '+ starRating +' for booking '+ bookingId +'');} }
+                            />
+                            
                         </View>
                     </View>
                 
@@ -100,8 +106,8 @@ const styles = StyleSheet.create({
         marginTop: 15,
         width: 1,
         
-    },
+    }
     
 })
 
-export default AthleteUpcomingCard;
+export default AthletePastCard;

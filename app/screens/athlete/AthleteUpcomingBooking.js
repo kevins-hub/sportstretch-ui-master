@@ -5,49 +5,52 @@ import AthleteUpcomingCard from '../../components/athlete/AthleteUpcomingCard';
 
 const upcoming = [
     {
-        BookingMonth: 'Apr',
-        BookingDay: 12,
+        BookingMonth: 'Mar',
+        BookingDay: 11,
         BookingTime: '10:20 PM',
-        Therapist: 'Roger',
-        BookingID: 309,
-        Status: 'Rejected'
+        fname: 'Jain',
+        bookingId: 31,
+        confirmationStatus: 1
     },
     {
         BookingMonth: 'Apr',
         BookingDay: 12,
-        BookingTime: '10:30 PM',
-        Therapist: 'Treesa',
-        BookingID: 321,
-        Status: 'Pending'
+        BookingTime: '12:00 PM',
+        fname: 'Treesa',
+        bookingId: 321,
+        confirmationStatus: 1
     },
     {
         BookingMonth: 'Apr',
         BookingDay: 12,
-        BookingTime: '10:33 PM',
-        Therapist: 'Rachel',
-        BookingID: 322,
-        Status: 'Approved'
-    }
+        BookingTime: '12:00 PM',
+        fname: 'Treesa',
+        bookingId: 322,
+        confirmationStatus: 0
+    },
+    
+
 ]
 
 function AthleteUpcomingBooking(props) {
     return (
         <FlatList 
-            //Sorted using BookingID as of now, later to be chnaged with timestamp new Date().toLocaleString()
-            data={upcoming.sort((a, b) => b.BookingID.toString().localeCompare(a.BookingID.toString()))}
-            keyExtractor={ message => message.BookingID.toString()}
-            renderItem={({item}) => 
+            //Sorted using bookingId as of now, later to be chnaged with timestamp new Date().toLocaleString()
+            data={upcoming.sort((a, b) => a.bookingId.toString().localeCompare(b.bookingId.toString()))}
+            keyExtractor= { message => message.bookingId.toString()}
+            renderItem= {({item}) => 
                 <AthleteUpcomingCard
                     BookingMonth= {item.BookingMonth}
                     BookingDay= {item.BookingDay}
                     BookingTime= {item.BookingTime}
-                    Therapist= {item.Therapist}
-                    BookingID= {item.BookingID}
-                    Status= {item.Status}
-                />
-            }                
+                    fname= {item.fname}
+                    bookingId= {item.bookingId}
+                    confirmationStatus=  {item.confirmationStatus === 1 ? 'Approved': 'Declined'}
+                />}  
         />
-    );    
+
+    );
+ 
 }
 
 export default AthleteUpcomingBooking;

@@ -1,31 +1,35 @@
 import React from 'react';
-import { View,StyleSheet,Text} from 'react-native';
+import { View,StyleSheet,Text, ActivityIndicator} from 'react-native';
+import { Rating } from 'react-native-ratings';
 
 import colors from '../../config/colors';
 import BookButton from './BookButton';
 
-function AthleteBookNowCard(props) {
+
+function AthleteBookNowCard({fname='Emma',therapistId = 4,city ='Buffalo',state = 'New York',avgRating=4.5}) {
     return (
         <View style = {styles.OuterContainer}>
             <View style= {styles.Container}>
-                <View style={styles.TherapistNameContainer}>
-                    <Text style={styles.TherapistNameText}>Emma XXXX</Text>
-                </View>
-                <View style = {styles.TherapistDetailContainer}>
+                <View style= {styles.TherapistContainer}>
+                    <View style={styles.TherapistNameContainer}>
+                        <Text style={styles.TherapistNameText}>{fname} XXXX</Text>
+                        <Text style={{fontSize:15, color: colors.dullblack}}>{city}, {state}</Text>
+                    </View>
                     <View style = {styles.RatingContainer}>
-                        <Text style={{fontSize:28, color: colors.gold}}>4.5</Text>
-                        <Text style={{fontSize:20, color: colors.gold}}>*****</Text>
+                            <Text style={{fontSize:25, color: colors.gold}}>{avgRating}</Text>
+                            <Rating imageSize={15} readonly startingValue={avgRating} />
+                        
                     </View>
-                    <View style = {styles.DetailContainer}>
-                        <Text style={{fontSize:20, color: colors.dullblack}}>Buffalo</Text>
-                        <Text style={{fontSize:15, color: colors.dullblack}}>New York</Text>
-                    </View>
+                   
                 </View>
-                <View style= {styles.BookButtonContainer}>
-                    <BookButton onPress={() => {
-                                alert('Your Booking is in Progress!');}} title={'Book'}>
-
-                    </BookButton>
+                
+                <View>
+                    <View style= {styles.BookButtonContainer}>
+                        <BookButton onPress={() => {
+                                    alert('Your Booking with '+ therapistId +' is in Progress!');}} title={'Book'}> 
+                        </BookButton>
+                        
+                    </View>
                 </View>
             </View> 
         </View>    
@@ -44,47 +48,47 @@ const styles = StyleSheet.create({
         shadowOffset: {width:0, height:5},
         shadowOpacity: 1,
         width: '100%',
-        height:180,
+        height:140,
+        padding: 10,
+
+    },
+
+    TherapistContainer: {
+        flex: 1,
+        flexDirection: 'row',
         padding: 10,
 
     },
 
     TherapistNameContainer:{
         flex: 1,
-        padding: 8,
-    },
-
-    TherapistDetailContainer:{
-        flex: 1,
-        flexDirection: 'row',
-        alignItems: 'baseline',
-    },
-
-    RatingContainer:{
-        flex: 1,
-        alignItems: 'center',
         
     },
 
+
+    RatingContainer:{
+       flex: 0.5, 
+       alignItems: 'center',
+       
+    },
+
     DetailContainer:{
-        flex: 3,
+        flex: 2,
         
     },
 
     BookButtonContainer:{
-        flex: 1,
         alignItems: 'flex-end',
-        marginBottom: 10,
-        padding: 10,
-        
+        marginTop: 5,
+        marginRight: 5,
+       
     },
 
     TherapistNameText: {
         fontSize: 25,
         fontWeight: '400',
-        textAlign: 'left', 
         color: colors.dullblack, 
-        padding: 5,
+        
     },
     
 })
