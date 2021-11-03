@@ -5,7 +5,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import MapView, { Marker } from 'react-native-maps';
 import colors from '../../config/colors';
 
-function AthleteMapView({markers, selectedMarker, userLocation}) {
+function AthleteMapView({markers, selectedTherapist, userLocation, onMarkerPress}) {
     const [region, setRegion] = useState({
         latitude: 39.129065,
         longitude: -95.141081,
@@ -29,6 +29,8 @@ function AthleteMapView({markers, selectedMarker, userLocation}) {
             {markers && markers.map((marker, index) => (
                <Marker 
                key={index}
+               identifier={index.toString()}
+               onPress={onMarkerPress}
                coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}>
                    <FontAwesome5 name="map-marker-alt" size={40} color={colors.primary} />
                </Marker>

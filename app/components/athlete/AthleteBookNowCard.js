@@ -1,34 +1,30 @@
-import React from 'react';
-import { View,StyleSheet,Text, ActivityIndicator} from 'react-native';
+import React, { useState } from 'react';
+import { View,StyleSheet,Text } from 'react-native';
 import { Rating } from 'react-native-ratings';
 
 import colors from '../../config/colors';
 import BookButton from './BookButton';
 
+function AthleteBookNowCard({selectedTherapist}) {
 
-function AthleteBookNowCard({fname='Emma',therapistId = 4,city ='Buffalo',state = 'New York',avgRating=4.5}) {
     return (
         <View style = {styles.OuterContainer}>
             <View style= {styles.Container}>
                 <View style= {styles.TherapistContainer}>
                     <View style={styles.TherapistNameContainer}>
-                        <Text style={styles.TherapistNameText}>{fname} XXXX</Text>
-                        <Text style={{fontSize:15, color: colors.dullblack}}>{city}, {state}</Text>
+                        <Text style={styles.TherapistNameText}>{selectedTherapist.fname} XXXXX</Text>
+                        <Text style={{fontSize:15, color: colors.dullblack}}>{selectedTherapist.address.city}, {selectedTherapist.address.state}</Text>
                     </View>
                     <View style = {styles.RatingContainer}>
-                            <Text style={{fontSize:25, color: colors.gold}}>{avgRating}</Text>
-                            <Rating imageSize={15} readonly startingValue={avgRating} />
-                        
+                            <Text style={{fontSize:25, color: colors.gold}}>{selectedTherapist.avgRating}</Text>
+                            <Rating imageSize={15} readonly startingValue={selectedTherapist.avgRating} />
                     </View>
-                   
                 </View>
-                
                 <View>
                     <View style= {styles.BookButtonContainer}>
                         <BookButton onPress={() => {
-                                    alert('Your Booking with '+ therapistId +' is in Progress!');}} title={'Book'}> 
+                                    alert('Your Booking with '+ selectedTherapist.therapistId +' is in Progress!');}} title={'Book'}> 
                         </BookButton>
-                        
                     </View>
                 </View>
             </View> 

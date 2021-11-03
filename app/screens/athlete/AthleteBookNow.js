@@ -23,7 +23,7 @@ const therapists = [
         availabilityStatus: true,
         enabledStatus: 1,
         avgRating: 4.2,
-        therapistId: 23
+        therapistId: 27
 
     },
     {
@@ -52,7 +52,7 @@ const therapists = [
         mobile: "7164578324",
         address: {
             street: "34 Spruce Road",
-            aptNum: "3",
+            aptNum: "45",
             state: "New York",
             zipcode: "14214",
             city: "Buffalo"
@@ -61,7 +61,7 @@ const therapists = [
         availabilityStatus: true,
         enabledStatus: 1,
         avgRating: 4.6,
-        therapistId: 23
+        therapistId: 13
 
     },
 ]
@@ -94,10 +94,17 @@ function AthleteBookNow(props) {
         })();
       }, []);
 
+    handleMarkerPress = (event) => {
+        console.log(event._targetInst.return.key);
+        console.log(event);
+        console.log(therapists[event._targetInst.return.key]);
+        setSelectedTherapist(therapists[event._targetInst.return.key]);
+    }
+
     return (
         <View style={{flex:1, marginBottom: 20,}}>
-            <AthleteMapView markers={markers} selectedTherapist={selectedTherapist} userLocation={location}/>
-            <AthleteBookNowCard></AthleteBookNowCard>
+            <AthleteMapView markers={markers} selectedTherapist={selectedTherapist} userLocation={location} onMarkerPress={handleMarkerPress}/>
+            <AthleteBookNowCard selectedTherapist={selectedTherapist}></AthleteBookNowCard>
         </View>
     );
 }
