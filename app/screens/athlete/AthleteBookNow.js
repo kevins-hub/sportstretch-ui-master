@@ -85,7 +85,7 @@ function AthleteBookNow(props) {
 
           let promises = therapists.map(async therapist => {
             let locPromise = await Location.geocodeAsync(therapist.address.street + ' ' + therapist.address.city + ' ' + therapist.address.state);
-            return locPromise[0];
+            return {...locPromise[0], therapistId : therapist.therapistId};
           })
         
           let results = await Promise.all(promises)

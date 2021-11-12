@@ -32,7 +32,9 @@ function AthleteMapView({markers, selectedTherapist, userLocation, onMarkerPress
                identifier={index.toString()}
                onPress={onMarkerPress}
                coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}>
-                   <FontAwesome5 name="map-marker-alt" size={40} color={colors.primary} />
+                   { marker.therapistId == selectedTherapist.therapistId ? 
+                   <FontAwesome5 name="map-marker-alt" size={60} color={colors.primary} /> :
+                   <FontAwesome5 name="map-marker-alt" size={40} color={colors.primary} />}
                </Marker>
              ))}
             </MapView>
