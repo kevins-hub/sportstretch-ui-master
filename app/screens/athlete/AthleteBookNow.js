@@ -5,6 +5,7 @@ import * as Location from 'expo-location';
 
 import AthleteBookNowCard from '../../components/athlete/AthleteBookNowCard';
 import AthleteMapView from '../../components/athlete/AthleteMapView';
+import therapistsApi from '../../api/therapists';
 
 const therapists = [
     {
@@ -67,37 +68,55 @@ const therapists = [
 ]
 
 function AthleteBookNow(props) {
+    const [therapistsFromApi, setTherapistsFromApi] = useState([]);
     const [selectedTherapist, setSelectedTherapist] = useState(therapists[0]);
     const [location, setLocation] = useState(null);
+    const [athleteRegion, setAthleteRegion] = useState(null);
     const [markers, setMarkers] = useState(null);
 
-    useEffect(() => {
-        (async () => {
-          let { status } = await Location.requestForegroundPermissionsAsync();
-        //   if (status !== 'granted') {
-        //     //setErrorMsg('Permission to access location was denied');
-        //   Something to think about: Location.getLastKnownPositionAsync(options)
-        //     return;
-        //   }
+    const loadLocation = async () => {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted')
+            return;
     
-          let location = await Location.getCurrentPositionAsync({});
-          setLocation(location);
+        let athleteLocation = await Location.getCurrentPositionAsync({});
+        setLocation(athleteLocation);
+        return athleteLocation;
+    }
 
-          let promises = therapists.map(async therapist => {
+    const getAthleteRegion = async (athleteLocation) => {
+        let athleteRegion = await Location.reverseGeocodeAsync(athleteLocation.coords);
+        setAthleteRegion(athleteRegion[0].region);
+        return athleteRegion[0].region;
+    }
+
+    const getTherapists = async (athleteRegion) => {
+          let response = await therapistsApi.getNearbyTherapists(athleteRegion);
+          setTherapistsFromApi(response.data);
+          return response.data;
+    }
+
+    const loadMarkers = async (therapistsFromApi) => {
+        console.log(therapistsFromApi);
+        let promises = therapists.map(async therapist => {
             let locPromise = await Location.geocodeAsync(therapist.address.street + ' ' + therapist.address.city + ' ' + therapist.address.state);
             return {...locPromise[0], therapistId : therapist.therapistId};
           })
         
-          let results = await Promise.all(promises)
+          let results = await Promise.all(promises);
           setMarkers(results);
-          //console.log(results);
+    }
+
+    useEffect(() => {
+        (async () => {
+            let athleteLocation = await loadLocation();
+            let athleteRegion = await getAthleteRegion(athleteLocation);
+            let therapistsFA = await getTherapists(athleteRegion);
+            await loadMarkers(therapistsFA);
         })();
       }, []);
 
     handleMarkerPress = (event) => {
-        console.log(event._targetInst.return.key);
-        console.log(event);
-        console.log(therapists[event._targetInst.return.key]);
         setSelectedTherapist(therapists[event._targetInst.return.key]);
     }
 

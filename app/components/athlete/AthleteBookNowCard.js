@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import React from 'react';
 import { View,StyleSheet,Text } from 'react-native';
 import { Rating } from 'react-native-ratings';
 
@@ -6,6 +7,7 @@ import colors from '../../config/colors';
 import BookButton from './BookButton';
 
 function AthleteBookNowCard({selectedTherapist}) {
+    const navigation = useNavigation();
 
     return (
         <View style = {styles.OuterContainer}>
@@ -23,7 +25,11 @@ function AthleteBookNowCard({selectedTherapist}) {
                 <View>
                     <View style= {styles.BookButtonContainer}>
                         <BookButton onPress={() => {
-                                    alert('Your Booking with '+ selectedTherapist.therapistId +' is in Progress!');}} title={'Book'}> 
+                                    alert('Your Booking with '+ selectedTherapist.therapistId +' is in Progress!');
+                                    navigation.navigate("UpcomingBooking");
+                                    
+                                }} 
+                                    title={'Book'}> 
                         </BookButton>
                     </View>
                 </View>
