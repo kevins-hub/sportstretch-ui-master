@@ -9,7 +9,7 @@ import TherapistNavigator from '../../navigation/TherapistNavigator';
 const TherapistDashboard = () => {
     return ( 
         <View style={styles.container}>
-            <TherapistHeader/>
+            <TherapistHeader name="David" phone="7167654321" avgRating="3.5"/>
             <TherapistAvailability/>
             <NavigationContainer>
                 <TherapistNavigator/>
