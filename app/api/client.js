@@ -1,7 +1,7 @@
 import {create} from 'apisauce';
 
 const apiClient = create({
-    baseURL: 'https://jsonplaceholder.typicode.com/',
+    baseURL: 'https://sportstretch-api.herokuapp.com/',
 });
 
 export default apiClient;

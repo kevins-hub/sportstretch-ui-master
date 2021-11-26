@@ -109,10 +109,15 @@ function AthleteBookNow(props) {
 
     useEffect(() => {
         (async () => {
-            let athleteLocation = await loadLocation();
-            let athleteRegion = await getAthleteRegion(athleteLocation);
-            let therapistsFA = await getTherapists(athleteRegion);
-            await loadMarkers(therapistsFA);
+            try {
+                let athleteLocation = await loadLocation();
+                let athleteRegion = await getAthleteRegion(athleteLocation);
+                let therapistsFA = await getTherapists(athleteRegion);
+                await loadMarkers(therapistsFA);
+            }
+            catch (err) {
+                console.log('Error', err.message);
+            }
         })();
       }, []);
 
