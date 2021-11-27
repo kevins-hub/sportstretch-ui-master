@@ -5,7 +5,6 @@ import jwtDecode from "jwt-decode";
 import authApi from "../api/auth";
 import AuthContext from "../auth/context";
 import authStorage from "../auth/storage";
-import { StatusBar } from "expo-status-bar";
 import { Formik } from "formik";
 import {
   Text,
@@ -31,6 +30,7 @@ function LoginScreen(props) {
   //const [loginFailed, setLoginFailed] = useState(false);
 
   const handleSubmit = async ({ email, password }) => {
+    console.log({email, password});
     const result = await authApi.login(email, password);
     if (!result.ok) {
       //show error message "Invalid email and/or password."
@@ -50,14 +50,10 @@ function LoginScreen(props) {
       <Formik
         initialValues={{ email: "", password: "" }}
         validationSchema={ReviewSchema}
-        onSubmit={(values, actions) => {
-          console.log(values);
-          actions.resetForm();
-        }}
+        onSubmit={handleSubmit}
       >
         {(props) => (
           <View>
-            <StatusBar style="dark" />
             <Image
               source={require("../assets/logo_crop.png")}
               style={styles.logo}
@@ -100,6 +96,7 @@ function LoginScreen(props) {
                 keyboardType="email-address"
                 onBlur={props.handleBlur("email")}
                 textContentType="emailAddress"
+                autoCapitalize="none"
                 autoCorrect={false}
                 blurOnSubmit={true}
               />
@@ -130,13 +127,8 @@ function LoginScreen(props) {
               {" "}
               {props.touched.password && props.errors.password}
             </Text>
-
-            <Text style={styles.errorText}>
-              {" "}
-              {props.touched.phone && props.errors.phone}
-            </Text>
             <View style={styles.button}>
-              <TouchableOpacity onPress={handleSubmit}>
+              <TouchableOpacity onPress={props.handleSubmit}>
                 <Text style={styles.buttonText}>Login</Text>
               </TouchableOpacity>
             </View>
@@ -166,12 +158,6 @@ function LoginScreen(props) {
 }
 
 const styles = StyleSheet.create({
-  accountText: {
-    fontSize: 25,
-    color: colors.dullblack,
-    //marginBottom: "5%",
-    textAlign: "center",
-  },
   button: {
     backgroundColor: colors.primary,
     borderRadius: 25,
@@ -240,6 +226,15 @@ const styles = StyleSheet.create({
     margin: "15%",
     marginLeft: 150,
   },
+  reg:{
+    textDecorationLine: 'underline',
+    backgroundColor:"#FEFEFE",
+    color:"#3F3F3F",
+    fontSize:18,
+    padding:"2.5%",
+    marginTop:"9%",
+    marginLeft:"0%"
+  }
 });
 
 export default LoginScreen;

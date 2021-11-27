@@ -34,7 +34,8 @@
     "yup": "^0.32.11",
     "yup-phone": "^1.2.19",
     "react-native-gesture-handler": "~1.10.2",
-    "expo-secure-store": "~11.0.3"
+    "expo-secure-store": "~11.0.3",
+    "expo-app-loading": "~1.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"

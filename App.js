@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { AppLoading } from 'expo';
+import AppLoading from 'expo-app-loading';
 
 import AuthContext from './app/auth/context';
 import AthleteDashboard from './app/screens/athlete/AthleteDashboard';
@@ -19,7 +19,7 @@ export default function App() {
   }
 
   if (!isReady)
-    return <AppLoading startAsync={restoreUser} onFinish={() => setIsReady(true)} />
+    return <AppLoading startAsync={restoreUser} onFinish={() => setIsReady(true)} onError={console.warn} />
 
   return (
     <AuthContext.Provider value={{ user, setUser }}>

@@ -1,17 +1,20 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, StyleSheet, Text} from 'react-native';
 import {MaterialCommunityIcons, FontAwesome} from '@expo/vector-icons'
 import Constants from 'expo-constants';
 
 import colors from '../../config/colors';
+import AuthContext from '../../auth/context';
 
 function AthleteHeader(props) {
+    const { user, setUser } = useContext(AuthContext);
+
     return (
         <View style={styles.container}>
             <View style={styles.detailsContainer}>
-                <Text style={styles.nameText}>Hi, Alexis</Text>
+                <Text style={styles.nameText}>Hi, {user.userObj.first_name}</Text>
                 <View style={styles.phoneContainer}>
-                    <Text style={styles.phoneText}>7160123456</Text>
+                    <Text style={styles.phoneText}>{user.userObj.mobile}</Text>
                     <MaterialCommunityIcons name="circle-edit-outline" size={24} color="white" />
                 </View>
             </View>
