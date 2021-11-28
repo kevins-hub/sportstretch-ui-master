@@ -7,7 +7,7 @@ const getAllTherapists = () => {
 }
 
 const getNearbyTherapists = (athleteRegion) => {
-    return apiClient.get(endpoint + '/enabled/online/&state=' + athleteRegion);
+    return apiClient.get(endpoint + '/enabled/online/?state=' + athleteRegion);
 }
 
 export default {

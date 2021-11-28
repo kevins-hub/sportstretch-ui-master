@@ -7,69 +7,10 @@ import AthleteBookNowCard from '../../components/athlete/AthleteBookNowCard';
 import AthleteMapView from '../../components/athlete/AthleteMapView';
 import therapistsApi from '../../api/therapists';
 
-const therapists = [
-    {
-        email: "",
-        fname: "Roger",
-        lname: "Apples",
-        mobile: "7164578324",
-        address: {
-            street: "112 Callodine Avenue",
-            aptNum: "3",
-            state: "New York",
-            zipcode: "14214",
-            city: "Buffalo"
-
-        },
-        availabilityStatus: true,
-        enabledStatus: 1,
-        avgRating: 4.2,
-        therapistId: 27
-
-    },
-    {
-        email: "",
-        fname: "Joseph",
-        lname: "Oranges",
-        mobile: "7164578324",
-        address: {
-            street: "12 Robin Road",
-            aptNum: "Upper",
-            state: "New York",
-            zipcode: "14214",
-            city: "Buffalo"
-
-        },
-        availabilityStatus: true,
-        enabledStatus: 1,
-        avgRating: 3.45,
-        therapistId: 23
-
-    },
-    {
-        email: "",
-        fname: "Rachel",
-        lname: "Green",
-        mobile: "7164578324",
-        address: {
-            street: "34 Spruce Road",
-            aptNum: "45",
-            state: "New York",
-            zipcode: "14214",
-            city: "Buffalo"
-
-        },
-        availabilityStatus: true,
-        enabledStatus: 1,
-        avgRating: 4.6,
-        therapistId: 13
-
-    },
-]
 
 function AthleteBookNow(props) {
-    const [therapistsFromApi, setTherapistsFromApi] = useState([]);
-    const [selectedTherapist, setSelectedTherapist] = useState(therapists[0]);
+    const [therapists, setTherapists] = useState([]);
+    const [selectedTherapist, setSelectedTherapist] = useState(null);
     const [location, setLocation] = useState(null);
     const [athleteRegion, setAthleteRegion] = useState(null);
     const [markers, setMarkers] = useState(null);
@@ -92,15 +33,14 @@ function AthleteBookNow(props) {
 
     const getTherapists = async (athleteRegion) => {
           let response = await therapistsApi.getNearbyTherapists(athleteRegion);
-          setTherapistsFromApi(response.data);
+          setTherapists(response.data);
           return response.data;
     }
 
-    const loadMarkers = async (therapistsFromApi) => {
-        console.log(therapistsFromApi);
+    const loadMarkers = async (therapists) => {
         let promises = therapists.map(async therapist => {
-            let locPromise = await Location.geocodeAsync(therapist.address.street + ' ' + therapist.address.city + ' ' + therapist.address.state);
-            return {...locPromise[0], therapistId : therapist.therapistId};
+            let locPromise = await Location.geocodeAsync(therapist.street + ' ' + therapist.city + ' ' + therapist.state);
+            return {...locPromise[0], therapistId : therapist.therapist_id};
           })
         
           let results = await Promise.all(promises);
@@ -112,8 +52,9 @@ function AthleteBookNow(props) {
             try {
                 let athleteLocation = await loadLocation();
                 let athleteRegion = await getAthleteRegion(athleteLocation);
-                let therapistsFA = await getTherapists(athleteRegion);
-                await loadMarkers(therapistsFA);
+                let therapists = await getTherapists(athleteRegion);
+                setSelectedTherapist(therapists[0]);
+                await loadMarkers(therapists);
             }
             catch (err) {
                 console.log('Error', err.message);

@@ -8,24 +8,23 @@ import BookButton from './BookButton';
 
 function AthleteBookNowCard({selectedTherapist}) {
     const navigation = useNavigation();
-
     return (
         <View style = {styles.OuterContainer}>
             <View style= {styles.Container}>
                 <View style= {styles.TherapistContainer}>
                     <View style={styles.TherapistNameContainer}>
-                        <Text style={styles.TherapistNameText}>{selectedTherapist.fname} XXXXX</Text>
-                        <Text style={{fontSize:15, color: colors.dullblack}}>{selectedTherapist.address.city}, {selectedTherapist.address.state}</Text>
+                        <Text style={styles.TherapistNameText}>{selectedTherapist ? selectedTherapist.first_name : ""} XXXXX</Text>
+                        <Text style={{fontSize:15, color: colors.dullblack}}>{selectedTherapist ? selectedTherapist.city : ""}, {selectedTherapist? selectedTherapist.state : ""}</Text>
                     </View>
                     <View style = {styles.RatingContainer}>
-                            <Text style={{fontSize:25, color: colors.gold}}>{selectedTherapist.avgRating}</Text>
-                            <Rating imageSize={15} readonly startingValue={selectedTherapist.avgRating} />
+                            <Text style={{fontSize:25, color: colors.gold}}>{selectedTherapist ? selectedTherapist.average_rating : 0}</Text>
+                            <Rating imageSize={15} readonly startingValue={selectedTherapist ? selectedTherapist.average_rating : 0} />
                     </View>
                 </View>
                 <View>
                     <View style= {styles.BookButtonContainer}>
                         <BookButton onPress={() => {
-                                    alert('Your Booking with '+ selectedTherapist.therapistId +' is in Progress!');
+                                    alert('Your Booking with '+ selectedTherapist.therapist_id +' is in Progress!');
                                     navigation.navigate("UpcomingBooking");
                                     
                                 }} 

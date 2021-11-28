@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState  } from "react";
 import { useNavigation } from "@react-navigation/native";
 import jwtDecode from "jwt-decode";
 
@@ -27,19 +27,13 @@ const ReviewSchema = yup.object({
 function LoginScreen(props) {
   const navigation = useNavigation();
   const authContext = useContext(AuthContext);
-  //const [loginFailed, setLoginFailed] = useState(false);
+  const [errorText, setErrorText] = useState("");
 
   const handleSubmit = async ({ email, password }) => {
-    console.log({email, password});
     const result = await authApi.login(email, password);
-    if (!result.ok) {
-      //show error message "Invalid email and/or password."
-      //use the state variable loginFailed to toggle the visibility of error message
-      //return setLoginFailed(true);
-      return;
-    }
+    if (!result.ok) return setErrorText("Invalid email and/or password.");
 
-    //setLoginFailed(false);
+    setErrorText("");
     const user = jwtDecode(result.data);
     authContext.setUser(user);
     authStorage.storeToken(result.data);
@@ -60,10 +54,8 @@ function LoginScreen(props) {
             />
             <Text
               style={{
-                marginTop: -57,
-                alignItems: "center",
-                marginLeft: "34%",
-                justifyContent: "center",
+                marginTop: "2%",
+                alignSelf: "center",
                 fontSize: 14,
                 color: "#777777",
               }}
@@ -73,23 +65,27 @@ function LoginScreen(props) {
             <Text
               style={{
                 marginTop: 57,
-                marginLeft: "31%",
+                alignSelf:"center",
                 fontSize: 28,
                 color: "#000000",
               }}
             >
               SportStretch
             </Text>
-            <View style={[styles.inputContainer, { marginTop: "5%" }]}>
+            <Text style={{color:"#f60a0e", alignSelf:"center",marginTop:"5%"}} >
+              {errorText}
+            </Text>
+            <View style={[styles.inputContainer, { marginTop: "1%" }]}>
+                    
               <TextInput
                 style={{
                   flex: 1,
                   flexWrap: "wrap",
                   backgroundColor: "#C4C4C4",
                   color: "white",
-                  fontSize: 16,
+                  fontSize: 18,
                 }}
-                placeholder="Username"
+                placeholder="Email"
                 placeholderTextColor="#FFFFFF"
                 onChangeText={props.handleChange("email")}
                 value={props.values.email}
@@ -111,7 +107,7 @@ function LoginScreen(props) {
                   flex: 1,
                   flexWrap: "wrap",
                   color: "white",
-                  fontSize: 16,
+                  fontSize: 18,
                 }}
                 placeholder="Password"
                 placeholderTextColor="#FFFFFF"
@@ -127,12 +123,10 @@ function LoginScreen(props) {
               {" "}
               {props.touched.password && props.errors.password}
             </Text>
-            <View style={styles.button}>
-              <TouchableOpacity onPress={props.handleSubmit}>
-                <Text style={styles.buttonText}>Login</Text>
-              </TouchableOpacity>
-            </View>
-
+              <TouchableOpacity style={styles.button} onPress={props.handleSubmit}>
+              <Text style={styles.buttonText}>Login</Text>
+              
+                </TouchableOpacity>
             <View
               style={{ flexDirection: "row", justifyContent: "space-between" }}
             >
@@ -161,18 +155,17 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: colors.primary,
     borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
     alignSelf: "center",
-    padding: 15,
     width: "25%",
-    height: "8%",
-    margin: 10,
+    height: 50,
+    marginTop: "3%",
   },
   buttonText: {
     color: colors.secondary,
-    fontSize: 18,
-    fontWeight: "normal",
+    fontSize: 20,
+    fontWeight: "600",
+    alignSelf:"center",
+    paddingTop: 10,
   },
   container: {
     paddingTop: Constants.statusBarHeight,
@@ -200,12 +193,12 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   errorText: {
-    marginHorizontal: "10%",
-    padding: "1%",
-    color: colors.grey,
+    
+    marginLeft:"20%",
+    padding: "2%",
+    color: "#C6C6C6",
     fontWeight: "400",
     fontSize: 12,
-    fontStyle: "italic",
   },
 
   inputContainer: {
@@ -221,10 +214,10 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 90,
-    height: 90,
-    margin: "15%",
-    marginLeft: 150,
+    width: 115,
+    height: 115,
+    alignSelf:"center",
+    marginTop:"20%"
   },
   reg:{
     textDecorationLine: 'underline',
@@ -232,7 +225,7 @@ const styles = StyleSheet.create({
     color:"#3F3F3F",
     fontSize:18,
     padding:"2.5%",
-    marginTop:"9%",
+    marginTop:"2.5%",
     marginLeft:"0%"
   }
 });
