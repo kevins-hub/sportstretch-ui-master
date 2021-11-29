@@ -1,56 +1,57 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { FlatList } from 'react-native';
 
 import AthleteUpcomingCard from '../../components/athlete/AthleteUpcomingCard';
-
-const upcoming = [
-    {
-        BookingMonth: 'Mar',
-        BookingDay: 11,
-        BookingTime: '10:20 PM',
-        fname: 'Jain',
-        bookingId: 31,
-        confirmationStatus: 1
-    },
-    {
-        BookingMonth: 'Apr',
-        BookingDay: 12,
-        BookingTime: '12:00 PM',
-        fname: 'Treesa',
-        bookingId: 321,
-        confirmationStatus: 1
-    },
-    {
-        BookingMonth: 'Apr',
-        BookingDay: 12,
-        BookingTime: '12:00 PM',
-        fname: 'Treesa',
-        bookingId: 322,
-        confirmationStatus: 0
-    },
-    
-
-]
+import bookingsApi from '../../api/bookings';
+import AuthContext from '../../auth/context';
 
 function AthleteUpcomingBooking(props) {
+    const [upcomingBookings, setUpcomingBookings] = useState([]);
+    const { user, setUser } = useContext(AuthContext);
+
+    useEffect(() => {
+        loadUpcomingBookings();
+    });
+
+    const loadUpcomingBookings = async () => {
+        const response = await bookingsApi.getAthleteUpcomingBookings(user.userObj.athlete_id);
+        let upcomingBookings = response.data;
+        let formattedBookings = upcomingBookings.map(booking => {
+            let date = new Date(booking.booking_time);
+            return { ...booking, 
+                booking_month: date.toLocaleString('default', { month: 'short' }), 
+                booking_day: date.getDate(),
+                booking_time: date.toLocaleString('default', { hour: 'numeric',minute: 'numeric', hour12: true })
+            }
+            });
+        setUpcomingBookings(formattedBookings);
+    }
+
     return (
         <FlatList 
             //Sorted using bookingId as of now, later to be chnaged with timestamp new Date().toLocaleString()
-            data={upcoming.sort((a, b) => a.bookingId.toString().localeCompare(b.bookingId.toString()))}
-            keyExtractor= { message => message.bookingId.toString()}
-            renderItem= {({item}) => 
+            data={upcomingBookings.sort((a, b) => b.bookings_id.toString().localeCompare(a.bookings_id.toString()))}
+            keyExtractor = { message => message.bookings_id.toString()}
+            renderItem = {({item}) => 
                 <AthleteUpcomingCard
-                    BookingMonth= {item.BookingMonth}
-                    BookingDay= {item.BookingDay}
-                    BookingTime= {item.BookingTime}
-                    fname= {item.fname}
-                    bookingId= {item.bookingId}
-                    confirmationStatus=  {item.confirmationStatus === 1 ? 'Approved': 'Declined'}
+                    BookingMonth = {item.booking_month}
+                    BookingDay = {item.booking_day}
+                    BookingTime = {item.booking_time}
+                    fname = {item.first_name}
+                    bookingId = {item.bookings_id}
+                    confirmationStatus = {
+                        (() => {
+                        if (item.confirmation_status === 1)
+                        return 'Approved'
+                        if (item.confirmation_status === -1)
+                        return 'Pending'
+                        else (item.confirmation_status === 0)
+                        return 'Declined'
+                        })()
+                    }
                 />}  
         />
-
     );
- 
 }
 
 export default AthleteUpcomingBooking;

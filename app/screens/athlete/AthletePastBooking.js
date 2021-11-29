@@ -1,73 +1,47 @@
-import React from 'react';
-import { FlatList , StyleSheet} from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { FlatList } from 'react-native';
 
 import AthletePastCard from '../../components/athlete/AthletePastCard';
+import bookingsApi from '../../api/bookings';
+import AuthContext from '../../auth/context';
 
+function AthletePastBooking(props) {
+    const [pastBookings, setPastBookings] = useState([]);
+    const { user, setUser } = useContext(AuthContext);
 
+    useEffect(() => {
+        loadPastBookings();
+    });
 
-const pastBooking = [
-    {
-        BookingMonth: 'Mar',
-        BookingDay: 11,
-        BookingTime: '10:20 PM',
-        fname: 'Jain',
-        bookingId: 1,
-        Status: 'Approved'
-    },
-    {
-        BookingMonth: 'Apr',
-        BookingDay: 12,
-        BookingTime: '12:00 PM',
-        fname: 'Treesa',
-        bookingId: 2,
-        Status: 'Approved'
-    },
-    {
-        BookingMonth: 'Apr',
-        BookingDay: 12,
-        BookingTime: '12:00 PM',
-        fname: 'Treesa',
-        bookingId: 3,
-        Status: 'Approved'
-    },
-    {
-        BookingMonth: 'Jun',
-        BookingDay: 22,
-        BookingTime: '12:00 PM',
-        fname: 'Treesa',
-        bookingId: 4,
-        Status: 'Approved'
-    },
-    {
-        BookingMonth: 'Aug',
-        BookingDay: 15,
-        BookingTime: '12:00 PM',
-        fname: 'Treesa',
-        bookingId: 5,
-        Status: 'Approved'
-    },
-    
+    const loadPastBookings = async () => {
+        const response = await bookingsApi.getAthletePastBookings(user.userObj.athlete_id);
+        let pastBookings = response.data;
+        let formattedBookings = pastBookings.map(booking => {
+            let date = new Date(booking.booking_time);
+            return { ...booking, 
+                booking_month: date.toLocaleString('default', { month: 'short' }), 
+                booking_day: date.getDate(),
+            }
+            });
+        setPastBookings(formattedBookings);
+    }
 
-]
-
-function AthletePastBooking(items) {
     return (
         <FlatList 
             //Sorted using bookingId as of now, later to be changed with timestamp new Date().toLocaleString()
-            data={pastBooking.sort((a, b) => a.bookingId.toString().localeCompare(b.bookingId.toString()))}
-            keyExtractor= { message => message.bookingId.toString()}
+            data={pastBookings.sort((a, b) => b.bookings_id.toString().localeCompare(a.bookings_id.toString()))}
+            keyExtractor= { message => message.bookings_id.toString()}
             renderItem= {({item}) => 
                 <AthletePastCard
-                    BookingMonth= {item.BookingMonth}
-                    BookingDay= {item.BookingDay}
-                    fname= {item.fname}
-                    bookingId= {item.bookingId}
-                    starRating= {item.starRating}
+                    BookingMonth = {item.booking_month}
+                    BookingDay = {item.booking_day}
+                    fname = {item.first_name}
+                    bookingId = {item.bookings_id}
+                    therapistId = {item.therapist_id}
+                    starRating = {item.starrating}
                 />}  
         />
-
-    );
- 
+    ); 
 }
 
 export default AthletePastBooking;

@@ -3,10 +3,21 @@ import { View,StyleSheet,Text } from 'react-native';
 import { Rating } from 'react-native-ratings';
 
 import colors from '../../config/colors';
+import ratingsApi from '../../api/ratings';
 
 
+function AthletePastCard({BookingMonth, BookingDay, fname, bookingId, therapistId, starRating}) {
+    const finishRating = async (rating) => {
+        alert('Thank you for rating!');
+        if (starRating) await ratingsApi.updateRating(bookingId, { starrating : rating });
+        
+        else await ratingsApi.rateBooking({
+            bookings_id : bookingId, 
+            therapist_id : therapistId, 
+            starrating : rating
+        });
+    }
 
-function AthletePastCard({BookingMonth,BookingDay,fname,bookingId=4,starRating=0}) {
     return (
         <View style = {styles.OuterContainer}>
             <View style = {styles.Container} >
@@ -34,7 +45,7 @@ function AthletePastCard({BookingMonth,BookingDay,fname,bookingId=4,starRating=0
                                 startingValue = {starRating}
                                 imageSize = {20}
                                 jumpValue = {0.5}
-                                onFinishRating ={(starRating) => {alert('You rated the rating '+ starRating +' for booking '+ bookingId +'');} }
+                                onFinishRating ={finishRating}
                             />
                             
                         </View>
