@@ -13,6 +13,7 @@ function AthleteBookNow(props) {
     const [selectedTherapist, setSelectedTherapist] = useState(null);
     const [location, setLocation] = useState(null);
     const [athleteRegion, setAthleteRegion] = useState(null);
+    const [athleteAddress, setAthleteAddress] = useState("");
     const [markers, setMarkers] = useState(null);
 
     const loadLocation = async () => {
@@ -28,6 +29,7 @@ function AthleteBookNow(props) {
     const getAthleteRegion = async (athleteLocation) => {
         let athleteRegion = await Location.reverseGeocodeAsync(athleteLocation.coords);
         setAthleteRegion(athleteRegion[0].region);
+        setAthleteAddress(athleteRegion[0].street + ", " + athleteRegion[0].city + ", " + athleteRegion[0].region + ", " + athleteRegion[0].postalCode)
         return athleteRegion[0].region;
     }
 
@@ -67,9 +69,9 @@ function AthleteBookNow(props) {
     }
 
     return (
-        <View style={{flex:1, marginBottom: 20,}}>
+        <View style={{flex:1, marginBottom: 10,}}>
             <AthleteMapView markers={markers} selectedTherapist={selectedTherapist} userLocation={location} onMarkerPress={handleMarkerPress}/>
-            <AthleteBookNowCard selectedTherapist={selectedTherapist}></AthleteBookNowCard>
+            <AthleteBookNowCard selectedTherapist={selectedTherapist} athleteAddress={athleteAddress}></AthleteBookNowCard>
         </View>
     );
 }
