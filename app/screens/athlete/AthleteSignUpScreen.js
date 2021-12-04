@@ -6,6 +6,8 @@ import * as yup from 'yup';
 import "yup-phone";
 import Constants from "expo-constants";
 import colors from '../../config/colors';
+import registerApi from '../../api/register';
+import { useNavigation } from '@react-navigation/core';
 
 
 
@@ -15,10 +17,23 @@ const ReviewSchema = yup.object({
     email : yup.string().required().email().label("Email"),
     password : yup.string().required().min(6).label("Password"),
     phone: yup.string().phone().required().max(10).label("Phone")
-
 })
 
 function AthleteForm(props){
+    const navigation = useNavigation();
+    const handleSubmit = async (values) => {
+        const athlete = {
+            email : values.email,
+            firstName : values.fname,
+            lastName : values.lname,
+            password : values.password,
+            mobile : values.phone
+        }
+        registerApi.registerAthlete(athlete);
+        alert('Registration successful.');
+        navigation.navigate("Login");
+    }
+
     return (
        <View style={styles.container}>
            <View style={styles.headerConatiner}>
@@ -35,8 +50,8 @@ function AthleteForm(props){
            password:''}}
            validationSchema={ReviewSchema}
            onSubmit={(values,actions) => {
-               console.log(values)
-               actions.resetForm()
+               handleSubmit(values);
+               actions.resetForm();
            }}
            >
             {(props) => (
@@ -86,6 +101,7 @@ function AthleteForm(props){
                             onBlur={props.handleBlur('email')}
                             textContentType="emailAddress"
                             autoCorrect={false}
+                            autoCapitalize= "none"
                         />
                     </View>
                     <Text style={styles.errorText}> {props.touched.email && props.errors.email}</Text>
@@ -125,11 +141,11 @@ function AthleteForm(props){
                         />
                     </View>
                     <Text style={styles.errorText}> {props.touched.phone && props.errors.phone}</Text>
-                    <View style={styles.button}>
                         <TouchableOpacity  onPress={props.handleSubmit}>
-                            <Text style={styles.buttonText}>Sign Up</Text>
+                            <View style={styles.button}>
+                                <Text style={styles.buttonText}>Sign Up</Text>
+                            </View>    
                         </TouchableOpacity>
-                    </View>    
                 </View>
 
             )}

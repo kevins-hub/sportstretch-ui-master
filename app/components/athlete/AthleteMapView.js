@@ -5,20 +5,25 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import MapView, { Marker } from 'react-native-maps';
 import colors from '../../config/colors';
 
+const initMapRegion = {
+    latitude: 39.129065,
+    longitude: -95.141081,
+    latitudeDelta: 55,
+    longitudeDelta: 55,
+}
+
 function AthleteMapView({markers, selectedTherapist, userLocation, onMarkerPress}) {
-    const [region, setRegion] = useState({
-        latitude: 39.129065,
-        longitude: -95.141081,
-        latitudeDelta: 55,
-        longitudeDelta: 55
-      });
+    const [region, setRegion] = useState(initMapRegion);
 
       useEffect(() => {
-        setRegion({
-            latitude: userLocation? userLocation.coords.latitude: 39.129065,
-            longitude: userLocation? userLocation.coords.longitude: -95.141081,
-            latitudeDelta: userLocation? 0.1 : 55,
-            longitudeDelta: userLocation? 0.1 : 55});
+        if (userLocation) {
+          setRegion({
+            latitude: userLocation.coords.latitude,
+            longitude: userLocation.coords.longitude,
+            latitudeDelta: 0.25,
+            longitudeDelta: 0.25
+          });
+        }
       }, [markers]);
 
     return (

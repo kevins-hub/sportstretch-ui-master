@@ -11,7 +11,7 @@ function AthleteUpcomingBooking(props) {
 
     useEffect(() => {
         loadUpcomingBookings();
-    });
+    }, [upcomingBookings]);
 
     const loadUpcomingBookings = async () => {
         const response = await bookingsApi.getAthleteUpcomingBookings(user.userObj.athlete_id);

@@ -3,11 +3,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import AppLoading from 'expo-app-loading';
 
 import AuthContext from './app/auth/context';
-import AthleteDashboard from './app/screens/athlete/AthleteDashboard';
-import TherapistDashboard from './app/screens/therapist/TherapistDashboard';
-import AdminDashboard from './app/screens/admin/AdminDashboard';
 import AuthNavigator from './app/navigation/AuthNavigator';
 import authStorage from './app/auth/storage';
+import AppContainer from './app/screens/AppContainer';
 
 export default function App() {
   const [user, setUser] = useState();
@@ -23,7 +21,7 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={{ user, setUser }}>
-      {user ? (user.role === "athlete" ? <AthleteDashboard/> : (user.role === "therapist" ? <TherapistDashboard/> : (user.role === "admin" ? <AdminDashboard/> : <NavigationContainer><AuthNavigator/></NavigationContainer>))) : <NavigationContainer><AuthNavigator/></NavigationContainer>}
+      {user ? <AppContainer userRole={user.role} /> : <NavigationContainer><AuthNavigator/></NavigationContainer>}
     </AuthContext.Provider>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Modal, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { TextInput } from "react-native-gesture-handler";
@@ -9,6 +9,8 @@ import bookingsApi from "../../api/bookings";
 import BookButton from "./BookButton";
 import BookingProgressIndicator from "./BookingProgressIndicator";
 import BookingDoneIndicator from "./BookingDoneIndicator";
+import notificationsApi from "../../api/notifications";
+import AuthContext from '../../auth/context';
 
 function BookModal({
   visible,
@@ -24,21 +26,27 @@ function BookModal({
   const [text, onChangeText] = useState(athleteLocation);
   const [bookingProgress, setBookingProgress] = useState(false);
   const [bookingDone, setBookingDone] = useState(false);
+  const { user, setUser } = useContext(AuthContext);
 
   const onConfirmPress = async () => {
-    //showProgress
-    setBookingProgress(true);
-    //format text and call API
-    await bookingsApi.bookATherapist(athleteId, athleteLocation, therapistId);
-    //hideProgress & showDone
-    setBookingProgress(false);
-    setBookingDone(true);
-    //navigate
-    setTimeout(function () {
-      setBookingDone(false);
-      setVisibility(false);
-      navigation.navigate("UpcomingBooking");
-    }, 2000);
+    try {
+        //showProgress
+        setBookingProgress(true);
+        //format text and call API
+        await bookingsApi.bookATherapist(athleteId, athleteLocation, therapistId);
+        //hideProgress & showDone
+        setBookingProgress(false);
+        setBookingDone(true);
+        //navigate
+        setTimeout(function () {
+          setBookingDone(false);
+          setVisibility(false);
+          navigation.navigate("UpcomingBooking");
+        }, 2000);
+        notificationsApi.notifyTherapist(therapistId, user.userObj.first_name);        
+    } catch (error) {
+        console.log('Error on confirm booking', error);
+    }
   };
 
   return (

@@ -11,7 +11,7 @@ function AthletePastBooking(props) {
 
     useEffect(() => {
         loadPastBookings();
-    });
+    }, [pastBookings]);
 
     const loadPastBookings = async () => {
         const response = await bookingsApi.getAthletePastBookings(user.userObj.athlete_id);
