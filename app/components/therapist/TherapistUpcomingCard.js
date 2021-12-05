@@ -3,13 +3,17 @@ import React, { useState } from 'react';
 import { Text, View ,StyleSheet} from 'react-native';
 import colors from '../../config/colors';
 
-function TherapistUpcomingCard({bookingDate,atheleteName,bookingId,location,status}) {
+function TherapistUpcomingCard(item) {
+    const {booking_day, booking_month, first_name, bookings_id,athlete_location,confirmation_status} = item.therapistData;
+    const location = athlete_location?.split(",");
+    const status_type = confirmation_status === 1 ? 'Approved': 'Declined'
+
     return (
         <View style={styles.outerContainer}>
             <View style={styles.card}>
                 <View style={styles.date}>
-                    <Text style={styles.dateTextMonth}>{bookingDate.month}</Text>
-                    <Text style={styles.dateTextNumber}>{bookingDate.date}</Text>
+                    <Text style={styles.dateTextMonth}>{booking_month}</Text>
+                    <Text style={styles.dateTextNumber}>{booking_day}</Text>
                 </View>
 
                 <View style={styles.verticalLine}></View>
@@ -20,7 +24,7 @@ function TherapistUpcomingCard({bookingDate,atheleteName,bookingId,location,stat
                                 <Text style={styles.staticLabel}>Athelete</Text>
                             </View>
                             <View style={styles.dynamicText}>
-                                <Text style={styles.dynamicTextFontName}>{atheleteName}</Text>
+                                <Text style={styles.dynamicTextFontName}>{first_name}</Text>
                             </View>
                         </View>
                         <View style={styles.right}>
@@ -28,7 +32,7 @@ function TherapistUpcomingCard({bookingDate,atheleteName,bookingId,location,stat
                                 <Text style={styles.staticLabel}>Booking Id</Text>
                             </View>
                             <View style={styles.dynamicText}>
-                                <Text style={styles.dynamicTextFont}>{bookingId}</Text>
+                                <Text style={styles.dynamicTextFont}>{bookings_id}</Text>
                             </View>
                         </View>
                         <View style={styles.right}>
@@ -36,9 +40,9 @@ function TherapistUpcomingCard({bookingDate,atheleteName,bookingId,location,stat
                                 <Text style={styles.staticLabel}>Location</Text>
                             </View>
                             <View style={styles.dynamicText}>
-                                <Text style={styles.dynamicTextFont}>{location.line1}</Text>
-                                <Text style={styles.dynamicTextFont}> {location.line2}</Text>
-                                <Text style={styles.dynamicTextFont}>{location.line3}</Text>
+                                <Text style={styles.dynamicTextFont}>{location[0]}</Text>
+                                <Text style={styles.dynamicTextFont}> {location[1]}</Text>
+                                <Text style={styles.dynamicTextFont}>{location[2]}</Text>
                             </View>
                         </View>
                         <View style={styles.right}>
@@ -46,7 +50,7 @@ function TherapistUpcomingCard({bookingDate,atheleteName,bookingId,location,stat
                                 <Text style={styles.staticLabel}>Booking Status</Text>
                             </View>
                             <View style={styles.dynamicText}>
-                                <Text style={styles.dynamicTextFont}>{status}</Text>
+                                <Text style={styles.dynamicTextFont}>{status_type}</Text>
                             </View>
                         </View>
                 </View>

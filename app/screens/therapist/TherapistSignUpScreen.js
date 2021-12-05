@@ -1,11 +1,15 @@
 import React from 'react';
 import { Formik } from 'formik';
-import {Text, TextInput, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import {Text, TextInput, View, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { FontAwesome,FontAwesome5,MaterialCommunityIcons,SimpleLineIcons } from '@expo/vector-icons';
 import * as yup from 'yup';
 import "yup-phone";
 import Constants from "expo-constants";
 import colors from '../../config/colors';
+import { useNavigation } from "@react-navigation/native";
+import registerApi from '../../api/register';
+
+
 
 const ReviewSchema = yup.object({
     fname : yup.string().required().min(1).label("First Name"),
@@ -22,8 +26,14 @@ const ReviewSchema = yup.object({
 })
 
 function TherapistForm(props){
+    const navigation = useNavigation();
+    const register_therapist = async(values) => {
+        let register_response = await registerApi.registerTherapist(values);
+        register_response.status === 200 ? navigation.navigate("TherapistRegistrationPending") : Alert.alert("Error while registration. Please try again.")
+    }
+
     return (
-       <View style={styles.container}>
+       <ScrollView style={styles.container}>
            <View style={styles.header}>
                <Image source= {require("../../assets/logo_crop.png")} style={styles.logo}/>
                <Text style={styles.headerText}>Recovery On The Go</Text>
@@ -34,7 +44,7 @@ function TherapistForm(props){
            password:'' , addressL1:'', addressL2:'', city:'', state:'' , zipcode:''}}
            validationSchema={ReviewSchema}
            onSubmit={(values,actions) => {
-               console.log(values)
+               register_therapist(values)
                actions.resetForm()
            }}
            >
@@ -84,6 +94,8 @@ function TherapistForm(props){
                     keyboardType= "email-address"
                     onBlur={props.handleBlur('email')}
                     textContentType="emailAddress"
+                    autoCorrect={false}
+                    autoCapitalize= "none"
                     />
                     </View>
                     <Text style={styles.errorText}> {props.touched.email && props.errors.email}</Text>
@@ -95,7 +107,8 @@ function TherapistForm(props){
                         </View>
                     <TextInput
                     style={{flex:1,flexWrap:'wrap'}}
-                    autoCorrect = {false}
+                    autoCorrect={false}
+                    autoCapitalize= "none"
                     placeholder="Password"
                     onChangeText={props.handleChange('password')}
                     value={props.values.password}
@@ -210,7 +223,7 @@ function TherapistForm(props){
 
            </Formik>
 
-        </View>
+        </ScrollView>
     )
 }
 
@@ -230,7 +243,8 @@ const styles = StyleSheet.create({
         padding: 15,
         width: '30%',
         marginVertical: 10,
-        marginLeft: "35%"
+        marginLeft: "35%",
+        marginBottom: 50
     },
     buttonText:{
         color: colors.secondary,
@@ -244,7 +258,7 @@ const styles = StyleSheet.create({
     header:{
         flexDirection:"row",
         width: "100%",
-        height: "15%",
+        height: 100,
         backgroundColor:colors.primary,
         marginBottom:"5%",
         justifyContent: "center",

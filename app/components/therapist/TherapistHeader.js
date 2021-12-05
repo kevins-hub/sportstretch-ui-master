@@ -1,25 +1,28 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Text,View, StyleSheet } from 'react-native';
 import {MaterialCommunityIcons, FontAwesome} from '@expo/vector-icons'
 import colors from '../../config/colors';
 import Stars from 'react-native-stars';
+import AuthContext from '../../auth/context';
 
-function TherapistHeader({name,phone,avgRating}) {
+function TherapistHeader(props) {
+    const { user, setUser } = useContext(AuthContext);
+
     return (
       
         <View style={styles.infoContainer}>
          <View style={styles.info}>
-           <Text style={styles.infoText}>Hi, {name}</Text>
+           <Text style={styles.infoText}>Hi, {user.userObj.first_name}</Text>
            <View style={styles.phoneContainer}> 
-            <Text style={styles.contactText}>{phone}</Text>
+            <Text style={styles.contactText}>{user.userObj.mobile}</Text>
             <MaterialCommunityIcons name="circle-edit-outline" size={24} color="white" />
             </View> 
          </View>
          <View style={styles.profile}>
           <FontAwesome name="user-circle" size={73} color="white" />
-          <View style={{backgroundColor:colors.primary}}>
+          <View style={{backgroundColor:colors.primary, marginLeft: -5}}>
           <Stars
-            default={parseFloat(avgRating)}
+            default={parseFloat(user.userObj.avg_rating)}
             half={true}
             starSize={40}
             disabled
@@ -60,7 +63,10 @@ const styles = StyleSheet.create({
         fontWeight: "300"
     },
     info:{
-        flexDirection: "column",
+        width: '75%',
+        paddingLeft: 10,
+        paddingVertical: 10,
+
       },
       infoContainer:{
         backgroundColor:"black",
@@ -74,7 +80,8 @@ const styles = StyleSheet.create({
         color: "white",
         fontSize: 36,
         fontWeight: "300",
-        marginLeft:20
+        marginLeft:20,
+
       },
       phoneContainer: {
         marginVertical:10,
@@ -82,10 +89,10 @@ const styles = StyleSheet.create({
         marginLeft:20
     },
       profile:{
-        width:73,
-        height:80,
-        marginTop:-10,
-        marginLeft:175
+        // width:73,
+        // height:80,
+        // marginTop:-10,
+        // marginLeft:175
       },
 })
 export default TherapistHeader;

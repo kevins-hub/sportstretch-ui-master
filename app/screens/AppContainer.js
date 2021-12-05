@@ -6,8 +6,10 @@ import AthleteDashboard from "./athlete/AthleteDashboard";
 import TherapistDashboard from "./therapist/TherapistDashboard";
 import AdminDashboard from "./admin/AdminDashboard";
 import expoPushTokensApi from "../api/expoPushTokens";
+import TherapistRegistrationPending from './therapist/TherapistRegistrationPending';
+import TherapistDisabled from './therapist/TherapistDisabledScreen';
 
-function AppContainer({ userRole }) {
+function AppContainer({ user }) {
     useEffect(() => {
         registerForPushNotification();
     }, []);
@@ -36,9 +38,9 @@ function AppContainer({ userRole }) {
 
   return (
     <>
-      {userRole === "athlete" && <AthleteDashboard />}
-      {userRole === "therapist" && <TherapistDashboard />}
-      {userRole === "admin" && <AdminDashboard />}
+      {user.role === "athlete" && <AthleteDashboard />}
+      {user.role === "therapist" && (user.userObj.enabled === -1 && <TherapistRegistrationPending/>) || (user.userObj.enabled === 0 && <TherapistDisabled/>) || <TherapistDashboard/>}
+      {user.role === "admin" && <AdminDashboard />}
     </>
   );
 }

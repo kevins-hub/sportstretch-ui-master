@@ -7,6 +7,7 @@ import AuthNavigator from './app/navigation/AuthNavigator';
 import authStorage from './app/auth/storage';
 import AppContainer from './app/screens/AppContainer';
 
+
 export default function App() {
   const [user, setUser] = useState();
   const [isReady, setIsReady] = useState(false);
@@ -21,7 +22,7 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={{ user, setUser }}>
-      {user ? <AppContainer userRole={user.role} /> : <NavigationContainer><AuthNavigator/></NavigationContainer>}
+      {user ? <AppContainer user={user} /> : <NavigationContainer><AuthNavigator/></NavigationContainer>}
     </AuthContext.Provider>
   );
 }

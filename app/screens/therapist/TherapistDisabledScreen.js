@@ -7,9 +7,9 @@ import TherapistHeader from '../../components/therapist/TherapistHeader';
 function TherapistDisabled(props) {
     return (
         <View style={styles.container}>
-            <TherapistHeader name="David" phone="7167654321" avgRating="3.5"/>
+            <TherapistHeader/>
             <Text style={styles.pendingText}>Your account has been disabled by administrator.</Text>
-            <Text style={styles.pendingText}>Please wait for the administrator to contact you.</Text>
+            <Text style={styles.pendingText}>Please contact the administrator.</Text>
         </View>
         
     );

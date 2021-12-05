@@ -14,8 +14,28 @@ const bookATherapist = (athleteId, athleteAddress, therapistId) => {
     return apiClient.post(endpoint, {"athlete_id": athleteId, "athlete_location": athleteAddress, "therapist_id": therapistId});
 }
 
+const getTherapistPastBookings = (therapistId) => {
+    return apiClient.get(endpoint + `/therapist/pastBookings/?therapistId=${therapistId}`);
+}
+
+const getTherapistUpcomingBookings = (therapistId) => {
+    return apiClient.get(endpoint + `/therapist/upcomingBookings/?therapistId=${therapistId}`);
+}
+
+const approveBooking = (bookingId) => {
+    return apiClient.put(endpoint + '/therapist/approveBooking/' + bookingId);
+}
+
+const declineBooking = (bookingId) => {
+    return apiClient.put(endpoint + '/therapist/declineBooking/' + bookingId);
+}
+
 export default {
     getAthletePastBookings,
     getAthleteUpcomingBookings,
     bookATherapist,
+    getTherapistPastBookings,
+    getTherapistUpcomingBookings,
+    approveBooking,
+    declineBooking
 }

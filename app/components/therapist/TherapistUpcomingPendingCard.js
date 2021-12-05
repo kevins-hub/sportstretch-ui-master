@@ -2,14 +2,22 @@ import React, { useState } from 'react';
 
 import { Text, View ,StyleSheet, Button, TouchableOpacity, Alert} from 'react-native';
 import colors from '../../config/colors';
+import bookingsApi from '../../api/bookings';
 
-function TherapistUpcomingPendingCard ({bookingDate,atheleteName,bookingId,location}) {
-    const approveBooking = () => {
-        Alert.alert("Booking Approved");
+function TherapistUpcomingPendingCard (item) {
+    const {booking_day, booking_month, first_name, bookings_id,athlete_location} = item.therapistData;
+    const location = athlete_location?.split(",");
+    const approveBooking = async () => {
+        let booking_status=await bookingsApi.approveBooking(bookings_id);
+        booking_status.data.confirmation_status===1?Alert.alert("Booking Approved"): Alert.alert("Error while approving. Please try again.");
+            
+
     }
 
-    const rejectBooking = () => {
-        Alert.alert("Booking Declined");
+    const declineBooking = async() => {
+        let booking_status=await bookingsApi.declineBooking(bookings_id);
+        booking_status.data.confirmation_status===0?Alert.alert("Booking Declined"): Alert.alert("Error while declining. Please try again.");
+
     }
 
     return (
@@ -17,8 +25,8 @@ function TherapistUpcomingPendingCard ({bookingDate,atheleteName,bookingId,locat
         <View style={styles.outerContainer}>
             <View style={styles.card}>
                 <View style={styles.date}>
-                    <Text style={styles.dateTextMonth}>{bookingDate.month}</Text>
-                    <Text style={styles.dateTextNumber}>{bookingDate.date}</Text>
+                    <Text style={styles.dateTextMonth}>{booking_month}</Text>
+                    <Text style={styles.dateTextNumber}>{booking_day}</Text>
                 </View>
 
                 <View style={styles.verticalLine}></View>
@@ -29,7 +37,7 @@ function TherapistUpcomingPendingCard ({bookingDate,atheleteName,bookingId,locat
                                 <Text style={styles.staticLabel}>Athelete</Text>
                             </View>
                             <View style={styles.dynamicText}>
-                                <Text style={styles.dynamicTextFontName}>{atheleteName}</Text>
+                                <Text style={styles.dynamicTextFontName}>{first_name}</Text>
                             </View>
                         </View>
                         <View style={styles.right}>
@@ -37,7 +45,7 @@ function TherapistUpcomingPendingCard ({bookingDate,atheleteName,bookingId,locat
                                 <Text style={styles.staticLabel}>Booking Id</Text>
                             </View>
                             <View style={styles.dynamicText}>
-                                <Text style={styles.dynamicTextFont}>{bookingId}</Text>
+                                <Text style={styles.dynamicTextFont}>{bookings_id}</Text>
                             </View>
                         </View>
                         <View style={styles.right}>
@@ -45,9 +53,9 @@ function TherapistUpcomingPendingCard ({bookingDate,atheleteName,bookingId,locat
                                 <Text style={styles.staticLabel}>Location</Text>
                             </View>
                             <View style={styles.dynamicText}>
-                                <Text style={styles.dynamicTextFont}>{location.line1}</Text>
-                                <Text style={styles.dynamicTextFont}> {location.line2}</Text>
-                                <Text style={styles.dynamicTextFont}>{location.line3}</Text>
+                                <Text style={styles.dynamicTextFont}>{location[0]}</Text>
+                                <Text style={styles.dynamicTextFont}> {location[1]}</Text>
+                                <Text style={styles.dynamicTextFont}>{location[2]}</Text>
                             </View>
                         </View>
                         <View style={styles.right}>
@@ -57,7 +65,7 @@ function TherapistUpcomingPendingCard ({bookingDate,atheleteName,bookingId,locat
                                 <Text style={styles.acceptButtonText}>Accept</Text>
                             </TouchableOpacity>
                            
-                            <TouchableOpacity style={styles.rejectButton} onPress={rejectBooking}>
+                            <TouchableOpacity style={styles.rejectButton} onPress={declineBooking}>
                                 <Text style={styles.rejectButtonText}>Decline</Text>
                             </TouchableOpacity>
                         </View>
