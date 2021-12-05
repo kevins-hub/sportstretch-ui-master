@@ -10,6 +10,7 @@ const registerTherapist = (therapistObj) => {
     return apiClient.post(endpoint + "/therapist", therapistObj);
 }
 
+
 export default {
     registerAthlete,
     registerTherapist

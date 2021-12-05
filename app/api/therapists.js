@@ -14,10 +14,6 @@ const setAvailability = (therapistId,statusObj) => {
     return apiClient.put(endpoint + '/setAvailability/' + therapistId, statusObj);
 }
 
-const RegisterTherapist = (therapistObj) => {
-    return apiClient.post(endpoint, therapistObj);
-}
-
 export default {
     getAllTherapists,
     getNearbyTherapists,
