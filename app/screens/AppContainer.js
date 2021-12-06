@@ -39,7 +39,7 @@ function AppContainer({ user }) {
   return (
     <>
       {user.role === "athlete" && <AthleteDashboard />}
-      {user.role === "therapist" && (user.userObj.enabled === -1 && <TherapistRegistrationPending/>) || (user.userObj.enabled === 0 && <TherapistDisabled/>) || <TherapistDashboard/>}
+      {user.role === "therapist" && ((user.userObj.enabled === -1 && <TherapistRegistrationPending/>) || (user.userObj.enabled === 0 && <TherapistDisabled/>) || <TherapistDashboard/>)}
       {user.role === "admin" && <AdminDashboard />}
     </>
   );
