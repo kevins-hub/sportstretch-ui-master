@@ -18,7 +18,7 @@ function TherapistNavigator() {
                 height: '99%',
                 borderRadius: 30,
                 marginLeft: 5,
-                width: '50%'
+                width: '47%'
             },
             tabBarLabelStyle: { fontSize: 14 },
           }}>
