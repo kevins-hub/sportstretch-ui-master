@@ -14,7 +14,7 @@ function TherapistAvailability(props) {
         <View style={styles.availabilityContainer}>
           <Image source= {require("../../assets/available.jpeg")}style={styles.locationImage}/>
           <View style={styles.currentLocation}>
-            <Text style={styles.locationText}>{user.userObj.city},{user.userObj.state}</Text>
+            <Text style={styles.locationText}>{user.userObj.city}, {user.userObj.state}</Text>
             <Text style={styles.textFont}>Athletes will connect to you </Text>
             </View>
         </View>

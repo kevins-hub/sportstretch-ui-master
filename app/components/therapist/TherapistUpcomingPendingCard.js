@@ -53,9 +53,9 @@ function TherapistUpcomingPendingCard (item) {
                                 <Text style={styles.staticLabel}>Location</Text>
                             </View>
                             <View style={styles.dynamicText}>
-                                <Text style={styles.dynamicTextFont}>{location[0]}</Text>
-                                <Text style={styles.dynamicTextFont}> {location[1]}</Text>
-                                <Text style={styles.dynamicTextFont}>{location[2]}</Text>
+                                <Text style={styles.dynamicTextFont}>{location[0].trim()}</Text>
+                                <Text style={styles.dynamicTextFont}>{location[1].trim()}</Text>
+                                <Text style={styles.dynamicTextFont}>{location[2].trim()}</Text>
                             </View>
                         </View>
                         <View style={styles.right}>
@@ -132,7 +132,10 @@ const styles = StyleSheet.create({
     },
 
     dynamicText :{
-        fontWeight:"bold"
+        fontWeight:"bold",
+        alignItems: "flex-start",
+        justifyContent: "center",
+        flexWrap:'wrap',
     },
     dynamicTextFontName:{
         fontWeight:"300",
@@ -163,6 +166,7 @@ const styles = StyleSheet.create({
         alignItems:"flex-start",
         justifyContent:"flex-start",
         flexShrink:1,
+        width:"75%"
     },
     rejectButton:{
         alignItems:"center",

@@ -59,7 +59,7 @@ function TherapistUpcomingBooking(props) {
                     // bookingId= {item.bookingId}
                     // location= {item.location}
                 />}, 
-                { data: upcomingBookingsApprove.sort((a, b) => a.bookings_id.toString().localeCompare(b.bookings_id.toString())),
+                { data: upcomingBookingsApprove.sort((a, b) => b.bookings_id.toString().localeCompare(a.bookings_id.toString())),
                     renderItem: ({ item }) => <TherapistUpcomingCard
                         therapistData = {item}
                     // bookingDate= {item.bookingDate}

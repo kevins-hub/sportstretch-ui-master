@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     },
     info:{
         width: '75%',
-        paddingLeft: 10,
+        paddingLeft: 2,
         paddingVertical: 10,
 
       },
@@ -80,13 +80,13 @@ const styles = StyleSheet.create({
         color: "white",
         fontSize: 36,
         fontWeight: "300",
-        marginLeft:20,
+        marginLeft:15,
 
       },
       phoneContainer: {
         marginVertical:10,
         flexDirection: 'row',
-        marginLeft:20
+        marginLeft:15
     },
       profile:{
         // width:73,
