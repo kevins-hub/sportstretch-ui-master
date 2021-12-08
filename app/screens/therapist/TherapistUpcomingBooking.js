@@ -20,6 +20,7 @@ function TherapistUpcomingBooking(props) {
     const loadUpcomingBookings = async () => {
         const response = await bookingsApi.getTherapistUpcomingBookings(user.userObj.therapist_id);
         let upcomingBookings = response.data;
+        if (!upcomingBookings) return ;
         let formattedBookings = upcomingBookings.map(booking => {
             let date = new Date(booking.booking_time);
             return { ...booking, 

@@ -16,6 +16,7 @@ function TherapistPastBooking(props) {
     const loadPastBookings = async () => {
         const response = await bookingsApi.getTherapistPastBookings(user.userObj.therapist_id);
         let pastBookings = response.data;
+        if (!pastBookings) return ;
         let formattedBookings = pastBookings.map(booking => {
             let date = new Date(booking.booking_time);
             return ({ ...booking, 

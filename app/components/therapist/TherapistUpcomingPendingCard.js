@@ -3,21 +3,33 @@ import React, { useState } from 'react';
 import { Text, View ,StyleSheet, Button, TouchableOpacity, Alert} from 'react-native';
 import colors from '../../config/colors';
 import bookingsApi from '../../api/bookings';
+import notificationsApi from "../../api/notifications";
+
 
 function TherapistUpcomingPendingCard (item) {
     const {booking_day, booking_month, first_name, bookings_id,athlete_location} = item.therapistData;
     const location = athlete_location?.split(",");
     const approveBooking = async () => {
         let booking_status=await bookingsApi.approveBooking(bookings_id);
-        booking_status.data.confirmation_status===1?Alert.alert("Booking Approved"): Alert.alert("Error while approving. Please try again.");
-            
+        if (booking_status.data.confirmation_status===1){
+            Alert.alert("Booking Approved");
+            notificationsApi.notifyAthlete(booking_status.data.athlete_id, bookings_id);        
+        }
+        else{
+            Alert.alert("Error while approving. Please try again.");
+        }
 
     }
 
     const declineBooking = async() => {
         let booking_status=await bookingsApi.declineBooking(bookings_id);
-        booking_status.data.confirmation_status===0?Alert.alert("Booking Declined"): Alert.alert("Error while declining. Please try again.");
-
+        if (booking_status.data.confirmation_status===0){
+            Alert.alert("Booking Declined");
+            notificationsApi.notifyAthlete(booking_status.data.athlete_id, bookings_id);   
+        }
+        else{
+            Alert.alert("Error while declining. Please try again.");
+        }
     }
 
     return (
