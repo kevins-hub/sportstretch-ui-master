@@ -1,5 +1,5 @@
 import React from 'react';
-import { View,StyleSheet,Text } from 'react-native';
+import { View,StyleSheet,Text, Alert } from 'react-native';
 import { Rating } from 'react-native-ratings';
 
 import colors from '../../config/colors';
@@ -8,7 +8,7 @@ import ratingsApi from '../../api/ratings';
 
 function AthletePastCard({BookingMonth, BookingDay, fname, bookingId, therapistId, starRating}) {
     const finishRating = async (rating) => {
-        alert('Thank you for rating!');
+        Alert.alert('Thank you for rating!');
         if (starRating) await ratingsApi.updateRating(bookingId, { starrating : rating });
         
         else await ratingsApi.rateBooking({

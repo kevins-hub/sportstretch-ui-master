@@ -30,8 +30,7 @@ function TherapistPastBooking(props) {
     //console.log(pastBookings);
     return (
         <FlatList 
-            //Sorted using bookingId as of now, later to be changed with timestamp new Date().toLocaleString()
-            data={pastBookings.sort((a, b) => b.bookings_id.toString().localeCompare(a.bookings_id.toString()))}
+            data={pastBookings.sort((a, b) => a.bookings_id < b.bookings_id)}
             keyExtractor= { message => message.bookings_id.toString()}
             renderItem= {({item}) => 
             <TherapistPastCard

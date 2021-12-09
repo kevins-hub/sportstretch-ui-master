@@ -52,7 +52,7 @@ function TherapistUpcomingBooking(props) {
             <SectionList 
             // renderSectionHeader={({ section: { title } }) => <Text style={{ fontWeight: 'bold' }}>{title}</Text>} 
             sections={[ 
-                { data: upcomingBookingPending.sort((a, b) => b.bookings_id.toString().localeCompare(a.bookings_id.toString())),
+                { data: upcomingBookingPending.sort((a, b) => a.bookings_id < b.bookings_id),
                     renderItem: ({ item }) => <TherapistUpcomingPendingCard
                     therapistData = {item}
                     // bookingDate= {item.bookingDate}
@@ -60,7 +60,7 @@ function TherapistUpcomingBooking(props) {
                     // bookingId= {item.bookingId}
                     // location= {item.location}
                 />}, 
-                { data: upcomingBookingsApprove.sort((a, b) => b.bookings_id.toString().localeCompare(a.bookings_id.toString())),
+                { data: upcomingBookingsApprove.sort((a, b) => a.bookings_id < b.bookings_id),
                     renderItem: ({ item }) => <TherapistUpcomingCard
                         therapistData = {item}
                     // bookingDate= {item.bookingDate}

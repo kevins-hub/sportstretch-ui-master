@@ -29,8 +29,7 @@ function AthleteUpcomingBooking(props) {
 
     return (
         <FlatList 
-            //Sorted using bookingId as of now, later to be chnaged with timestamp new Date().toLocaleString()
-            data={upcomingBookings.sort((a, b) => b.bookings_id.toString().localeCompare(a.bookings_id.toString()))}
+            data={upcomingBookings.sort((a, b) => a.bookings_id < b.bookings_id)}
             keyExtractor = { message => message.bookings_id.toString()}
             renderItem = {({item}) => 
                 <AthleteUpcomingCard
