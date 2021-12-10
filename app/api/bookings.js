@@ -30,6 +30,9 @@ const declineBooking = (bookingId) => {
     return apiClient.put(endpoint + '/therapist/declineBooking/' + bookingId);
 }
 
+const getAllBookings = () =>{
+    return apiClient.get(endpoint + '/all');
+}
 export default {
     getAthletePastBookings,
     getAthleteUpcomingBookings,
@@ -37,5 +40,6 @@ export default {
     getTherapistPastBookings,
     getTherapistUpcomingBookings,
     approveBooking,
-    declineBooking
+    declineBooking,
+    getAllBookings
 }
