@@ -1,7 +1,7 @@
 # SportStretch
 
 ## Description
-SportStretch On The Go is envisioned as a mobile application that will connect professional athletes with legitimate bodywork professionals in their area. The plan is to enable athletes to avail the services of Licensed Massage Therapists (LMT's) and eventually opening it up to Sports Chiropractors, Sports Acupuncturists etc. Athletes travel a lot for games and they might be in need of specialized massage services during their travel or while they are at their game. The goal of developing this product is to minimize her involvement in the booking process. This will also enable the athletes to find appointments on the go while they are away from home for a game. The mobile application is created primarily to benefit athletes and therapists with a focus on sport related massage services to be made available on the go.
+SportStretch On The Go is envisioned as a mobile application that will connect professional athletes (NFL, NBA, UFC etc.) with legitimate bodywork professionals in their area. Athletes travel a lot for events and might be in need of specialized massage services during their travel, to help them recover from the previous event or training session and be prepared for the next. The objective of the app is to enable athletes to avail the services of Licensed Massage Therapists (LMT's), Sports Chiropractors, Sports Acupuncturists etc.
 
 <pre>
 Tech Stack: <b>React Native, Node.js, PostgreSQL</b>
@@ -22,7 +22,7 @@ Watch the [demo](#watch-the-demo).
 
 ● Athletes can register, book appointments, view and rate past bookings.
 
-● Notify the LMT of an incoming booking request, allow them to accept or reject the request, and notify the athlete accordingly.
+● Notify the LMT of an incoming booking request, allow them to accept or reject, and notify the athlete accordingly.
 
 ● Admin can review the registration request by the LMT and approve or reject the request.
 
