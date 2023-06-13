@@ -120,6 +120,7 @@ function AthleteForm(props){
                             onBlur={props.handleBlur('password')}
                             textContentType="newPassword"
                             autoCapitalize= "none"
+                            secureTextEntry={true}
                         />
                     </View>
                     <Text style={styles.errorText}> {props.touched.password && props.errors.password}</Text>
