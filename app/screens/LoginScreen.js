@@ -1,6 +1,7 @@
 import React, { useContext, useState  } from "react";
 import { useNavigation } from "@react-navigation/native";
 import jwtDecode from "jwt-decode";
+import { ScrollView } from "react-native-gesture-handler";
 
 import authApi from "../api/auth";
 import AuthContext from "../auth/context";
@@ -18,6 +19,9 @@ import * as yup from "yup";
 import "yup-phone";
 import Constants from "expo-constants";
 import colors from "../config/colors";
+import { Keyboard } from "react-native";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { DismissKeyboardView } from "../components/shared/DismissKeyboardHOC";
 
 const ReviewSchema = yup.object({
   email: yup.string().required().email().label("Email"),
@@ -41,112 +45,114 @@ function LoginScreen(props) {
 
   return (
     <View style={styles.container}>
-      <Formik
-        initialValues={{ email: "", password: "" }}
-        validationSchema={ReviewSchema}
-        onSubmit={handleSubmit}
-      >
-        {(props) => (
-          <View>
-            <Image
-              source={require("../assets/logo_crop.png")}
-              style={styles.logo}
-            />
-            <Text
-              style={{
-                marginTop: "2%",
-                alignSelf: "center",
-                fontSize: 14,
-                color: "#777777",
-              }}
-            >
-              Recovery on the Go
-            </Text>
-            <Text
-              style={{
-                marginTop: 57,
-                alignSelf:"center",
-                fontSize: 28,
-                color: "#000000",
-              }}
-            >
-              SportStretch
-            </Text>
-            <Text style={{color:"#f60a0e", alignSelf:"center",marginTop:"5%"}} >
-              {errorText}
-            </Text>
-            <View style={[styles.inputContainer, { marginTop: "1%" }]}>
-                    
-              <TextInput
-                style={{
-                  flex: 1,
-                  flexWrap: "wrap",
-                  backgroundColor: "#C4C4C4",
-                  color: "white",
-                  fontSize: 18,
-                }}
-                placeholder="Email"
-                placeholderTextColor="#FFFFFF"
-                onChangeText={props.handleChange("email")}
-                value={props.values.email}
-                keyboardType="email-address"
-                onBlur={props.handleBlur("email")}
-                textContentType="emailAddress"
-                autoCapitalize="none"
-                autoCorrect={false}
-                blurOnSubmit={true}
+      <ScrollView keyboardShouldPersistTaps="handled">
+        <Formik
+          initialValues={{ email: "", password: "" }}
+          validationSchema={ReviewSchema}
+          onSubmit={handleSubmit}
+        >
+          {(props) => (
+            <View>
+              <Image
+                source={require("../assets/logo_crop.png")}
+                style={styles.logo}
               />
-            </View>
-            <Text style={styles.errorText}>
-              {" "}
-              {props.touched.email && props.errors.email}
-            </Text>
-            <View style={styles.inputContainer}>
-              <TextInput
+              <Text
                 style={{
-                  flex: 1,
-                  flexWrap: "wrap",
-                  color: "white",
-                  fontSize: 18,
+                  marginTop: "2%",
+                  alignSelf: "center",
+                  fontSize: 14,
+                  color: "#777777",
                 }}
-                placeholder="Password"
-                placeholderTextColor="#FFFFFF"
-                onChangeText={props.handleChange("password")}
-                value={props.values.password}
-                secureTextEntry={true}
-                returnKeyType="go"
-                autoCapitalize="none"
-                blurOnSubmit={true}
-              />
-            </View>
-            <Text style={styles.errorText}>
-              {" "}
-              {props.touched.password && props.errors.password}
-            </Text>
-              <TouchableOpacity style={styles.button} onPress={props.handleSubmit}>
-              <Text style={styles.buttonText}>Login</Text>
-              
-                </TouchableOpacity>
-            <View
-              style={{ flexDirection: "row", justifyContent: "space-between" }}
-            >
-              <TouchableOpacity
-                onPress={() => navigation.navigate("RegisterAthlete")}
-                style={styles.reg}
               >
-                <Text style={styles.reg}>{"Sign Up as Athlete"}</Text>
-              </TouchableOpacity>
+                Recovery on the Go
+              </Text>
+              <Text
+                style={{
+                  marginTop: 57,
+                  alignSelf:"center",
+                  fontSize: 28,
+                  color: "#000000",
+                }}
+              >
+                SportStretch
+              </Text>
+              <Text style={{color:"#f60a0e", alignSelf:"center",marginTop:"5%"}} >
+                {errorText}
+              </Text>
 
-              <TouchableOpacity
-                onPress={() => navigation.navigate("RegisterTherapist")}
-                style={styles.reg}
+              <View style={[styles.inputContainer, { marginTop: "1%" }]}>
+                <TextInput
+                  style={{
+                    flex: 1,
+                    flexWrap: "wrap",
+                    backgroundColor: "#C4C4C4",
+                    color: "white",
+                    fontSize: 18,
+                  }}
+                  placeholder="Email"
+                  placeholderTextColor="#FFFFFF"
+                  onChangeText={props.handleChange("email")}
+                  value={props.values.email}
+                  keyboardType="email-address"
+                  onBlur={props.handleBlur("email")}
+                  textContentType="emailAddress"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  blurOnSubmit={true}
+                />
+              </View>
+              <Text style={styles.errorText}>
+                {" "}
+                {props.touched.email && props.errors.email}
+              </Text>
+              <View style={styles.inputContainer}>
+                <TextInput
+                  style={{
+                    flex: 1,
+                    flexWrap: "wrap",
+                    color: "white",
+                    fontSize: 18,
+                  }}
+                  placeholder="Password"
+                  placeholderTextColor="#FFFFFF"
+                  onChangeText={props.handleChange("password")}
+                  value={props.values.password}
+                  secureTextEntry={true}
+                  returnKeyType="go"
+                  autoCapitalize="none"
+                  blurOnSubmit={true}
+                />
+              </View>
+              <Text style={styles.errorText}>
+                {" "}
+                {props.touched.password && props.errors.password}
+              </Text>
+                <TouchableOpacity style={styles.button} onPress={props.handleSubmit}>
+                <Text style={styles.buttonText}>Login</Text>
+                
+                  </TouchableOpacity>
+              <View
+                style={{ flexDirection: "row", justifyContent: "space-between" }}
               >
-                <Text style={styles.reg}>{"Sign Up As Therapist"}</Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("RegisterAthlete")}
+                  style={styles.reg}
+                >
+                  <Text style={styles.reg}>{"Sign Up as Athlete"}</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("RegisterTherapist")}
+                  style={styles.reg}
+                >
+                  <Text style={styles.reg}>{"Sign Up As Therapist"}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        )}
-      </Formik>
+          )}
+        </Formik>
+      </ScrollView>
     </View>
   );
 }
