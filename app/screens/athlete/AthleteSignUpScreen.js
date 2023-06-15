@@ -8,6 +8,7 @@ import Constants from "expo-constants";
 import colors from '../../config/colors';
 import registerApi from '../../api/register';
 import { useNavigation } from '@react-navigation/core';
+import { ScrollView } from 'react-native-gesture-handler';
 
 
 
@@ -44,114 +45,115 @@ function AthleteForm(props){
            <View style={styles.CaptionContainer}>
                 <Text style={styles.accountText}>Create your account</Text>
            </View>
-
-           <Formik
-           initialValues={{fname:'' , lname:'' ,email :'', phone:'', 
-           password:''}}
-           validationSchema={ReviewSchema}
-           onSubmit={(values,actions) => {
-               handleSubmit(values);
-               actions.resetForm();
-           }}
-           >
-            {(props) => (
-                <View>
-                    <View style={styles.inputContainer}>
-                        <View>
-                            <FontAwesome5 name="user-alt" size={16} color="black" 
-                            style={{paddingRight:'5%'}}/>
-                        </View>
-                        <TextInput
-                            style={{flex:1,flexWrap:'wrap'}}
-                            placeholder="First Name"
-                            onChangeText={props.handleChange('fname')}
-                            value={props.values.fname}
-                            onBlur={props.handleBlur('fname')}
-                            textContentType="givenName"
-                        />
-                    </View>
-                    <Text style={styles.errorText}> { props.touched.fname && props.errors.fname}</Text>
-                    <View style={styles.inputContainer}>
+           <ScrollView keyboardShouldPersistTaps="handled"> 
+            <Formik
+            initialValues={{fname:'' , lname:'' ,email :'', phone:'', 
+            password:''}}
+            validationSchema={ReviewSchema}
+            onSubmit={(values,actions) => {
+                handleSubmit(values);
+                actions.resetForm();
+            }}
+            >
+                {(props) => (
+                    <View>
+                        <View style={styles.inputContainer}>
                             <View>
                                 <FontAwesome5 name="user-alt" size={16} color="black" 
                                 style={{paddingRight:'5%'}}/>
                             </View>
                             <TextInput
                                 style={{flex:1,flexWrap:'wrap'}}
-                                placeholder="Last Name"
-                                onChangeText={props.handleChange('lname')}
-                                value={props.values.lname}
-                                onBlur={props.handleBlur('lname')}
-                                textContentType="familyName"
+                                placeholder="First Name"
+                                onChangeText={props.handleChange('fname')}
+                                value={props.values.fname}
+                                onBlur={props.handleBlur('fname')}
+                                textContentType="givenName"
                             />
-                    </View>
-                    <Text style={styles.errorText}> {props.touched.lname && props.errors.lname}</Text>
-                    
-                    <View style={styles.inputContainer}>
-                        <View>
-                            <MaterialCommunityIcons name="email-open" size={16} color="black" 
-                            style={{paddingRight:'5%'}}/>
                         </View>
-                        <TextInput
-                            style={{flex:1,flexWrap:'wrap'}}
-                            placeholder="Email"
-                            onChangeText={props.handleChange('email')}
-                            value={props.values.email}
-                            keyboardType= "email-address"
-                            onBlur={props.handleBlur('email')}
-                            textContentType="emailAddress"
-                            autoCorrect={false}
-                            autoCapitalize= "none"
-                        />
-                    </View>
-                    <Text style={styles.errorText}> {props.touched.email && props.errors.email}</Text>
-
-                    <View style={styles.inputContainer}>
-                        <View>
-                            <MaterialCommunityIcons name="key-variant" size={16} color="black" 
-                            style={{paddingRight:'5%'}}/>
+                        <Text style={styles.errorText}> { props.touched.fname && props.errors.fname}</Text>
+                        <View style={styles.inputContainer}>
+                                <View>
+                                    <FontAwesome5 name="user-alt" size={16} color="black" 
+                                    style={{paddingRight:'5%'}}/>
+                                </View>
+                                <TextInput
+                                    style={{flex:1,flexWrap:'wrap'}}
+                                    placeholder="Last Name"
+                                    onChangeText={props.handleChange('lname')}
+                                    value={props.values.lname}
+                                    onBlur={props.handleBlur('lname')}
+                                    textContentType="familyName"
+                                />
                         </View>
-                        <TextInput
-                            style={{flex:1,flexWrap:'wrap'}}
-                            placeholder="Password"
-                            onChangeText={props.handleChange('password')}
-                            value={props.values.password}
-                            keyboardType="visible-password"
-                            onBlur={props.handleBlur('password')}
-                            textContentType="newPassword"
-                            autoCapitalize= "none"
-                            secureTextEntry={true}
-                        />
-                    </View>
-                    <Text style={styles.errorText}> {props.touched.password && props.errors.password}</Text>
-
-
-                    <View style={styles.inputContainer}>
-                        <View>
-                            <MaterialCommunityIcons name="phone" size={16} color="black" 
-                            style={{paddingRight:'5%'}}/>
+                        <Text style={styles.errorText}> {props.touched.lname && props.errors.lname}</Text>
+                        
+                        <View style={styles.inputContainer}>
+                            <View>
+                                <MaterialCommunityIcons name="email-open" size={16} color="black" 
+                                style={{paddingRight:'5%'}}/>
+                            </View>
+                            <TextInput
+                                style={{flex:1,flexWrap:'wrap'}}
+                                placeholder="Email"
+                                onChangeText={props.handleChange('email')}
+                                value={props.values.email}
+                                keyboardType= "email-address"
+                                onBlur={props.handleBlur('email')}
+                                textContentType="emailAddress"
+                                autoCorrect={false}
+                                autoCapitalize= "none"
+                            />
                         </View>
-                        <TextInput
-                            style={{flex:1,flexWrap:'wrap'}}
-                            placeholder="Phone"
-                            onChangeText={props.handleChange('phone')}
-                            value={props.values.phone}
-                            keyboardType="phone-pad"
-                            onBlur={props.handleBlur('phone')}
-                            textContentType="telephoneNumber"
-                        />
+                        <Text style={styles.errorText}> {props.touched.email && props.errors.email}</Text>
+
+                        <View style={styles.inputContainer}>
+                            <View>
+                                <MaterialCommunityIcons name="key-variant" size={16} color="black" 
+                                style={{paddingRight:'5%'}}/>
+                            </View>
+                            <TextInput
+                                style={{flex:1,flexWrap:'wrap'}}
+                                placeholder="Password"
+                                onChangeText={props.handleChange('password')}
+                                value={props.values.password}
+                                keyboardType="visible-password"
+                                onBlur={props.handleBlur('password')}
+                                textContentType="newPassword"
+                                autoCapitalize= "none"
+                                secureTextEntry={true}
+                            />
+                        </View>
+                        <Text style={styles.errorText}> {props.touched.password && props.errors.password}</Text>
+
+
+                        <View style={styles.inputContainer}>
+                            <View>
+                                <MaterialCommunityIcons name="phone" size={16} color="black" 
+                                style={{paddingRight:'5%'}}/>
+                            </View>
+                            <TextInput
+                                style={{flex:1,flexWrap:'wrap'}}
+                                placeholder="Phone"
+                                onChangeText={props.handleChange('phone')}
+                                value={props.values.phone}
+                                keyboardType="phone-pad"
+                                onBlur={props.handleBlur('phone')}
+                                textContentType="telephoneNumber"
+                            />
+                        </View>
+                        <Text style={styles.errorText}> {props.touched.phone && props.errors.phone}</Text>
+                            <TouchableOpacity  onPress={props.handleSubmit}>
+                                <View style={styles.button}>
+                                    <Text style={styles.buttonText}>Sign Up</Text>
+                                </View>    
+                            </TouchableOpacity>
                     </View>
-                    <Text style={styles.errorText}> {props.touched.phone && props.errors.phone}</Text>
-                        <TouchableOpacity  onPress={props.handleSubmit}>
-                            <View style={styles.button}>
-                                <Text style={styles.buttonText}>Sign Up</Text>
-                            </View>    
-                        </TouchableOpacity>
-                </View>
 
-            )}
+                )}
 
-           </Formik>
+            </Formik>
+        </ScrollView>
 
         </View>
     )
