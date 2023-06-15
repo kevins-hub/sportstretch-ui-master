@@ -115,6 +115,7 @@ function TherapistForm(props){
                     keyboardType="visible-password"
                     onBlur={props.handleBlur('password')}
                     textContentType="newPassword"
+                    secureTextEntry={true}
                     />
                     </View>
                     <Text style={styles.errorText}> {props.touched.password && props.errors.password}</Text>
