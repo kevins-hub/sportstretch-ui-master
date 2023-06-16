@@ -33,7 +33,7 @@ function TherapistForm(props){
     }
 
     return (
-       <ScrollView style={styles.container}>
+       <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
            <View style={styles.header}>
                <Image source= {require("../../assets/logo_crop.png")} style={styles.logo}/>
                <Text style={styles.headerText}>Recovery On The Go</Text>
