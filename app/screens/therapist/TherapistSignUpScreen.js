@@ -1,6 +1,6 @@
 import React from 'react';
 import { Formik } from 'formik';
-import {Text, TextInput, View, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
+import {Text, TextInput, View, StyleSheet, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
 import { FontAwesome,FontAwesome5,MaterialCommunityIcons,SimpleLineIcons } from '@expo/vector-icons';
 import * as yup from 'yup';
 import "yup-phone";
@@ -8,7 +8,6 @@ import Constants from "expo-constants";
 import colors from '../../config/colors';
 import { useNavigation } from "@react-navigation/native";
 import registerApi from '../../api/register';
-
 
 
 const ReviewSchema = yup.object({
@@ -35,10 +34,18 @@ const ReviewSchema = yup.object({
 
 function TherapistForm(props){
     const navigation = useNavigation();
-    const register_therapist = async(values) => {
-        let register_response = await registerApi.registerTherapist(values);
-        register_response.status === 200 ? navigation.navigate("TherapistRegistrationPending") : Alert.alert("Error while registration. Please try again.")
-    }
+    const register_therapist = async (values) => {
+        try {
+          let register_response = await registerApi.registerTherapist(values);
+          if (register_response.status === 200) {
+            navigation.navigate("TherapistRegistrationPending");
+          } else {
+            Alert.alert(`Error while registration: ${register_response.data} Please try again.`);
+          }
+        } catch (error) {
+          Alert.alert("An error occurred during registration. Please try again.");
+        }
+      };
 
     return (
        <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">

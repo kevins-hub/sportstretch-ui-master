@@ -1,6 +1,6 @@
 import React from 'react';
 import { Formik } from 'formik';
-import {Text, TextInput, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import {Text, TextInput, View, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
 import { FontAwesome5,MaterialCommunityIcons } from '@expo/vector-icons';
 import * as yup from 'yup';
 import "yup-phone";
@@ -31,18 +31,27 @@ const ReviewSchema = yup.object({
 function AthleteForm(props){
     const navigation = useNavigation();
     const handleSubmit = async (values) => {
-        const athlete = {
-            email : values.email,
-            firstName : values.fname,
-            lastName : values.lname,
-            password : values.password,
-            confirmPassword: values.confirmPassword,
-            mobile : values.phone
+        try {
+            const athlete = {
+                email : values.email,
+                firstName : values.fname,
+                lastName : values.lname,
+                password : values.password,
+                confirmPassword: values.confirmPassword,
+                mobile : values.phone
+            }
+            let register_response = registerApi.registerAthlete(athlete);
+            if (register_response.status === 200) {
+                alert('Registration successful.');
+                navigation.navigate("Login");
+            } else {
+                Alert.alert(`An error occurred during registration. Please try again.`);
+            }
+        } catch (error ) {
+            Alert.alert("An error occurred during registration. Please try again.");
         }
-        registerApi.registerAthlete(athlete);
-        alert('Registration successful.');
-        navigation.navigate("Login");
     }
+
 
     return (
        <View style={styles.container}>

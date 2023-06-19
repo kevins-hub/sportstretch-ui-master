@@ -31,14 +31,18 @@ function LoginScreen(props) {
   const [errorText, setErrorText] = useState("");
 
   const handleSubmit = async ({ email, password }) => {
-    const result = await authApi.login(email, password);
-    if (!result.ok) return setErrorText("Invalid email and/or password.");
-
-    setErrorText("");
-    const user = jwtDecode(result.data);
-    authContext.setUser(user);
-    authStorage.storeToken(result.data);
+    try {
+      const result = await authApi.login(email, password);
+      if (!result.ok) return setErrorText(result.data === "Invalid email or password." ? "Invalid email and/or password." : result.data);
+      setErrorText("");
+      const user = jwtDecode(result.data);
+      authContext.setUser(user);
+      authStorage.storeToken(result.data);
+    } catch (error) {
+      setErrorText("Error when logging in. Please try again.")
+    }
   };
+
 
   return (
     <View style={styles.container}>
