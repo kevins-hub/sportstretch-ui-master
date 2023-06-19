@@ -16,6 +16,14 @@ const ReviewSchema = yup.object({
     lname : yup.string().required().min(1).label("Last Name"),
     email : yup.string().required().email().label("Email"),
     password : yup.string().required().min(6).label("Password"),
+    confirmPassword : yup.string().when("password", {
+        // should match with password
+        is: (val) => (val && val.length > 0 ? true : false), 
+        then: yup.string().oneOf(
+            [yup.ref("password")],
+            "Passwords must match"
+        ),
+    }).required().min(6).label("Confirm Password"),
     phone: yup.string().phone().required().label("Phone"),
     addressL1 : yup.string().required().label("Street Address"),
     addressL2 : yup.string().label("Address Line 2"),
@@ -41,7 +49,7 @@ function TherapistForm(props){
            <Text style={styles.accountText}>Create your account</Text>
            <Formik
            initialValues={{fname:"" , lname:'' ,email :'', phone:'', 
-           password:'' , addressL1:'', addressL2:'', city:'', state:'' , zipcode:''}}
+           password:'' , confirmPassword:'', addressL1:'', addressL2:'', city:'', state:'' , zipcode:''}}
            validationSchema={ReviewSchema}
            onSubmit={(values,actions) => {
                register_therapist(values)
@@ -120,6 +128,25 @@ function TherapistForm(props){
                     </View>
                     <Text style={styles.errorText}> {props.touched.password && props.errors.password}</Text>
 
+                    <View style={styles.inputContainer}>
+                        <View>
+                        <MaterialCommunityIcons name="key-variant" size={16} color="black" 
+                        style={{paddingRight:'5%'}}/>
+                        </View>
+                    <TextInput
+                    style={{flex:1,flexWrap:'wrap'}}
+                    autoCorrect={false}
+                    autoCapitalize= "none"
+                    placeholder="Confirm Password"
+                    onChangeText={props.handleChange('confirmPassword')}
+                    value={props.values.confirmPassword}
+                    keyboardType="visible-password"
+                    onBlur={props.handleBlur('confirmPassword')}
+                    textContentType="newPassword"
+                    secureTextEntry={true}
+                    />
+                    </View>
+                    <Text style={styles.errorText}> {props.touched.confirmPassword && props.errors.confirmPassword}</Text>
 
                     <View style={styles.inputContainer}>
                         <View>
