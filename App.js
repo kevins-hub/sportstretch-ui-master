@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import AppLoading from 'expo-app-loading';
-
 import AuthContext from './app/auth/context';
 import AuthNavigator from './app/navigation/AuthNavigator';
 import authStorage from './app/auth/storage';
 import AppContainer from './app/screens/AppContainer';
-
 
 export default function App() {
   const [user, setUser] = useState();
