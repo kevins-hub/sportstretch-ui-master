@@ -52,6 +52,10 @@ function AthleteForm(props){
         }
     }
 
+    const handleBackToLogin = () => {
+        navigation.goBack();
+    }
+
 
     return (
        <View style={styles.container}>
@@ -191,6 +195,13 @@ function AthleteForm(props){
                 )}
 
             </Formik>
+            <View style={styles.backToLoginContainer}>
+                <Text>Already have an account?</Text>
+                <TouchableOpacity onPress={handleBackToLogin} style={styles.loginLink}>
+                    <Text style={styles.loginLink}>Log in here</Text>
+                </TouchableOpacity>
+                {/* <Text style={styles.loginLink} onPress={handleBackToLogin}>Log in here</Text> */}
+            </View>
         </ScrollView>
 
         </View>
@@ -263,8 +274,16 @@ const styles = StyleSheet.create({
         marginHorizontal:"10%"
     
     },
+    backToLoginContainer:{
+        marginTop: '2%',
+        alignItems: 'center'
+    },
+    loginLink:{
+        marginTop: '1%',
+        textDecorationLine: 'underline'
+    },
     
-    
+
     logo: {
         width: 60,
         height: 60,
