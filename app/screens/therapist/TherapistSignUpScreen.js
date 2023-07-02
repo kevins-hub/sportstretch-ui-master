@@ -46,9 +46,13 @@ function TherapistForm(props){
           Alert.alert("An error occurred during registration. Please try again.");
         }
       };
+    
+    const handleBackToLogin = () => {
+        navigation.goBack();
+    }
 
     return (
-       <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
+       <ScrollView style={styles.container} keyboardShouldPersistTaps="handled" snapToAlignment={null}>
            <View style={styles.header}>
                <Image source= {require("../../assets/logo_crop.png")} style={styles.logo}/>
                <Text style={styles.headerText}>Recovery On The Go</Text>
@@ -252,12 +256,15 @@ function TherapistForm(props){
                     <TouchableOpacity style={styles.button} onPress={props.handleSubmit}>
                         <Text style={styles.buttonText}>Sign Up</Text>
                     </TouchableOpacity>
+                    <View style={styles.backToLoginContainer}>
+                        <Text>Already have an account?</Text>
+                        <TouchableOpacity onPress={handleBackToLogin} style={styles.loginLink}>
+                            <Text style={styles.loginLink}>Log in here</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-
             )}
-
            </Formik>
-
         </ScrollView>
     )
 }
@@ -352,6 +359,15 @@ const styles = StyleSheet.create({
         borderRadius:15,
         paddingVertical:'4%',
         paddingHorizontal:"7%",
+    },
+    backToLoginContainer:{
+        marginTop: '2%',
+        alignItems: 'center'
+    },
+    loginLink:{
+        marginTop: '1%',
+        marginBottom:'15%',
+        textDecorationLine: 'underline'
     },
     logo: {
         flex: 0.3,
