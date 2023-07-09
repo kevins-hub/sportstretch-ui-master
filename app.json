@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "SportStretch",
-    "slug": "SportStretch",
+    "slug": "sportstretch",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./app/assets/icon.png",
@@ -30,6 +30,12 @@
     },
     "web": {
       "favicon": "./app/assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "c5a66d1e-1ef2-4a47-8543-97fe5e83cdb2"
+      }
+    },
+    "owner": "kevohunch0"
   }
 }
