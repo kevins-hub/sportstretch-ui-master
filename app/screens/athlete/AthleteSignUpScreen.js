@@ -40,7 +40,7 @@ function AthleteForm(props){
                 confirmPassword: values.confirmPassword,
                 mobile : values.phone
             }
-            let register_response = registerApi.registerAthlete(athlete);
+            let register_response = await registerApi.registerAthlete(athlete);
             if (register_response.status === 200) {
                 alert('Registration successful.');
                 navigation.navigate("Login");
@@ -200,7 +200,6 @@ function AthleteForm(props){
                 <TouchableOpacity onPress={handleBackToLogin} style={styles.loginLink}>
                     <Text style={styles.loginLink}>Log in here</Text>
                 </TouchableOpacity>
-                {/* <Text style={styles.loginLink} onPress={handleBackToLogin}>Log in here</Text> */}
             </View>
         </ScrollView>
 
