@@ -6,6 +6,7 @@ import AuthNavigator from './app/navigation/AuthNavigator';
 import authStorage from './app/auth/storage';
 import AppContainer from './app/screens/AppContainer';
 import LogOutButton from './app/components/shared/LogOutButton';
+import ChangePasswordButton from './app/components/shared/ChangePasswordButton';
 
 export default function App() {
   const [user, setUser] = useState();
@@ -22,7 +23,7 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={{ user, setUser }}>
-      {user ? <><AppContainer user={user} /><LogOutButton></LogOutButton></> : <NavigationContainer><AuthNavigator/></NavigationContainer>}
+      {user ? <><AppContainer user={user} /><LogOutButton></LogOutButton><ChangePasswordButton></ChangePasswordButton></> : <NavigationContainer><AuthNavigator/></NavigationContainer>}
     </AuthContext.Provider>
   );
 }

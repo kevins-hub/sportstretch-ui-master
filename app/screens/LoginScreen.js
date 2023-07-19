@@ -38,6 +38,13 @@ function LoginScreen(props) {
       const user = jwtDecode(result.data);
       authContext.setUser(user);
       authStorage.storeToken(result.data);
+
+      // const changePw = await authApi.changePassword(email, "Flip42892", password);
+      // if (changePw.ok) {
+      //   console.warn("success !")
+      // } else {
+      //   console.warn("changePw.data = ", changePw.data);
+      // }
     } catch (error) {
       setErrorText("Error when logging in. Please try again.")
     }
