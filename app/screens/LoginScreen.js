@@ -43,7 +43,6 @@ function LoginScreen(props) {
     }
   };
 
-
   return (
     <View style={styles.container}>
       <ScrollView keyboardShouldPersistTaps="handled">
@@ -130,9 +129,16 @@ function LoginScreen(props) {
                 {props.touched.password && props.errors.password}
               </Text>
                 <TouchableOpacity style={styles.button} onPress={props.handleSubmit}>
-                <Text style={styles.buttonText}>Login</Text>
-                
+                  <Text style={styles.buttonText}>Login</Text>
+                </TouchableOpacity>
+              <View  style={{ marginLeft: "auto", marginRight: "auto" }}>
+                <TouchableOpacity
+                    onPress={() => navigation.navigate("ForgotPassword")}
+                    style={styles.forgotPasswordLink}
+                  >
+                    <Text style={styles.forgotPasswordLink}>{"Forgot Password?"}</Text>
                   </TouchableOpacity>
+              </View>
               <View
                 style={{ flexDirection: "row", justifyContent: "space-between" }}
               >
@@ -165,7 +171,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     width: "25%",
     height: 50,
-    marginTop: "3%",
+    marginTop: "1%",
   },
   buttonText: {
     color: colors.secondary,
@@ -234,6 +240,13 @@ const styles = StyleSheet.create({
     padding:"2.5%",
     marginTop:"2.5%",
     marginLeft:"0%"
+  },
+  forgotPasswordLink: {
+    textDecorationLine: 'underline',
+    backgroundColor:"#FEFEFE",
+    color:"#3F3F3F",
+    fontSize:14,
+    padding:"2.5%"
   }
 });
 
