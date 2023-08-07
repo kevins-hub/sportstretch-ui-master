@@ -7,6 +7,7 @@ import TherapistRegistrationPending from "../screens/therapist/TherapistRegistra
 import TherapistForm from "../screens/therapist/TherapistSignUpScreen";
 import ForgotPasswordVerifyEmailForm from "../screens/password/ForgotPasswordVerifyEmail";
 import ForgotPasswordVerifyResetTokenForm from "../screens/password/ForgotPasswordVerifyResetToken";
+import ResetPasswordForm from "../screens/password/ResetPassword";
 
 const Stack = createStackNavigator();
 
@@ -22,6 +23,7 @@ function AuthNavigator() {
       <Stack.Screen name="TherapistRegistrationPending" component={TherapistRegistrationPending} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordVerifyEmailForm} />
       <Stack.Screen name="ForgotPasswordVerifyToken" component={ForgotPasswordVerifyResetTokenForm} />
+      <Stack.Screen name="ResetPassword" component={ResetPasswordForm} />
     </Stack.Navigator>
   );
 }

@@ -20,15 +20,12 @@ function ForgotPasswordVerifyResetTokenForm(props) {
 
     const handleSubmit = async(values) => {
         try {
-            authResponse = await passwordApi.resetAuth(values.resetToken, authId);
+            const authResponse = await passwordApi.resetAuth(values.resetToken, authId);
             if (authResponse.status === 200) {
-                console.warn("token verified successfully");
-                // write navigate function to reset password here
-                //navigation.navigate("ForgotPasswordVerifyResetToken");
+                navigation.navigate("ResetPassword", {authId: authId});
             } else {
-                Alert.alert(authResponse.data);
+                Alert.alert(`Error:${authResponse.data}, Please try again.`);
             }
-
         } catch (error) {
             Alert.alert("An error occured. Please try again later.")
         }
