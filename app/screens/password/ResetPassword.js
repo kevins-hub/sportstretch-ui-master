@@ -6,30 +6,42 @@ import * as yup from 'yup';
 import "yup-phone";
 import Constants from "expo-constants";
 import colors from '../../config/colors';
-import registerApi from '../../api/register';
 import passwordApi from '../../api/password';
 import { useNavigation } from '@react-navigation/core';
 import { ScrollView } from 'react-native-gesture-handler';
 
-const emailSchema = yup.object({
-    email: yup.string().required().min(1).label("Registered Email Address")
+const resetPasswordSchema = yup.object({
+    newPassword : yup.string().required().min(6).label("Password"),
+    confirmPassword : yup.string().when("newPassword", {
+        // should match with password
+        is: (val) => (val && val.length > 0 ? true : false), 
+        then: yup.string().oneOf(
+            [yup.ref("newPassword")],
+            "Passwords must match"
+        ),
+    }).required().min(6).label("Confirm Password"),
 })
 
-function ForgotPasswordVerifyEmailForm(props){
+function ResetPasswordForm(props) {
     const navigation = useNavigation();
+    const authId = props.route.params.authId;
 
     const handleSubmit = async(values) => {
         try {
-            const forgotPwResponse = await passwordApi.forgotPassword(values.email.toLowerCase());
-            const authId = forgotPwResponse.data.authorization_id;
-            navigation.navigate("ForgotPasswordVerifyToken", {authId: authId});
+            const resetResponse = await passwordApi.resetPassword(values.newPassword, authId);
+            if (resetResponse.status === 200) {
+                Alert.alert("Password reset successfully.");
+                handleBackToLogin();
+            } else {
+                Alert.alert(`Error:${authResponse.data}, Please try again.`);
+            }
         } catch (error) {
             Alert.alert("An error occured. Please try again later.")
         }
     }
 
     const handleBackToLogin = () => {
-        navigation.goBack();
+        navigation.navigate("Login");
     }
 
     return (
@@ -40,8 +52,8 @@ function ForgotPasswordVerifyEmailForm(props){
            </View>
            <ScrollView keyboardShouldPersistTaps="handled"> 
             <Formik
-            initialValues={{email :''}}
-            validationSchema={emailSchema}
+            initialValues={{resetToken :''}}
+            validationSchema={resetPasswordSchema}
             onSubmit={(values,actions) => {
                 handleSubmit(values);
                 actions.resetForm();
@@ -49,20 +61,37 @@ function ForgotPasswordVerifyEmailForm(props){
             >
                 {(props) => (
                     <View>
-                        <Text style={styles.labelText}>Registered Email Address:</Text>
+                        <Text style={styles.labelText}>New Password:</Text>
                         <View style={styles.inputContainer}>
                             <TextInput
                                     style={{flex:1,flexWrap:'wrap'}}
-                                    placeholder="Email"
-                                    onChangeText={props.handleChange('email')}
-                                    value={props.values.email}
-                                    keyboardType= "email-address"
-                                    onBlur={props.handleBlur('email')}
-                                    textContentType="emailAddress"
-                                    autoCorrect={false}
+                                    placeholder="New Password"
+                                    onChangeText={props.handleChange('newPassword')}
+                                    value={props.values.password}
+                                    keyboardType="visible-password"
+                                    onBlur={props.handleBlur('newPassword')}
+                                    textContentType="newPassword"
                                     autoCapitalize= "none"
+                                    secureTextEntry={true}
+                            />
+                        </View>
+                        <Text style={styles.errorText}> {props.touched.newPassword && props.errors.newPassword}</Text>
+                        <Text style={styles.secondLabelText}>Confirm Password:</Text>
+                        <View style={styles.inputContainer}>
+                            <TextInput
+                                style={{flex:1,flexWrap:'wrap'}}
+                                autoCorrect={false}
+                                autoCapitalize= "none"
+                                placeholder="Confirm Password"
+                                onChangeText={props.handleChange('confirmPassword')}
+                                value={props.values.confirmPassword}
+                                keyboardType="visible-password"
+                                onBlur={props.handleBlur('confirmPassword')}
+                                textContentType="confirmPassword"
+                                secureTextEntry={true}
                                 />
                         </View>
+                        <Text style={styles.errorText}> {props.touched.confirmPassword && props.errors.confirmPassword}</Text>
                         {/* <Text style={styles.errorText}> {props.touched.phone && props.errors.phone}</Text> */}
                             <TouchableOpacity  onPress={props.handleSubmit}>
                                 <View style={styles.button}>
@@ -91,6 +120,13 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: colors.dullblack,
         marginTop: '20%',
+        marginBottom: '5%',  
+        marginLeft: '10%'
+    },
+    secondLabelText:{
+        fontSize: 16,
+        color: colors.dullblack,
+        marginTop: '10%',
         marginBottom: '5%',  
         marginLeft: '10%'
     },
@@ -161,4 +197,4 @@ const styles = StyleSheet.create({
     
 })
 
-export default ForgotPasswordVerifyEmailForm;
+export default ResetPasswordForm;
