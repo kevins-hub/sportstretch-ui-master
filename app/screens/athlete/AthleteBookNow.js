@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
-
 import * as Location from 'expo-location';
-
 import AthleteBookNowCard from '../../components/athlete/AthleteBookNowCard';
 import AthleteMapView from '../../components/athlete/AthleteMapView';
 import therapistsApi from '../../api/therapists';

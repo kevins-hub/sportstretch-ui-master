@@ -2,21 +2,28 @@ import React, { useContext } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import colors from '../../config/colors';
 import passwordApi from '../../api/password';
+import { useNavigation } from '@react-navigation/native';
 
 function ChangePasswordButton() {
 
-    const changePassword = async () => {
-        const changePw = await passwordApi.changePassword("kevinliu428@gmail.com", "flip428", "Flip42892");
-        console.warn("changePw = ", changePw);
-        if (changePw.ok) {
-          console.warn("success !")
-        } else {
-          console.warn("changePw.data = ", changePw.data);
-        }
+    // const changePassword = async () => {
+    //     const changePw = await passwordApi.changePassword("kevinliu428@gmail.com", "flip428", "Flip42892");
+    //     console.warn("changePw = ", changePw);
+    //     if (changePw.ok) {
+    //       console.warn("success !")
+    //     } else {
+    //       console.warn("changePw.data = ", changePw.data);
+    //     }
+    // }
+
+    const navigation = useNavigation();
+
+    const routeToChangePassword = () => {
+        navigation.navigate("ChangePassword");
     }
     
     return (
-        <TouchableOpacity style={styles.button} onPress={changePassword}>
+        <TouchableOpacity style={styles.button} onPress={routeToChangePassword}>
             <View >
                 <Text style={styles.text}>Change Password</Text>
             </View>
