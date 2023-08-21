@@ -9,7 +9,7 @@ function LogOutButton() {
     const logOutUser = async() => {
         authContext.setUser(null);
     }
-    
+
     return (
         <TouchableOpacity style={styles.button} onPress={logOutUser}>
             <View >

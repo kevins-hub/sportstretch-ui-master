@@ -2,7 +2,8 @@ import {create} from 'apisauce';
 import authStorage from '../auth/storage';
 
 const apiClient = create({
-    baseURL: 'https://sportstretch-api.herokuapp.com/',
+    baseURL: 'https://sportstretch-api.herokuapp.com/'
+    //baseURL: 'https://localhost:3000'
 });
 
 apiClient.addAsyncRequestTransform(async (request) => {

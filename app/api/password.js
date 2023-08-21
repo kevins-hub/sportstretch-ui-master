@@ -14,8 +14,13 @@ const resetPassword = (newPassword, authId) => {
     return apiClient.put(endpoint + '/reset-password', { newPassword : newPassword, authId: authId });
 }
 
+const changePassword = (newPassword, oldPassword, authId) => {
+    return apiClient.put(endpoint + '/change-password', { newPassword: newPassword, oldPassword: oldPassword, authId: authId });
+}
+
 export default {
     forgotPassword,
     resetAuth,
-    resetPassword
+    resetPassword,
+    changePassword
 }
