@@ -8,6 +8,7 @@ import Constants from "expo-constants";
 import colors from '../../config/colors';
 import { useNavigation } from "@react-navigation/native";
 import registerApi from '../../api/register';
+import { stateConverter } from '../../lib/states';
 
 
 const ReviewSchema = yup.object({
@@ -63,8 +64,9 @@ function TherapistForm(props){
            password:'' , confirmPassword:'', addressL1:'', addressL2:'', city:'', state:'' , zipcode:''}}
            validationSchema={ReviewSchema}
            onSubmit={(values,actions) => {
-               register_therapist(values)
-               actions.resetForm()
+                values.state = stateConverter(values.state);
+                register_therapist(values);
+                actions.resetForm();
            }}
            >
             {(props) => (

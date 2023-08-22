@@ -6,16 +6,6 @@ import { useNavigation } from '@react-navigation/native';
 
 function ChangePasswordButton() {
 
-    // const changePassword = async () => {
-    //     const changePw = await passwordApi.changePassword("kevinliu428@gmail.com", "flip428", "Flip42892");
-    //     console.warn("changePw = ", changePw);
-    //     if (changePw.ok) {
-    //       console.warn("success !")
-    //     } else {
-    //       console.warn("changePw.data = ", changePw.data);
-    //     }
-    // }
-
     const navigation = useNavigation();
 
     const routeToChangePassword = () => {

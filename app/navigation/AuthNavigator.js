@@ -1,6 +1,5 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-
 import AthleteForm from "../screens/athlete/AthleteSignUpScreen";
 import LoginScreen from "../screens/LoginScreen";
 import TherapistRegistrationPending from "../screens/therapist/TherapistRegistrationPending";
