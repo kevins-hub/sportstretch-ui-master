@@ -42,8 +42,8 @@ function ForgotPasswordVerifyEmailForm(props){
             <Formik
             initialValues={{email :''}}
             validationSchema={emailSchema}
-            onSubmit={(values,actions) => {
-                handleSubmit(values);
+            onSubmit={async (values,actions) => {
+                await handleSubmit(values);
                 actions.resetForm();
             }}
             >

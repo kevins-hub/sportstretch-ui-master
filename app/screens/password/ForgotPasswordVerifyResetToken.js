@@ -45,8 +45,8 @@ function ForgotPasswordVerifyResetTokenForm(props) {
             <Formik
             initialValues={{resetToken :''}}
             validationSchema={tokenSchema}
-            onSubmit={(values,actions) => {
-                handleSubmit(values);
+            onSubmit={async (values,actions) => {
+                await handleSubmit(values);
                 actions.resetForm();
             }}
             >

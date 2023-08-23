@@ -54,8 +54,8 @@ function ResetPasswordForm(props) {
             <Formik
             initialValues={{resetToken :''}}
             validationSchema={resetPasswordSchema}
-            onSubmit={(values,actions) => {
-                handleSubmit(values);
+            onSubmit={async (values,actions) => {
+                await handleSubmit(values);
                 actions.resetForm();
             }}
             >
@@ -87,7 +87,7 @@ function ResetPasswordForm(props) {
                                 value={props.values.confirmPassword}
                                 keyboardType="visible-password"
                                 onBlur={props.handleBlur('confirmPassword')}
-                                textContentType="confirmPassword"
+                                textContentType="password"
                                 secureTextEntry={true}
                                 />
                         </View>
