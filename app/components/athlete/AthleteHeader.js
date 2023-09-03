@@ -5,6 +5,7 @@ import Constants from 'expo-constants';
 
 import colors from '../../config/colors';
 import AuthContext from '../../auth/context';
+import { Image } from 'react-native';
 
 function AthleteHeader(props) {
     const { user, setUser } = useContext(AuthContext);
@@ -12,14 +13,8 @@ function AthleteHeader(props) {
     return (
         <View style={styles.container}>
             <View style={styles.detailsContainer}>
-                <Text style={styles.nameText}>Hi, {user.userObj.first_name}</Text>
-                <View style={styles.phoneContainer}>
-                    <Text style={styles.phoneText}>{user.userObj.mobile}</Text>
-                    <MaterialCommunityIcons name="circle-edit-outline" size={24} color="white" />
-                </View>
-            </View>
-            <View style={styles.avatarContainer}>
-                <FontAwesome name="user-circle" size={100} color="white" />
+                <Image source= {require("../../assets/logo_crop.png")} style={styles.logo}/>
+                <Text style={styles.nameText}>Welcome, {user.userObj.first_name}</Text>
             </View>
         </View>
     );
@@ -30,31 +25,28 @@ const styles = StyleSheet.create({
         width: '100%',
         backgroundColor: colors.primary,
         flexDirection: 'row',
-        padding: 10,
         marginTop: Constants.statusBarHeight,
 
     },
     detailsContainer: {
-        width: '70%',
+        width: '100%',
         paddingLeft: 10,
-        paddingVertical: 10,
-    },
-    phoneContainer: {
-        marginVertical:7,
-        flexDirection: 'row',
+        paddingVertical: 2,
     },
     nameText: {
         color: colors.secondary,
         fontWeight: "300",
-        fontSize: 36,
+        fontSize: 16,
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        paddingVertical: 8,
     },
-    phoneText: {
-        color: colors.secondary,
-        fontSize: 20,
-        fontWeight: "300",
-        marginRight: 7,
-    },
-    avatarContainer: {
-    },
+    logo: {
+        width: 30,
+        height: 30,
+        margin: 4,
+        position: 'absolute',
+        left: 0,
+    }
 })
 export default AthleteHeader;
