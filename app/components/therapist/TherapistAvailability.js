@@ -3,6 +3,7 @@ import { StyleSheet, Text, View ,SafeAreaView, Switch, Image, Alert} from 'react
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import therapistsApi from '../../api/therapists';
 import AuthContext from '../../auth/context';
+import colors from '../../config/colors';
 
 function TherapistAvailability(props) {
     const { user, setUser } = useContext(AuthContext);
@@ -44,7 +45,7 @@ function TherapistAvailability(props) {
     },[isEnabled]);
 
     return (
-        <View style={{ marginTop: 10}}>
+        <View style={{ marginTop: 10, borderBottomColor: colors.grey, borderBottomWidth: 2}}>
             {isAvailable}
             <View style={styles.availabilityToggleContainer}>
               <Text style={styles.toggleText}>Availability</Text>

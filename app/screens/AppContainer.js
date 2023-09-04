@@ -1,13 +1,15 @@
 import React, { useEffect } from "react";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
-
 import AthleteDashboard from "./athlete/AthleteDashboard";
 import TherapistDashboard from "./therapist/TherapistDashboard";
 import AdminDashboard from "./admin/AdminDashboard";
 import expoPushTokensApi from "../api/expoPushTokens";
 import TherapistRegistrationPending from './therapist/TherapistRegistrationPending';
 import TherapistDisabled from './therapist/TherapistDisabledScreen';
+import AppNavigator from "../navigation/AppNavigator";
+import { NavigationContainer } from "@react-navigation/native";
+
 
 function AppContainer({ user }) {
     useEffect(() => {
@@ -38,9 +40,12 @@ function AppContainer({ user }) {
 
   return (
     <>
-      {user.role === "athlete" && <AthleteDashboard />}
-      {user.role === "therapist" && ((user.userObj.enabled === -1 && <TherapistRegistrationPending/>) || (user.userObj.enabled === 0 && <TherapistDisabled/>) || <TherapistDashboard/>)}
+      {/* {user.role === "athlete" && <AthleteDashboard />} */}
+      {/* {user.role === "therapist" && ((user.userObj.enabled === -1 && <TherapistRegistrationPending/>) || (user.userObj.enabled === 0 && <TherapistDisabled/>) || <TherapistDashboard/>)} */}
       {user.role === "admin" && <AdminDashboard />}
+      <NavigationContainer>
+        <AppNavigator user={user}/>
+      </NavigationContainer>
     </>
   );
 }

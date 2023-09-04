@@ -22,7 +22,7 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={{ user, setUser }}>
-      {user ? <><AppContainer user={user} /><LogOutButton></LogOutButton></> : <NavigationContainer><AuthNavigator/></NavigationContainer>}
+      {user ? <><AppContainer user={user} /></> : <NavigationContainer><AuthNavigator/></NavigationContainer>}
     </AuthContext.Provider>
   );
 }
