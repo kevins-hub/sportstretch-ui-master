@@ -27,7 +27,7 @@ function AthleteBookNowCard({ selectedTherapist, athleteAddress }) {
           <View style={styles.TherapistContainer}>
             <View style={styles.TherapistNameContainer}>
               <Text style={styles.TherapistNameText}>
-                {selectedTherapist ? selectedTherapist.first_name : ""} Xxxxx
+                {selectedTherapist ? selectedTherapist.first_name : ""}
               </Text>
               <Text style={{ fontSize: 15, color: colors.dullblack }}>
                 {selectedTherapist ? selectedTherapist.city : ""},{" "}
