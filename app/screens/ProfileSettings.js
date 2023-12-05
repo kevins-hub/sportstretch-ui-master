@@ -5,24 +5,48 @@ import ChangePasswordButton from "../components/shared/ChangePasswordButton";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 // import FontAwesome from '@expo/vector-icons';
 import colors from "../config/colors";
+import authStorage from "../auth/storage";
+import contactApi from "../api/contact";
 import EditContactInfoModal from "../components/shared/EditContactInfoModal";
 import EditBillingInfoModal from "../components/shared/EditBillingInfoModal";
 
 function ProfileSettings({ route }) {
-
   const [editContactInfoModalVisible, setEditContactInfoModalVisible] = useState(false);
   const [editBillingInfoModalVisible, setEditBillingInfoModalVisible] = useState(false);
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [contactObj, setContactObj] = useState({});
 
   const { user } = route.params;
-  // console.warn("user = ", user);
-  // console.warn("user.userObj = ", user.userObj);
+
+  const fetchContactInfo = async () => {
+    const userAuthId = user.authorization_id.toString();
+    try {
+      const response = await contactApi.getContact(userAuthId);
+      setContactObj(response.data);
+    } catch (error) {
+      console.error("Error fetching contact info", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchContactInfo();
+  }, [editContactInfoModalVisible])
+
+  const handleModalClose = () => {
+    setEditContactInfoModalVisible(false);
+    fetchContactInfo();
+  }
 
   return (
     <>
         <EditContactInfoModal
          user={user}
+         contactInfo = {contactObj}
          visible={editContactInfoModalVisible}
          setVisibility={setEditContactInfoModalVisible}
+         setContactObj={setContactObj}
+         onClose={handleModalClose}
         />
         <EditBillingInfoModal
          user={user}
@@ -41,7 +65,6 @@ function ProfileSettings({ route }) {
               <View style={styles.keyProps}>
                 <Text style={styles.nameProp}>{user.userObj.first_name} {user.userObj.last_name}</Text>
                 <Text>{user.role === 'therapist' ? 'Recovery Specialist' : user.role.charAt(0).toUpperCase() + user.role.slice(1)}</Text>
-                <Text>Free</Text>
               </View>
             </View>
 
@@ -68,11 +91,11 @@ function ProfileSettings({ route }) {
                 <View style={styles.cardContent}>
                   <View style={styles.propContainer}>
                     <Text style={styles.propLabel}>Phone number:</Text>
-                    <Text>{user.userObj.mobile}</Text>
+                    <Text>{contactObj.mobile}</Text>
                   </View>
                   <View style={styles.propContainer}>
                     <Text style={styles.propLabel}>Email: </Text>
-                    <Text>placeholder@email.com</Text>
+                    <Text>{contactObj.email}</Text>
                   </View>
                 </View>
               </View>
