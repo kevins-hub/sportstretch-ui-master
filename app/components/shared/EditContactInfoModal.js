@@ -7,8 +7,15 @@ import Constants from "expo-constants";
 import notificationsApi from "../../api/notifications";
 import AuthContext from '../../auth/context';
 import colors from '../../config/colors';
+import * as yup from 'yup';
+import { Formik } from 'formik';
+import contactApi from "../../api/contact";
+import contact from "../../api/contact";
+
 
 function EditContactInfoModal({
+  user,
+  contactInfo,
   visible,
   setVisibility,
   // therapistId,
@@ -18,6 +25,72 @@ function EditContactInfoModal({
   if (!visible) return null;
 
   const navigation = useNavigation();
+
+  const isAthlete = user.role === "athlete" ? true : false;
+
+  // console.warn("user = ", user);
+  // console.warn("contactInfo = ", contactInfo);
+
+
+  let editContactInfoSchema = {};
+  const contactObj = {
+    authId: user.authorization_id,
+    email: "",
+    phone: "",
+    addressL1: "",
+    addressL2: "",
+    city: "",
+    state: "",
+    zipcode: ""
+  }
+
+  // console.warn("contactObj = ", contactObj);
+
+
+  // const editContactInfoSchema = isAthelete ? yup.object({
+  //   email : yup.string().required().label("Email"),
+  //   phone: yup.string().required().label("Phone"),  // need phone number validator
+  // }) : yup.object({
+  //   email : yup.string().required().label("Email"),
+  //   phone: yup.string().required().label("Phone"),  // need phone number validator
+  //   addressLn1: yup.string().required().label("Address Line 1"),
+  //   addressLn2: yup.string().label("Address Line 2"),
+  //   city: yup.string().required().label("City"),
+  //   state: yup.string().required().label("State"),
+  //   zipCode: yup.string().required().label("Zip Code"),
+  // })
+
+  const initAthleteForm = () => {
+    editContactInfoSchema = yup.object({
+      email : yup.string().required().label("Email"),
+      phone: yup.string().required().label("Phone"),  // need phone number validator
+    }); 
+  }
+
+  const initAdminTherapistForm = () => {
+    editContactInfoSchema = yup.object({
+      email : yup.string().required().label("Email"),
+      phone: yup.string().required().label("Phone"),  // need phone number validator
+      addressL1: yup.string().required().label("Address Line 1"),
+      addressL2: yup.string().label("Address Line 2"),
+      city: yup.string().required().label("City"),
+      state: yup.string().required().label("State"),
+      zipCode: yup.string().required().label("Zip Code"),
+    })
+  };
+
+  if (isAthlete) {
+    // console.warn("initAthlete run");
+    initAthleteForm();
+  } else {
+    // console.warn("initAdminTherapistForm run");
+    initAdminTherapistForm();
+  }
+
+
+  // console.warn("phone = ", user.userObj.mobile);
+  // console.warn("AuthContext = ", AuthContext);
+  // console.warn("contactInfo = ", contactInfo)
 
   // const [text, onChangeText] = useState(athleteLocation);
   // const [bookingProgress, setBookingProgress] = useState(false);
@@ -45,6 +118,33 @@ function EditContactInfoModal({
   //   }
   // };
 
+  const handleSubmit = async (values) => {
+    try {
+      // console.warn("values = ", values);
+      contactObj.email = values.email;
+      contactObj.phone = values.phone;
+      contactObj.addressL1 = values.addressL1 || "";
+      contactObj.addressL2 = values.addressL2 || "";
+      contactObj.city = values.city || "";
+      contactObj.state = values.state || "";
+      contactObj.zipcode = values.zipCode || "";
+      // console.warn("submitContactObj = ", contactObj);
+      // contactApi.editContact(contactObj).then(res => {
+      //   console.warn("res = ", res);
+      // });
+      const res = await contactApi.editContact(contactObj);
+      // ToDo: Implement snackbar
+      return true
+      
+    } catch (error) {
+      Alert.alert("An error occured. Please try again later.");
+      return false
+    }
+    // contactApi.editContact(contactObj).then(res => {
+    //   console.warn("res = ", res);
+    // });
+  }
+
   return (
     <Modal
       animationType="slide"
@@ -54,19 +154,61 @@ function EditContactInfoModal({
     >
       <BlurView intensity={50} style={styles.centeredView}>
         <View style={styles.modalView}>
-          <Text>Edit Contact Info Modal</Text>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.cancelButton} onPress={() => setVisibility(false)}>
-                <View>
-                    <Text style={styles.cancelButtonText}>Cancel</Text>
-                </View>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => setVisibility(false)}>
-              <View>
-                  <Text style={styles.buttonText}>Submit</Text>
-              </View>
-            </TouchableOpacity>
-        </View>
+          <Text style={styles.modalText}>Edit Contact Info</Text>
+          <Formik
+            initialValues={{email: contactInfo.email, phone: contactInfo.mobile}}
+            validationSchema={editContactInfoSchema}
+            onSubmit={(values,actions) => {
+                handleSubmit(values) ? setVisibility(false) : actions.resetForm();
+                // actions.resetForm();
+            }}
+            >
+                {(props) => (
+                    <View style={styles.formContainer}>
+                        <View style={[styles.propContainer, styles.emailProp]}>
+                          <Text style={[styles.labelText]}>Email:</Text>
+                          <View style={styles.inputContainer}>
+                              <TextInput
+                                      style={{flex:1,flexWrap:'wrap'}}
+                                      placeholder="Email"
+                                      onChangeText={props.handleChange('email')}
+                                      value={props.values.email}
+                                      onBlur={props.handleBlur('email')}
+                                      textContentType="emailAddress"
+                                      autoCapitalize= "none"
+                              />
+                          </View>
+                        </View>
+                        <View style={styles.propContainer}>
+                          <Text style={styles.labelText}>Phone:</Text>
+                          <View style={styles.inputContainer}>
+                              <TextInput
+                                      style={{flex:1,flexWrap:'wrap'}}
+                                      placeholder="Phone"
+                                      onChangeText={props.handleChange('phone')}
+                                      value={props.values.phone}
+                                      onBlur={props.handleBlur('phone')}
+                                      textContentType="telephoneNumber"
+                                      autoCapitalize= "none"
+                              />
+                          </View>
+                        </View>
+
+                        <View style={styles.buttonContainer}>
+                          <TouchableOpacity style={styles.cancelButton} onPress={() => setVisibility(false)}>
+                              <View>
+                                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                              </View>
+                          </TouchableOpacity>
+                          <TouchableOpacity style={styles.button} onPress={props.handleSubmit}>
+                            <View>
+                                <Text style={styles.buttonText}>Submit</Text>
+                            </View>
+                          </TouchableOpacity>
+                        </View>
+                    </View>
+              )}
+            </Formik>
       </View>
 
 
@@ -156,6 +298,28 @@ const styles = StyleSheet.create({
   cancelButtonText: {
       color: colors.primary,
       fontSize: 12
+  },
+  formContainer: {
+    display: 'grid',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%'
+  },
+  propContainer: {
+    marginBottom: '10%',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  inputContainer: {
+    flexDirection:'row',
+    borderWidth:1,
+    borderRadius:8,
+    padding:'2%',
+    width: 140,
+    marginLeft: 10,
+  },
+  emailProp: {
+    gridRow: 1,
   }
 });
 
