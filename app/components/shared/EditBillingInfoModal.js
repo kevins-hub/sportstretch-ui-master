@@ -5,8 +5,8 @@ import { TextInput } from "react-native-gesture-handler";
 import { BlurView } from "expo-blur";
 import Constants from "expo-constants";
 import notificationsApi from "../../api/notifications";
-import AuthContext from '../../auth/context';
-import colors from '../../config/colors';
+import AuthContext from "../../auth/context";
+import colors from "../../config/colors";
 
 function EditBillingInfoModal({
   visible,
@@ -39,7 +39,7 @@ function EditBillingInfoModal({
   //         setVisibility(false);
   //         navigation.navigate("UpcomingBooking");
   //       }, 2000);
-  //       notificationsApi.notifyTherapist(therapistId, user.userObj.first_name);        
+  //       notificationsApi.notifyTherapist(therapistId, user.userObj.first_name);
   //   } catch (error) {
   //       console.log('Error on confirm booking', error);
   //   }
@@ -56,20 +56,24 @@ function EditBillingInfoModal({
         <View style={styles.modalView}>
           <Text>Edit Billing Info Modal</Text>
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.cancelButton} onPress={() => setVisibility(false)}>
-                <View>
-                    <Text style={styles.cancelButtonText}>Cancel</Text>
-                </View>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => setVisibility(false)}>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setVisibility(false)}
+            >
               <View>
-                  <Text style={styles.buttonText}>Submit</Text>
+                <Text style={styles.cancelButtonText}>Cancel</Text>
               </View>
             </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => setVisibility(false)}
+            >
+              <View>
+                <Text style={styles.buttonText}>Submit</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-
-
       </BlurView>
     </Modal>
   );
@@ -116,47 +120,47 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     padding: 10,
     borderRadius: 20,
-    borderColor: '#D3D3D3',
+    borderColor: "#D3D3D3",
     width: 270,
-    backgroundColor: '#F6F6F6'
+    backgroundColor: "#F6F6F6",
   },
   buttonContainer: {
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "column-reverse",
-    width: '100%',
+    width: "100%",
   },
   hideModal: {
     textDecorationLine: "underline",
     backgroundColor: "#FEFEFE",
     color: "#3F3F3F",
   },
-  button : {
+  button: {
     backgroundColor: colors.primary,
     borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
     height: 30,
     margin: 5,
   },
   buttonText: {
-      color: colors.secondary,
-      fontSize: 12
+    color: colors.secondary,
+    fontSize: 12,
   },
   cancelButton: {
     backgroundColor: colors.secondary,
     borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
     height: 30,
     margin: 5,
   },
   cancelButtonText: {
-      color: colors.primary,
-      fontSize: 12
-  }
+    color: colors.primary,
+    fontSize: 12,
+  },
 });
 
 export default EditBillingInfoModal;

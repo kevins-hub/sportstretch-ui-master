@@ -10,7 +10,7 @@ import BookButton from "./BookButton";
 import BookingProgressIndicator from "./BookingProgressIndicator";
 import BookingDoneIndicator from "./BookingDoneIndicator";
 import notificationsApi from "../../api/notifications";
-import AuthContext from '../../auth/context';
+import AuthContext from "../../auth/context";
 
 function BookModal({
   visible,
@@ -30,22 +30,22 @@ function BookModal({
 
   const onConfirmPress = async () => {
     try {
-        //showProgress
-        setBookingProgress(true);
-        //format text and call API
-        await bookingsApi.bookATherapist(athleteId, athleteLocation, therapistId);
-        //hideProgress & showDone
-        setBookingProgress(false);
-        setBookingDone(true);
-        //navigate
-        setTimeout(function () {
-          setBookingDone(false);
-          setVisibility(false);
-          navigation.navigate("UpcomingBooking");
-        }, 2000);
-        notificationsApi.notifyTherapist(therapistId, user.userObj.first_name);        
+      //showProgress
+      setBookingProgress(true);
+      //format text and call API
+      await bookingsApi.bookATherapist(athleteId, athleteLocation, therapistId);
+      //hideProgress & showDone
+      setBookingProgress(false);
+      setBookingDone(true);
+      //navigate
+      setTimeout(function () {
+        setBookingDone(false);
+        setVisibility(false);
+        navigation.navigate("UpcomingBooking");
+      }, 2000);
+      notificationsApi.notifyTherapist(therapistId, user.userObj.first_name);
     } catch (error) {
-        console.log('Error on confirm booking', error);
+      console.log("Error on confirm booking", error);
     }
   };
 
@@ -123,9 +123,9 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     padding: 10,
     borderRadius: 20,
-    borderColor: '#D3D3D3',
+    borderColor: "#D3D3D3",
     width: 270,
-    backgroundColor: '#F6F6F6'
+    backgroundColor: "#F6F6F6",
   },
   buttonContainer: {
     justifyContent: "center",
