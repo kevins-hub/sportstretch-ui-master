@@ -18,6 +18,7 @@ function EditContactInfoModal({
   contactInfo,
   visible,
   setVisibility,
+  setContactObj,
   // therapistId,
   // athleteId,
   // athleteLocation,
@@ -27,10 +28,6 @@ function EditContactInfoModal({
   const navigation = useNavigation();
 
   const isAthlete = user.role === "athlete" ? true : false;
-
-  // console.warn("user = ", user);
-  // console.warn("contactInfo = ", contactInfo);
-
 
   let editContactInfoSchema = {};
   const contactObj = {
@@ -44,33 +41,17 @@ function EditContactInfoModal({
     zipcode: ""
   }
 
-  // console.warn("contactObj = ", contactObj);
-
-
-  // const editContactInfoSchema = isAthelete ? yup.object({
-  //   email : yup.string().required().label("Email"),
-  //   phone: yup.string().required().label("Phone"),  // need phone number validator
-  // }) : yup.object({
-  //   email : yup.string().required().label("Email"),
-  //   phone: yup.string().required().label("Phone"),  // need phone number validator
-  //   addressLn1: yup.string().required().label("Address Line 1"),
-  //   addressLn2: yup.string().label("Address Line 2"),
-  //   city: yup.string().required().label("City"),
-  //   state: yup.string().required().label("State"),
-  //   zipCode: yup.string().required().label("Zip Code"),
-  // })
-
   const initAthleteForm = () => {
     editContactInfoSchema = yup.object({
-      email : yup.string().required().label("Email"),
-      phone: yup.string().required().label("Phone"),  // need phone number validator
+      email : yup.string().required('Email is required').label("Email"),
+      phone: yup.string().matches(/^[0-9]{10}$/, 'Invalid phone number').required('Phone Number is required').label("Phone"),
     }); 
   }
 
   const initAdminTherapistForm = () => {
     editContactInfoSchema = yup.object({
-      email : yup.string().required().label("Email"),
-      phone: yup.string().required().label("Phone"),  // need phone number validator
+      email : yup.string().required('Email is required').label("Email"),
+      phone: yup.string().matches(/^[0-9]{10}$/, 'Invalid phone number').required('Phone Number is required').label("Phone"),
       addressL1: yup.string().required().label("Address Line 1"),
       addressL2: yup.string().label("Address Line 2"),
       city: yup.string().required().label("City"),
@@ -80,47 +61,15 @@ function EditContactInfoModal({
   };
 
   if (isAthlete) {
-    // console.warn("initAthlete run");
     initAthleteForm();
   } else {
-    // console.warn("initAdminTherapistForm run");
     initAdminTherapistForm();
   }
 
-
-  // console.warn("phone = ", user.userObj.mobile);
-  // console.warn("AuthContext = ", AuthContext);
-  // console.warn("contactInfo = ", contactInfo)
-
-  // const [text, onChangeText] = useState(athleteLocation);
-  // const [bookingProgress, setBookingProgress] = useState(false);
-  // const [bookingDone, setBookingDone] = useState(false);
-  // const { user, setUser } = useContext(AuthContext);
-
-  // const onConfirmPress = async () => {
-  //   try {
-  //       //showProgress
-  //       setBookingProgress(true);
-  //       //format text and call API
-  //       await bookingsApi.bookATherapist(athleteId, athleteLocation, therapistId);
-  //       //hideProgress & showDone
-  //       setBookingProgress(false);
-  //       setBookingDone(true);
-  //       //navigate
-  //       setTimeout(function () {
-  //         setBookingDone(false);
-  //         setVisibility(false);
-  //         navigation.navigate("UpcomingBooking");
-  //       }, 2000);
-  //       notificationsApi.notifyTherapist(therapistId, user.userObj.first_name);        
-  //   } catch (error) {
-  //       console.log('Error on confirm booking', error);
-  //   }
-  // };
-
   const handleSubmit = async (values) => {
+    // return if schema has errors
+    if (!editContactInfoSchema.isValidSync(values)) return false;
     try {
-      // console.warn("values = ", values);
       contactObj.email = values.email;
       contactObj.phone = values.phone;
       contactObj.addressL1 = values.addressL1 || "";
@@ -128,11 +77,8 @@ function EditContactInfoModal({
       contactObj.city = values.city || "";
       contactObj.state = values.state || "";
       contactObj.zipcode = values.zipCode || "";
-      // console.warn("submitContactObj = ", contactObj);
-      // contactApi.editContact(contactObj).then(res => {
-      //   console.warn("res = ", res);
-      // });
       const res = await contactApi.editContact(contactObj);
+      setContactObj(contactObj);
       // ToDo: Implement snackbar
       return true
       
@@ -140,9 +86,6 @@ function EditContactInfoModal({
       Alert.alert("An error occured. Please try again later.");
       return false
     }
-    // contactApi.editContact(contactObj).then(res => {
-    //   console.warn("res = ", res);
-    // });
   }
 
   return (
@@ -160,7 +103,6 @@ function EditContactInfoModal({
             validationSchema={editContactInfoSchema}
             onSubmit={(values,actions) => {
                 handleSubmit(values) ? setVisibility(false) : actions.resetForm();
-                // actions.resetForm();
             }}
             >
                 {(props) => (
@@ -177,6 +119,7 @@ function EditContactInfoModal({
                                       textContentType="emailAddress"
                                       autoCapitalize= "none"
                               />
+                              <Text style={styles.errorText}> {props.touched.email && props.errors.email}</Text>
                           </View>
                         </View>
                         <View style={styles.propContainer}>
@@ -191,6 +134,7 @@ function EditContactInfoModal({
                                       textContentType="telephoneNumber"
                                       autoCapitalize= "none"
                               />
+                                <Text style={styles.errorText}> {props.touched.phone && props.errors.phone}</Text>
                           </View>
                         </View>
 
@@ -320,6 +264,13 @@ const styles = StyleSheet.create({
   },
   emailProp: {
     gridRow: 1,
+  },
+  errorText: {
+    color: "red",
+    fontWeight: "400",
+    fontSize: 10,
+    position: "absolute",
+    bottom: -16
   }
 });
 
