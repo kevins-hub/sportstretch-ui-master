@@ -71,6 +71,10 @@ function TherapistAvailability(props) {
         marginTop: 10,
         borderBottomColor: colors.grey,
         borderBottomWidth: 2,
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
       }}
     >
       {isAvailable}
@@ -103,10 +107,11 @@ const styles = StyleSheet.create({
     // justifyContent:""
   },
   availabilityToggleContainer: {
-    flexDirection: "row",
+    flexDirection: "column",
     justifyContent: "flex-end",
     alignItems: "center",
-    marginVertical: 20,
+    marginVertical: 0,
+    marginRight: 10
     // right: -180
     // paddingBottom:60
   },
@@ -117,6 +122,7 @@ const styles = StyleSheet.create({
     // right: -50
     marginLeft: 10,
     marginRight: 20,
+    marginBottom: 12,
   },
   currentLocation: {
     // top:10,
@@ -129,12 +135,15 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontWeight: "300",
-    fontSize: 24,
+    fontSize: 16,
   },
   toggleText: {
     color: "#959595",
     fontWeight: "300",
-    fontSize: 16,
+    fontSize: 12,
+    marginBottom: 2,
+    position: "absolute",
+    bottom: -5,
     // top: 42,
     // left: 30,
     // width: 75,
@@ -150,7 +159,7 @@ const styles = StyleSheet.create({
   unavailableText: {
     color: "#5F5F5F",
     fontWeight: "400",
-    fontSize: 18,
+    fontSize: 16,
     paddingTop: 15,
     // left: 64
   },
