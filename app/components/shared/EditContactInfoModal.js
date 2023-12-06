@@ -5,13 +5,12 @@ import { TextInput } from "react-native-gesture-handler";
 import { BlurView } from "expo-blur";
 import Constants from "expo-constants";
 import notificationsApi from "../../api/notifications";
-import AuthContext from '../../auth/context';
-import colors from '../../config/colors';
-import * as yup from 'yup';
-import { Formik } from 'formik';
+import AuthContext from "../../auth/context";
+import colors from "../../config/colors";
+import * as yup from "yup";
+import { Formik } from "formik";
 import contactApi from "../../api/contact";
 import contact from "../../api/contact";
-
 
 function EditContactInfoModal({
   user,
@@ -38,26 +37,34 @@ function EditContactInfoModal({
     addressL2: "",
     city: "",
     state: "",
-    zipcode: ""
-  }
+    zipcode: "",
+  };
 
   const initAthleteForm = () => {
     editContactInfoSchema = yup.object({
-      email : yup.string().required('Email is required').label("Email"),
-      phone: yup.string().matches(/^[0-9]{10}$/, 'Invalid phone number').required('Phone Number is required').label("Phone"),
-    }); 
-  }
+      email: yup.string().required("Email is required").label("Email"),
+      phone: yup
+        .string()
+        .matches(/^[0-9]{10}$/, "Invalid phone number")
+        .required("Phone Number is required")
+        .label("Phone"),
+    });
+  };
 
   const initAdminTherapistForm = () => {
     editContactInfoSchema = yup.object({
-      email : yup.string().required('Email is required').label("Email"),
-      phone: yup.string().matches(/^[0-9]{10}$/, 'Invalid phone number').required('Phone Number is required').label("Phone"),
+      email: yup.string().required("Email is required").label("Email"),
+      phone: yup
+        .string()
+        .matches(/^[0-9]{10}$/, "Invalid phone number")
+        .required("Phone Number is required")
+        .label("Phone"),
       addressL1: yup.string().required().label("Address Line 1"),
       addressL2: yup.string().label("Address Line 2"),
       city: yup.string().required().label("City"),
       state: yup.string().required().label("State"),
       zipCode: yup.string().required().label("Zip Code"),
-    })
+    });
   };
 
   if (isAthlete) {
@@ -80,13 +87,12 @@ function EditContactInfoModal({
       const res = await contactApi.editContact(contactObj);
       setContactObj(contactObj);
       // ToDo: Implement snackbar
-      return true
-      
+      return true;
     } catch (error) {
       Alert.alert("An error occured. Please try again later.");
-      return false
+      return false;
     }
-  }
+  };
 
   return (
     <Modal
@@ -99,63 +105,76 @@ function EditContactInfoModal({
         <View style={styles.modalView}>
           <Text style={styles.modalText}>Edit Contact Info</Text>
           <Formik
-            initialValues={{email: contactInfo.email, phone: contactInfo.mobile}}
-            validationSchema={editContactInfoSchema}
-            onSubmit={(values,actions) => {
-                handleSubmit(values) ? setVisibility(false) : actions.resetForm();
+            initialValues={{
+              email: contactInfo.email,
+              phone: contactInfo.mobile,
             }}
-            >
-                {(props) => (
-                    <View style={styles.formContainer}>
-                        <View style={[styles.propContainer, styles.emailProp]}>
-                          <Text style={[styles.labelText]}>Email:</Text>
-                          <View style={styles.inputContainer}>
-                              <TextInput
-                                      style={{flex:1,flexWrap:'wrap'}}
-                                      placeholder="Email"
-                                      onChangeText={props.handleChange('email')}
-                                      value={props.values.email}
-                                      onBlur={props.handleBlur('email')}
-                                      textContentType="emailAddress"
-                                      autoCapitalize= "none"
-                              />
-                              <Text style={styles.errorText}> {props.touched.email && props.errors.email}</Text>
-                          </View>
-                        </View>
-                        <View style={styles.propContainer}>
-                          <Text style={styles.labelText}>Phone:</Text>
-                          <View style={styles.inputContainer}>
-                              <TextInput
-                                      style={{flex:1,flexWrap:'wrap'}}
-                                      placeholder="Phone"
-                                      onChangeText={props.handleChange('phone')}
-                                      value={props.values.phone}
-                                      onBlur={props.handleBlur('phone')}
-                                      textContentType="telephoneNumber"
-                                      autoCapitalize= "none"
-                              />
-                                <Text style={styles.errorText}> {props.touched.phone && props.errors.phone}</Text>
-                          </View>
-                        </View>
+            validationSchema={editContactInfoSchema}
+            onSubmit={(values, actions) => {
+              handleSubmit(values) ? setVisibility(false) : actions.resetForm();
+            }}
+          >
+            {(props) => (
+              <View style={styles.formContainer}>
+                <View style={[styles.propContainer, styles.emailProp]}>
+                  <Text style={[styles.labelText]}>Email:</Text>
+                  <View style={styles.inputContainer}>
+                    <TextInput
+                      style={{ flex: 1, flexWrap: "wrap" }}
+                      placeholder="Email"
+                      onChangeText={props.handleChange("email")}
+                      value={props.values.email}
+                      onBlur={props.handleBlur("email")}
+                      textContentType="emailAddress"
+                      autoCapitalize="none"
+                    />
+                    <Text style={styles.errorText}>
+                      {" "}
+                      {props.touched.email && props.errors.email}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.propContainer}>
+                  <Text style={styles.labelText}>Phone:</Text>
+                  <View style={styles.inputContainer}>
+                    <TextInput
+                      style={{ flex: 1, flexWrap: "wrap" }}
+                      placeholder="Phone"
+                      onChangeText={props.handleChange("phone")}
+                      value={props.values.phone}
+                      onBlur={props.handleBlur("phone")}
+                      textContentType="telephoneNumber"
+                      autoCapitalize="none"
+                    />
+                    <Text style={styles.errorText}>
+                      {" "}
+                      {props.touched.phone && props.errors.phone}
+                    </Text>
+                  </View>
+                </View>
 
-                        <View style={styles.buttonContainer}>
-                          <TouchableOpacity style={styles.cancelButton} onPress={() => setVisibility(false)}>
-                              <View>
-                                  <Text style={styles.cancelButtonText}>Cancel</Text>
-                              </View>
-                          </TouchableOpacity>
-                          <TouchableOpacity style={styles.button} onPress={props.handleSubmit}>
-                            <View>
-                                <Text style={styles.buttonText}>Submit</Text>
-                            </View>
-                          </TouchableOpacity>
-                        </View>
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity
+                    style={styles.cancelButton}
+                    onPress={() => setVisibility(false)}
+                  >
+                    <View>
+                      <Text style={styles.cancelButtonText}>Cancel</Text>
                     </View>
-              )}
-            </Formik>
-      </View>
-
-
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.button}
+                    onPress={props.handleSubmit}
+                  >
+                    <View>
+                      <Text style={styles.buttonText}>Submit</Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+          </Formik>
+        </View>
       </BlurView>
     </Modal>
   );
@@ -202,63 +221,63 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     padding: 10,
     borderRadius: 20,
-    borderColor: '#D3D3D3',
+    borderColor: "#D3D3D3",
     width: 270,
-    backgroundColor: '#F6F6F6'
+    backgroundColor: "#F6F6F6",
   },
   buttonContainer: {
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "column-reverse",
-    width: '100%',
+    width: "100%",
   },
   hideModal: {
     textDecorationLine: "underline",
     backgroundColor: "#FEFEFE",
     color: "#3F3F3F",
   },
-  button : {
+  button: {
     backgroundColor: colors.primary,
     borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
     height: 30,
     margin: 5,
   },
   buttonText: {
-      color: colors.secondary,
-      fontSize: 12
+    color: colors.secondary,
+    fontSize: 12,
   },
   cancelButton: {
     backgroundColor: colors.secondary,
     borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
     height: 30,
     margin: 5,
   },
   cancelButtonText: {
-      color: colors.primary,
-      fontSize: 12
+    color: colors.primary,
+    fontSize: 12,
   },
   formContainer: {
-    display: 'grid',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%'
+    display: "grid",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
   },
   propContainer: {
-    marginBottom: '10%',
-    flexDirection: 'row',
-    alignItems: 'center',
+    marginBottom: "10%",
+    flexDirection: "row",
+    alignItems: "center",
   },
   inputContainer: {
-    flexDirection:'row',
-    borderWidth:1,
-    borderRadius:8,
-    padding:'2%',
+    flexDirection: "row",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: "2%",
     width: 140,
     marginLeft: 10,
   },
@@ -270,8 +289,8 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     fontSize: 10,
     position: "absolute",
-    bottom: -16
-  }
+    bottom: -16,
+  },
 });
 
 export default EditContactInfoModal;

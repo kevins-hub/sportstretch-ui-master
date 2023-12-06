@@ -1,15 +1,15 @@
-import {create} from 'apisauce';
-import authStorage from '../auth/storage';
+import { create } from "apisauce";
+import authStorage from "../auth/storage";
 
 const apiClient = create({
-    baseURL: 'https://sportstretch-api.herokuapp.com/'
-    //baseURL: 'https://localhost:3000'
+  baseURL: "https://sportstretch-api.herokuapp.com/",
+  //baseURL: 'https://localhost:3000'
 });
 
 apiClient.addAsyncRequestTransform(async (request) => {
-    const authToken = await authStorage.getToken();
-    if (!authToken) return;
-    request.headers["x-auth-token"] = authToken;
+  const authToken = await authStorage.getToken();
+  if (!authToken) return;
+  request.headers["x-auth-token"] = authToken;
 });
 
 export default apiClient;

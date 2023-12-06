@@ -1,4 +1,4 @@
-import React, { useContext, useState  } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import jwtDecode from "jwt-decode";
 import { ScrollView } from "react-native-gesture-handler";
@@ -33,13 +33,18 @@ function LoginScreen(props) {
   const handleSubmit = async ({ email, password }) => {
     try {
       const result = await authApi.login(email, password);
-      if (!result.ok) return setErrorText(result.data === "Invalid email or password." ? "Invalid email and/or password." : result.data);
+      if (!result.ok)
+        return setErrorText(
+          result.data === "Invalid email or password."
+            ? "Invalid email and/or password."
+            : result.data
+        );
       setErrorText("");
       const user = jwtDecode(result.data);
       authContext.setUser(user);
       authStorage.storeToken(result.data);
     } catch (error) {
-      setErrorText("Error when logging in. Please try again.")
+      setErrorText("Error when logging in. Please try again.");
     }
   };
 
@@ -70,14 +75,20 @@ function LoginScreen(props) {
               <Text
                 style={{
                   marginTop: 57,
-                  alignSelf:"center",
+                  alignSelf: "center",
                   fontSize: 28,
                   color: "#000000",
                 }}
               >
                 SportStretch
               </Text>
-              <Text style={{color:"#f60a0e", alignSelf:"center",marginTop:"5%"}} >
+              <Text
+                style={{
+                  color: "#f60a0e",
+                  alignSelf: "center",
+                  marginTop: "5%",
+                }}
+              >
                 {errorText}
               </Text>
 
@@ -128,19 +139,27 @@ function LoginScreen(props) {
                 {" "}
                 {props.touched.password && props.errors.password}
               </Text>
-                <TouchableOpacity style={styles.button} onPress={props.handleSubmit}>
-                  <Text style={styles.buttonText}>Login</Text>
-                </TouchableOpacity>
-              <View  style={{ marginLeft: "auto", marginRight: "auto" }}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={props.handleSubmit}
+              >
+                <Text style={styles.buttonText}>Login</Text>
+              </TouchableOpacity>
+              <View style={{ marginLeft: "auto", marginRight: "auto" }}>
                 <TouchableOpacity
-                    onPress={() => navigation.navigate("ForgotPassword")}
-                    style={styles.forgotPasswordLink}
-                  >
-                    <Text style={styles.forgotPasswordLink}>{"Forgot Password?"}</Text>
-                  </TouchableOpacity>
+                  onPress={() => navigation.navigate("ForgotPassword")}
+                  style={styles.forgotPasswordLink}
+                >
+                  <Text style={styles.forgotPasswordLink}>
+                    {"Forgot Password?"}
+                  </Text>
+                </TouchableOpacity>
               </View>
               <View
-                style={{ flexDirection: "row", justifyContent: "space-between" }}
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
               >
                 <TouchableOpacity
                   onPress={() => navigation.navigate("RegisterAthlete")}
@@ -177,7 +196,7 @@ const styles = StyleSheet.create({
     color: colors.secondary,
     fontSize: 20,
     fontWeight: "600",
-    alignSelf:"center",
+    alignSelf: "center",
     paddingTop: 10,
   },
   container: {
@@ -206,8 +225,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   errorText: {
-    
-    marginLeft:"20%",
+    marginLeft: "20%",
     padding: "2%",
     color: "#C6C6C6",
     fontWeight: "400",
@@ -229,25 +247,25 @@ const styles = StyleSheet.create({
   logo: {
     width: 115,
     height: 115,
-    alignSelf:"center",
-    marginTop:"20%"
+    alignSelf: "center",
+    marginTop: "20%",
   },
-  reg:{
-    textDecorationLine: 'underline',
-    backgroundColor:"#FEFEFE",
-    color:"#3F3F3F",
-    fontSize:18,
-    padding:"2.5%",
-    marginTop:"2.5%",
-    marginLeft:"0%"
+  reg: {
+    textDecorationLine: "underline",
+    backgroundColor: "#FEFEFE",
+    color: "#3F3F3F",
+    fontSize: 18,
+    padding: "2.5%",
+    marginTop: "2.5%",
+    marginLeft: "0%",
   },
   forgotPasswordLink: {
-    textDecorationLine: 'underline',
-    backgroundColor:"#FEFEFE",
-    color:"#3F3F3F",
-    fontSize:14,
-    padding:"2.5%"
-  }
+    textDecorationLine: "underline",
+    backgroundColor: "#FEFEFE",
+    color: "#3F3F3F",
+    fontSize: 14,
+    padding: "2.5%",
+  },
 });
 
 export default LoginScreen;

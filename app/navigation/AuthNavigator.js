@@ -19,9 +19,18 @@ function AuthNavigator() {
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="RegisterAthlete" component={AthleteForm} />
       <Stack.Screen name="RegisterTherapist" component={TherapistForm} />
-      <Stack.Screen name="TherapistRegistrationPending" component={TherapistRegistrationPending} />
-      <Stack.Screen name="ForgotPassword" component={ForgotPasswordVerifyEmailForm} />
-      <Stack.Screen name="ForgotPasswordVerifyToken" component={ForgotPasswordVerifyResetTokenForm} />
+      <Stack.Screen
+        name="TherapistRegistrationPending"
+        component={TherapistRegistrationPending}
+      />
+      <Stack.Screen
+        name="ForgotPassword"
+        component={ForgotPasswordVerifyEmailForm}
+      />
+      <Stack.Screen
+        name="ForgotPasswordVerifyToken"
+        component={ForgotPasswordVerifyResetTokenForm}
+      />
       <Stack.Screen name="ResetPassword" component={ResetPasswordForm} />
     </Stack.Navigator>
   );

@@ -1,9 +1,9 @@
-import apiClient from './client';
+import apiClient from "./client";
 
-const endpoint = '/expoPushTokens';
+const endpoint = "/expoPushTokens";
 
-const register = (pushToken) => apiClient.post(endpoint, {token: pushToken});
+const register = (pushToken) => apiClient.post(endpoint, { token: pushToken });
 
 export default {
-    register,
+  register,
 };

@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   OuterContainer: {
     paddingTop: 10,
     paddingLeft: 10,
-    paddingRight:10,
+    paddingRight: 10,
     paddingBottom: 5,
   },
 
