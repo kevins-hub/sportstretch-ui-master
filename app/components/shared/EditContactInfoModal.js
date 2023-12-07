@@ -153,6 +153,101 @@ function EditContactInfoModal({
                   </View>
                 </View>
 
+                {!isAthlete && (
+                  <>
+                    <View style={styles.propContainer}>
+                      <Text style={styles.labelText}>Address:</Text>
+                      <View style={styles.inputContainer}>
+                        <TextInput
+                          style={{ flex: 1, flexWrap: "wrap" }}
+                          placeholder="Address"
+                          onChangeText={props.handleChange("addressL1")}
+                          value={props.values.addressL1}
+                          onBlur={props.handleBlur("addressL1")}
+                          textContentType="streetAddressLine1"
+                          autoCapitalize="none"
+                        />
+                        <Text style={styles.errorText}>
+                          {" "}
+                          {props.touched.addressL1 && props.errors.addressL1}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.propContainer}>
+                      <Text style={styles.labelText}>Address Line 2:</Text>
+                      <View style={styles.inputContainer}>
+                        <TextInput
+                          style={{ flex: 1, flexWrap: "wrap" }}
+                          placeholder="Address Line 2"
+                          onChangeText={props.handleChange("addressL2")}
+                          value={props.values.addressL2}
+                          onBlur={props.handleBlur("addressL2")}
+                          textContentType="streetAddressLine2"
+                          autoCapitalize="none"
+                        />
+                        <Text style={styles.errorText}>
+                          {" "}
+                          {props.touched.addressL2 && props.errors.addressL2}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.propContainer}>
+                      <Text style={styles.labelText}>City:</Text>
+                      <View style={styles.inputContainer}>
+                        <TextInput
+                          style={{ flex: 1, flexWrap: "wrap" }}
+                          placeholder="City"
+                          onChangeText={props.handleChange("city")}
+                          value={props.values.city}
+                          onBlur={props.handleBlur("city")}
+                          textContentType="cityName"
+                          autoCapitalize="none"
+                        />
+                        <Text style={styles.errorText}>
+                          {" "}
+                          {props.touched.city && props.errors.city}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.propContainer}>
+                      <Text style={styles.labelText}>State:</Text>
+                      <View style={styles.inputContainer}>
+                        <TextInput
+                          style={{ flex: 1, flexWrap: "wrap" }}
+                          placeholder="State"
+                          onChangeText={props.handleChange("state")}
+                          value={props.values.state}
+                          onBlur={props.handleBlur("state")}
+                          textContentType="state"
+                          autoCapitalize="none"
+                        />
+                        <Text style={styles.errorText}>
+                          {" "}
+                          {props.touched.state && props.errors.state}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.propContainer}>
+                      <Text style={styles.labelText}>Zip Code:</Text>
+                      <View style={styles.inputContainer}>
+                        <TextInput
+                          style={{ flex: 1, flexWrap: "wrap" }}
+                          placeholder="Zip Code"
+                          onChangeText={props.handleChange("zipcode")}
+                          value={props.values.zipcode}
+                          onBlur={props.handleBlur("zipcode")}
+                          textContentType="zipCode"
+                          autoCapitalize="none"
+                        />
+                        <Text style={styles.errorText}>
+                          {" "}
+                          {props.touched.zipcode && props.errors.zipcode}
+                        </Text>
+                      </View>
+                    </View>
+                  </>
+                )}
+
                 <View style={styles.buttonContainer}>
                   <TouchableOpacity
                     style={styles.cancelButton}
