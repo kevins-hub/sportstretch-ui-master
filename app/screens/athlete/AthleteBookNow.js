@@ -40,7 +40,7 @@ function AthleteBookNow(props) {
   };
 
   const getTherapists = async (athleteRegion) => {
-    let response = await therapistsApi.getNearbyTherapists(athleteRegion);
+    let response = await therapistsApi.getTherapistsByState(athleteRegion);
     setTherapists(response.data);
     return response.data;
   };
@@ -62,6 +62,7 @@ function AthleteBookNow(props) {
       try {
         let athleteLocation = await loadLocation();
         let athleteRegion = await getAthleteRegion(athleteLocation);
+        console.warn("athleteRegion = ", athleteRegion);
         let therapists = await getTherapists(athleteRegion);
         setSelectedTherapist(therapists[0]);
         await loadMarkers(therapists);

@@ -163,7 +163,7 @@ function ProfileSettings({ route }) {
                         {contactObj.street} {contactObj.apartment_no}
                       </Text>
                       <Text>
-                        {contactObj.city}, {contactObj.state} {contactObj.zip}
+                        {contactObj.city}, {contactObj.state} {contactObj.zipcode}
                       </Text>
                     </View>
                   )}

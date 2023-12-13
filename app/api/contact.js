@@ -7,6 +7,7 @@ const getContact = (authId) => {
 };
 
 const editContact = (contactObj) => {
+	console.warn("editContact: ", contactObj);
   return apiClient.put(endpoint + "/edit-contact/", contactObj);
 };
 
