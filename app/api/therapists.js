@@ -6,7 +6,7 @@ const getAllTherapists = () => {
   return apiClient.get(endpoint + "/all");
 };
 
-const getNearbyTherapists = (athleteRegion) => {
+const getTherapistsByState = (athleteRegion) => {
   return apiClient.get(endpoint + "/enabled/online/?state=" + athleteRegion);
 };
 
@@ -32,7 +32,7 @@ const setToggle = (therapistId, enabled) => {
 
 export default {
   getAllTherapists,
-  getNearbyTherapists,
+  getTherapistsByState,
   setAvailability,
   getAllRequests,
   denyTherapist,
