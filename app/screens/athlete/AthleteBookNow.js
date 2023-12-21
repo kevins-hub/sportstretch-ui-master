@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View } from "react-native";
+import { View, SafeAreaView } from "react-native";
 import * as Location from "expo-location";
 import AthleteBookNowCard from "../../components/athlete/AthleteBookNowCard";
 import AthleteMapView from "../../components/athlete/AthleteMapView";
 import therapistsApi from "../../api/therapists";
+import SearchTherapist from "../../components/athlete/SearchTherapist";
+import TherapistSwipeList from "../../components/athlete/TherapistSwipeList";
 
 function AthleteBookNow(props) {
   const [therapists, setTherapists] = useState([]);
@@ -40,9 +42,15 @@ function AthleteBookNow(props) {
   };
 
   const getTherapists = async (athleteRegion) => {
-    let response = await therapistsApi.getTherapistsByState(athleteRegion);
-    setTherapists(response.data);
-    return response.data;
+    setTherapists([]);
+    try {
+      const response = await therapistsApi.getTherapistsByState(athleteRegion);
+      setTherapists(response.data);
+      setSelectedTherapist(response.data[0]);
+      return response.data;
+    } catch (error) {
+      console.error("Error on book now getTherapists", error);
+    }
   };
 
   const loadMarkers = async (therapists) => {
@@ -62,9 +70,8 @@ function AthleteBookNow(props) {
       try {
         let athleteLocation = await loadLocation();
         let athleteRegion = await getAthleteRegion(athleteLocation);
-        console.warn("athleteRegion = ", athleteRegion);
         let therapists = await getTherapists(athleteRegion);
-        setSelectedTherapist(therapists[0]);
+        // setSelectedTherapist(therapists[0]);
         await loadMarkers(therapists);
       } catch (err) {
         console.log("Error", err.message);
@@ -78,16 +85,24 @@ function AthleteBookNow(props) {
 
   return (
     <View style={{ flex: 1, marginBottom: 10 }}>
+      <SearchTherapist getTherapists={getTherapists} currentState={athleteRegion}></SearchTherapist>
       <AthleteMapView
         markers={markers}
         selectedTherapist={selectedTherapist}
         userLocation={location}
         onMarkerPress={handleMarkerPress}
       />
-      <AthleteBookNowCard
+    <SafeAreaView style={{ flex: 1 }}>
+      <TherapistSwipeList
+        therapists={therapists}
+        athleteAddress={athleteAddress}
+      />
+    </SafeAreaView>
+
+      {/* <AthleteBookNowCard
         selectedTherapist={selectedTherapist}
         athleteAddress={athleteAddress}
-      ></AthleteBookNowCard>
+      ></AthleteBookNowCard> */}
     </View>
   );
 }

@@ -28,8 +28,6 @@ function ProfileSettings({ route }) {
 
   const { user } = route.params;
 
-  console.warn("user = ", user);
-
   const loadLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") return;

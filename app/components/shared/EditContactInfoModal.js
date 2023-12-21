@@ -133,7 +133,6 @@ function EditContactInfoModal({
             }
             validationSchema={editContactInfoSchema}
             onSubmit={(values, actions) => {
-              console.warn("onSubmit");
               handleSubmit(values) ? setVisibility(false) : actions.resetForm();
             }}
           >
