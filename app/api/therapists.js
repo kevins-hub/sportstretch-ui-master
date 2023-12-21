@@ -7,8 +7,12 @@ const getAllTherapists = () => {
 };
 
 const getTherapistsByState = (athleteRegion) => {
-  return apiClient.get(endpoint + "/enabled/online/?state=" + athleteRegion);
+  return apiClient.get(endpoint + "/enabled/online/?state=" + athleteRegion);  // 2 letter state code
 };
+
+const getTherapistStates = () => {
+    return apiClient.get(endpoint + "/states");
+}
 
 const setAvailability = (therapistId, statusObj) => {
   return apiClient.put(endpoint + "/setAvailability/" + therapistId, statusObj);
@@ -33,6 +37,7 @@ const setToggle = (therapistId, enabled) => {
 export default {
   getAllTherapists,
   getTherapistsByState,
+  getTherapistStates,
   setAvailability,
   getAllRequests,
   denyTherapist,
