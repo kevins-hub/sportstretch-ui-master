@@ -112,7 +112,7 @@ function EditContactInfoModal({
       onRequestClose={() => {}}
     >
       <BlurView intensity={50} style={styles.centeredView}>
-        <View style={styles.modalView}>
+        <View style={isAthlete ? styles.modalViewAthlete : styles.modalView}>
           <Text style={styles.modalText}>Edit Contact Info</Text>
           <Formik
             initialValues={
@@ -285,6 +285,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: Constants.statusBarHeight,
   },
+  modalViewAthlete: {
+    backgroundColor: "white",
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    height: 280,
+    width: 300,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    padding: 10,
+  },
   modalView: {
     backgroundColor: "white",
     borderRadius: 20,
@@ -298,7 +318,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    height: 300,
+    height: 500,
     width: 300,
     display: "flex",
     flexDirection: "column",
