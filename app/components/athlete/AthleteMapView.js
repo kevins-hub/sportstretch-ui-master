@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
-
+import * as Location from "expo-location";
 import MapView, { Marker } from "react-native-maps";
 import colors from "../../config/colors";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import { stateShortToLong } from "../../lib/states";
 
 const initMapRegion = {
   latitude: 39.129065,
@@ -16,20 +18,41 @@ function AthleteMapView({
   markers,
   selectedTherapist,
   userLocation,
+  userRegion,
   onMarkerPress,
 }) {
   const [region, setRegion] = useState(initMapRegion);
 
   useEffect(() => {
     if (userLocation) {
-      setRegion({
-        latitude: userLocation.coords.latitude,
-        longitude: userLocation.coords.longitude,
-        latitudeDelta: 0.25,
-        longitudeDelta: 0.25,
-      });
+      if (stateShortToLong(userRegion) !== selectedTherapist.state) {
+        setRegionToTherapistRegion(selectedTherapist);
+      } else {
+        setRegion({
+          latitude: userLocation.coords.latitude,
+          longitude: userLocation.coords.longitude,
+          latitudeDelta: 0.25,
+          longitudeDelta: 0.25,
+        });
+      }
     }
-  }, [markers]);
+  }, [markers, selectedTherapist]);
+
+  const setRegionToTherapistRegion = async (therapist) => {
+    console.warn("therapist = ", therapist);
+    let therapistRegion = await Location.geocodeAsync(
+      therapist.street + " " + therapist.city + " " + therapist.state
+    );
+    const therapistLocation = therapistRegion[0];
+    setRegion({
+      latitude: therapistLocation.latitude,
+      longitude: therapistLocation.longitude,
+      latitudeDelta: 0.25,
+      longitudeDelta: 0.25,
+    });
+    return;
+  }
+
 
   return (
     <View style={styles.container}>
@@ -53,13 +76,13 @@ function AthleteMapView({
               {marker.therapistId == selectedTherapist.therapist_id ? (
                 <FontAwesome5
                   name="map-marker-alt"
-                  size={60}
+                  size={40}
                   color={colors.mapred}
                 />
               ) : (
                 <FontAwesome5
                   name="map-marker-alt"
-                  size={40}
+                  size={28}
                   color={colors.primary}
                 />
               )}

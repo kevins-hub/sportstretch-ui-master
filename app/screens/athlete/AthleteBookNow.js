@@ -47,6 +47,7 @@ function AthleteBookNow(props) {
       const response = await therapistsApi.getTherapistsByState(athleteRegion);
       setTherapists(response.data);
       setSelectedTherapist(response.data[0]);
+      await loadMarkers(response.data);
       return response.data;
     } catch (error) {
       console.error("Error on book now getTherapists", error);
@@ -90,6 +91,7 @@ function AthleteBookNow(props) {
         markers={markers}
         selectedTherapist={selectedTherapist}
         userLocation={location}
+        userRegion={athleteRegion}
         onMarkerPress={handleMarkerPress}
       />
     <SafeAreaView style={{ flex: 1 }}>
