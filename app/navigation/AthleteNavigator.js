@@ -5,7 +5,7 @@ import AthleteBookNow from "../screens/athlete/AthleteBookNow";
 import AthletePastBooking from "../screens/athlete/AthletePastBooking";
 import AthleteUpcomingBooking from "../screens/athlete/AthleteUpcomingBooking";
 import colors from "../config/colors";
-import ChangePasswordForm from "../screens/password/ChangePassword";
+import ChangePasswordForm from "../screens/password/ChangePasswordModal";
 
 const Tab = createMaterialTopTabNavigator();
 const Stack = createStackNavigator();

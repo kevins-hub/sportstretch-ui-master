@@ -21,18 +21,21 @@ function LogOutButton() {
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     borderRadius: 25,
     justifyContent: "center",
     alignItems: "center",
-    width: 110,
-    height: 46,
+    width: "100%",
+    height: 30,
     margin: 5,
+    shadowColor: colors.grey,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 1,
   },
 
   text: {
-    color: colors.secondary,
-    fontSize: 18,
+    color: "red",
+    fontSize: 12,
   },
 });
 
