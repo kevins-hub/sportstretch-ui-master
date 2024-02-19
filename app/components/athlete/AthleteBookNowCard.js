@@ -21,15 +21,22 @@ function AthleteBookNowCard({ selectedTherapist, athleteAddress }) {
         therapistId={selectedTherapist.therapist_id}
         athleteId={user.userObj.athlete_id}
         athleteLocation={athleteAddress}
+        therapistName={selectedTherapist.first_name}
+        therapistHourly={selectedTherapist.hourly_rate}
+        therapistSummary={selectedTherapist.summary}
+        therapistServices={selectedTherapist.services}
       />
       <View style={styles.OuterContainer}>
         <View style={styles.Container}>
           <View style={styles.TherapistContainer}>
-            <View style={styles.TherapistNameContainer}>
+            <View style={styles.TherapistDetailContainer}>
               <Text style={styles.TherapistNameText}>
                 {selectedTherapist ? selectedTherapist.first_name : ""}
               </Text>
-              <Text style={{ fontSize: 15, color: colors.dullblack }}>
+              <Text style={{ fontSize: 15, color: colors.dullblack, marginBottom: 4 }}>
+                {selectedTherapist ? selectedTherapist.profession : ""}
+              </Text>
+              <Text style={{ fontSize: 12, color: colors.dullblack }}>
                 {selectedTherapist ? selectedTherapist.city : ""},{" "}
                 {selectedTherapist ? selectedTherapist.state : ""}
               </Text>
@@ -88,7 +95,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 
-  TherapistNameContainer: {
+  TherapistDetailContainer: {
     flex: 1,
   },
 
@@ -99,6 +106,7 @@ const styles = StyleSheet.create({
 
   DetailContainer: {
     flex: 2,
+    alignItems:"left",
   },
 
   BookButtonContainer: {
