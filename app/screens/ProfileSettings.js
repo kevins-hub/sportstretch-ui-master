@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
 } from "react-native";
 import LogOutButton from "../components/shared/LogOutButton";
-import ChangePasswordButton from "../components/shared/ChangePasswordButton";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 // import FontAwesome from '@expo/vector-icons';
 import colors from "../config/colors";
@@ -15,6 +14,7 @@ import authStorage from "../auth/storage";
 import contactApi from "../api/contact";
 import EditContactInfoModal from "../components/shared/EditContactInfoModal";
 import EditBillingInfoModal from "../components/shared/EditBillingInfoModal";
+import ChangePasswordModal from "./password/ChangePasswordModal";
 import * as Location from "expo-location";
 
 function ProfileSettings({ route }) {
@@ -22,6 +22,7 @@ function ProfileSettings({ route }) {
     useState(false);
   const [editBillingInfoModalVisible, setEditBillingInfoModalVisible] =
     useState(false);
+  const [changePasswordModalVisible, setChangePasswordModalVisible] = useState(false);
   const [contactObj, setContactObj] = useState({});
   const [athleteCity, setAthleteCity] = useState("");
   const [athleteState, setAthleteState] = useState("");
@@ -84,6 +85,7 @@ function ProfileSettings({ route }) {
         visible={editBillingInfoModalVisible}
         setVisibility={setEditBillingInfoModalVisible}
       />
+      <ChangePasswordModal visible={changePasswordModalVisible} setVisibility={setChangePasswordModalVisible} />
       <ScrollView style={styles.scrollViewStyle}>
         <View style={styles.container}>
           {/* <Text>Profile settings</Text> */}
@@ -219,6 +221,11 @@ function ProfileSettings({ route }) {
               </ScrollView> */}
           <View style={styles.buttonContainer}>
             <LogOutButton />
+            <TouchableOpacity style={styles.cancelButton} onPress={() => setChangePasswordModalVisible(true)}>
+              <View>
+                <Text style={styles.bottomButtonText}>Change Password</Text>
+              </View>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -313,9 +320,11 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   buttonContainer: {
-    width: "100%",
+    justifyContent: "center",
     alignItems: "center",
-    marginBottom: "4%",
+    flexDirection: "column-reverse",
+    width: "92%",
+    margin: "4%"
   },
   button: {
     backgroundColor: colors.primary,
@@ -329,10 +338,29 @@ const styles = StyleSheet.create({
     right: 4,
     top: 4,
   },
+  cancelButton: {
+    backgroundColor: colors.secondary,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+    height: 30,
+    margin: 5,
+    shadowColor: colors.grey,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 1,
+  },
+  bottomButtonText: {
+    color: colors.primary,
+    fontSize: 12,
+  },
   buttonText: {
     color: colors.secondary,
     fontSize: 14,
   },
+
+
+
   // accountIcon: {
   //   marginTop: '5%'
   // },
