@@ -11,6 +11,7 @@ import BookingProgressIndicator from "./BookingProgressIndicator";
 import BookingDoneIndicator from "./BookingDoneIndicator";
 import notificationsApi from "../../api/notifications";
 import AuthContext from "../../auth/context";
+import colors from "../../config/colors";
 
 function BookModal({
   visible,
@@ -66,30 +67,37 @@ function BookModal({
           <BookingDoneIndicator visible={bookingDone} />
           {!bookingProgress && !bookingDone && (
             <View style={styles.modalContent}>
-              <Text style={styles.modalText}>Book your appointment with {therapistName}</Text>
-              <Text>Your Recovery Specialist:</Text>
-              <Text>{therapistName}</Text>
-              <Text>Summary:</Text>
-              <Text>{therapistSummary}</Text>
-              <Text>Services:</Text>
-              <Text>{therapistServices}</Text>
-              <Text>Hourly Rate: ${therapistHourly}</Text>
-
-
-
-
+              <Text style={styles.modalText}>Book your appointment with {therapistName}!</Text>
+              <View style={styles.therapistDetails}>
+                <View style={styles.propContainer}>
+                  <Text style={styles.propTitle}>Your Recovery Specialist:</Text>
+                  <Text>{therapistName}</Text>
+                </View>
+                <View style={styles.propContainer}>
+                  <Text style={styles.propTitle}>Summary:</Text>
+                  <Text>{therapistSummary}</Text>
+                </View>
+                <View style={styles.propContainer}>
+                  <Text style={styles.propTitle}>Services:</Text>
+                  <Text>{therapistServices}</Text>
+                </View>
+                <View style={styles.propContainer}>
+                  <Text style={styles.propTitle}>Hourly Rate:</Text>
+                  <Text>${therapistHourly}</Text>
+                </View>
+              </View>
               <TextInput
                 style={styles.input}
                 onChangeText={onChangeText}
                 value={text}
               />
               <View style={styles.buttonContainer}>
-                <TouchableOpacity
+                <TouchableOpacity style={styles.button}
                   onPress={() => {
                     setVisibility(false);
                   }}
                 >
-                  <Text style={styles.hideModal}>{"Cancel"}</Text>
+                  <Text style={styles.cancelButtonText}>{"Cancel"}</Text>
                 </TouchableOpacity>
                 <BookButton title="Confirm" onPress={onConfirmPress} />
               </View>
@@ -126,12 +134,23 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     margin: 10,
+    marginLeft: 10,
+    height: "92%",
+    width: "92%",
   },
   modalText: {
     marginBottom: 16,
     textAlign: "center",
     fontSize: 15,
     fontWeight: "bold",
+  },
+  propContainer: {
+    marginBottom: 10,
+  },
+  propTitle: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 2,
   },
   input: {
     marginBottom: 10,
@@ -143,15 +162,25 @@ const styles = StyleSheet.create({
     backgroundColor: "#F6F6F6",
   },
   buttonContainer: {
+    position: "absolute",
+    bottom: 0,
     justifyContent: "center",
     alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-evenly",
+    flexDirection: "column-reverse",
+    width: "100%",
   },
-  hideModal: {
-    textDecorationLine: "underline",
-    backgroundColor: "#FEFEFE",
-    color: "#3F3F3F",
+  button: {
+    backgroundColor: colors.secondary,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+    height: 30,
+    margin: 5,
+  },
+  cancelButtonText: {
+    color: colors.primary,
+    fontSize: 12,
   },
 });
 
