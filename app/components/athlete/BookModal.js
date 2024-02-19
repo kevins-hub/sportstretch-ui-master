@@ -18,6 +18,10 @@ function BookModal({
   therapistId,
   athleteId,
   athleteLocation,
+  therapistName,
+  therapistHourly,
+  therapistSummary,
+  therapistServices,
 }) {
   if (!visible) return null;
 
@@ -62,7 +66,18 @@ function BookModal({
           <BookingDoneIndicator visible={bookingDone} />
           {!bookingProgress && !bookingDone && (
             <View style={styles.modalContent}>
-              <Text style={styles.modalText}>Confirm your location</Text>
+              <Text style={styles.modalText}>Book your appointment with {therapistName}</Text>
+              <Text>Your Recovery Specialist:</Text>
+              <Text>{therapistName}</Text>
+              <Text>Summary:</Text>
+              <Text>{therapistSummary}</Text>
+              <Text>Services:</Text>
+              <Text>{therapistServices}</Text>
+              <Text>Hourly Rate: ${therapistHourly}</Text>
+
+
+
+
               <TextInput
                 style={styles.input}
                 onChangeText={onChangeText}
@@ -106,16 +121,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    height: 180,
+    height: "80%",
     width: 300,
   },
   modalContent: {
     margin: 10,
   },
   modalText: {
-    marginBottom: 15,
+    marginBottom: 16,
     textAlign: "center",
-    fontSize: 20,
+    fontSize: 15,
     fontWeight: "bold",
   },
   input: {
