@@ -9,6 +9,7 @@ import BookModal from "./BookModal";
 
 function AthleteBookNowCard({ selectedTherapist, athleteAddress }) {
   if (!selectedTherapist) return null;
+  if (!selectedTherapist.hourly_rate) return null;
 
   const [modalVisible, setModalVisible] = useState(false);
   const { user, setUser } = useContext(AuthContext);
@@ -33,7 +34,13 @@ function AthleteBookNowCard({ selectedTherapist, athleteAddress }) {
               <Text style={styles.TherapistNameText}>
                 {selectedTherapist ? selectedTherapist.first_name : ""}
               </Text>
-              <Text style={{ fontSize: 15, color: colors.dullblack, marginBottom: 4 }}>
+              <Text
+                style={{
+                  fontSize: 15,
+                  color: colors.dullblack,
+                  marginBottom: 4,
+                }}
+              >
                 {selectedTherapist ? selectedTherapist.profession : ""}
               </Text>
               <Text style={{ fontSize: 12, color: colors.dullblack }}>
@@ -41,10 +48,30 @@ function AthleteBookNowCard({ selectedTherapist, athleteAddress }) {
                 {selectedTherapist ? selectedTherapist.state : ""}
               </Text>
             </View>
-            <View style={styles.RatingContainer}>
-              <Text style={{ fontSize: 25, color: colors.gold }}>
-                {selectedTherapist ? selectedTherapist.average_rating : 0}
+            <View style={styles.PriceRatingContainer}>
+              <Text style={styles.Price}>
+                $
+                {selectedTherapist
+                  ? `${Number(selectedTherapist.hourly_rate).toFixed(0)}`
+                  : 0}
+                /hr
               </Text>
+              <View style={styles.RatingContainer}>
+                <Rating
+                  imageSize={15}
+                  readonly
+                  startingValue={
+                    selectedTherapist ? selectedTherapist.average_rating : 0
+                  }
+                />
+                <Text style={{ fontSize: 14, color: colors.gold }}>
+                  {selectedTherapist
+                    ? `(${Number(selectedTherapist.average_rating).toFixed(1)})`
+                    : "(0.0)"}
+                </Text>
+              </View>
+            </View>
+            {/* <View style={styles.RatingContainer}>
               <Rating
                 imageSize={15}
                 readonly
@@ -52,7 +79,10 @@ function AthleteBookNowCard({ selectedTherapist, athleteAddress }) {
                   selectedTherapist ? selectedTherapist.average_rating : 0
                 }
               />
-            </View>
+              <Text style={{ fontSize: 14, color: colors.gold }}>
+                {selectedTherapist ? `(${selectedTherapist.average_rating})` : '(0.0)'}
+              </Text>
+            </View> */}
           </View>
           <View>
             <View style={styles.BookButtonContainer}>
@@ -92,21 +122,38 @@ const styles = StyleSheet.create({
   TherapistContainer: {
     flex: 1,
     flexDirection: "row",
-    padding: 10,
+    justifyContent: "space-between",
+    padding: 6,
   },
 
   TherapistDetailContainer: {
     flex: 1,
   },
 
+  PriceRatingContainer: {
+    flex: 0.5,
+    flexDirection: "column",
+    justifyContent: "space-around",
+    alignItems: "right",
+    width: "10%",
+  },
+
+  Price: {
+    fontSize: 15,
+    width: "100%",
+    color: colors.dullblack,
+    textAlign: "right",
+  },
+
   RatingContainer: {
     flex: 0.5,
+    flexDirection: "row",
     alignItems: "center",
   },
 
   DetailContainer: {
     flex: 2,
-    alignItems:"left",
+    alignItems: "left",
   },
 
   BookButtonContainer: {
@@ -116,7 +163,7 @@ const styles = StyleSheet.create({
   },
 
   TherapistNameText: {
-    fontSize: 25,
+    fontSize: 18,
     fontWeight: "400",
     color: colors.dullblack,
   },
