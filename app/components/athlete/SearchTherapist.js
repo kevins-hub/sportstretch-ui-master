@@ -58,7 +58,7 @@ function SearchTherapist({ getTherapists, currentState }) {
       </Text>
       <RNPickerSelect
         placeholder={{
-          label: "My Area",
+          label: "My Area (click to change)",
           value: currentState,
         }}
         value={selectedState}

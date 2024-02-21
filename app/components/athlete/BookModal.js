@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useMemo, useContext } from "react";
 import { Modal, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { TextInput } from "react-native-gesture-handler";
@@ -12,6 +12,7 @@ import BookingDoneIndicator from "./BookingDoneIndicator";
 import notificationsApi from "../../api/notifications";
 import AuthContext from "../../auth/context";
 import colors from "../../config/colors";
+import RadioGroup from "react-native-radio-buttons-group";
 
 function BookModal({
   visible,
@@ -31,7 +32,24 @@ function BookModal({
   const [text, onChangeText] = useState(athleteLocation);
   const [bookingProgress, setBookingProgress] = useState(false);
   const [bookingDone, setBookingDone] = useState(false);
+  const [selectedLocationOption, setSelectedLocationOption] = useState("2");
   const { user, setUser } = useContext(AuthContext);
+
+  const locations = useMemo(
+    () => [
+      {
+        id: "1",
+        label: "Clinic",
+        value: "clinic",
+      },
+      {
+        id: "2",
+        label: "Home/Facility",
+        value: "home",
+      },
+    ],
+    []
+  );
 
   const onConfirmPress = async () => {
     try {
@@ -67,39 +85,81 @@ function BookModal({
           <BookingDoneIndicator visible={bookingDone} />
           {!bookingProgress && !bookingDone && (
             <View style={styles.modalContent}>
-              <Text style={styles.modalText}>Book your appointment with {therapistName}!</Text>
+              <Text style={styles.modalText}>
+                Book your appointment with {therapistName}!
+              </Text>
               <View style={styles.therapistDetails}>
                 <View style={styles.propContainer}>
-                  <Text style={styles.propTitle}>Your Recovery Specialist:</Text>
-                  <Text>{therapistName}</Text>
+                  <Text style={styles.propTitle}>
+                    Your Recovery Specialist:
+                  </Text>
+                  <Text style={styles.propText}>{therapistName}</Text>
                 </View>
                 <View style={styles.propContainer}>
                   <Text style={styles.propTitle}>Summary:</Text>
-                  <Text>{therapistSummary}</Text>
+                  <Text style={styles.propText}>{therapistSummary}</Text>
                 </View>
                 <View style={styles.propContainer}>
                   <Text style={styles.propTitle}>Services:</Text>
-                  <Text>{therapistServices}</Text>
+                  <Text style={styles.propText}>{therapistServices}</Text>
                 </View>
-                <View style={styles.propContainer}>
+                <View style={styles.rateContainer}>
                   <Text style={styles.propTitle}>Hourly Rate:</Text>
-                  <Text>${therapistHourly}</Text>
+                  <Text style={styles.propText}>${therapistHourly}</Text>
                 </View>
               </View>
-              <TextInput
+
+              <View style={styles.propContainer}>
+                <Text style={styles.propTitle}>Date & Time:</Text>
+                <Text style={styles.propText}>
+                  Date time picker modal placeholder
+                </Text>
+              </View>
+
+              <View style={styles.locationFormContainer}>
+                <RadioGroup
+                  radioButtons={locations}
+                  onPress={setSelectedLocationOption}
+                  flexDirection="column"
+                  selectedId={selectedLocationOption}
+                  containerStyle={styles.radioGroup}
+                />
+                {/* <View style={styles.selectedLocationOptionContainer}>
+                  <Text style={styles.selectedLocationOptionText}>
+                    Selected Location: {selectedLocationOption}
+                  </Text>
+                </View> */}
+              </View>
+              {selectedLocationOption === "2" ? (
+                <View style={styles.propContainer}>
+                  <Text style={styles.propTitle}>Your Location:</Text>
+                  <TextInput
+                    style={styles.input}
+                    onChangeText={onChangeText}
+                    value={text}
+                  />
+                </View>
+              ) : (
+                <Text style={styles.propText}>
+                  Clinic address will be provided upon confirmation of
+                  appointment.
+                </Text>
+              )}
+              {/* <TextInput
                 style={styles.input}
                 onChangeText={onChangeText}
                 value={text}
-              />
+              /> */}
               <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.button}
+                <TouchableOpacity
+                  style={styles.button}
                   onPress={() => {
                     setVisibility(false);
                   }}
                 >
                   <Text style={styles.cancelButtonText}>{"Cancel"}</Text>
                 </TouchableOpacity>
-                <BookButton title="Confirm" onPress={onConfirmPress} />
+                <BookButton title="Request to Book" onPress={onConfirmPress} />
               </View>
             </View>
           )}
@@ -129,7 +189,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    height: "80%",
+    height: "90%",
     width: 300,
   },
   modalContent: {
@@ -141,25 +201,37 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 16,
     textAlign: "center",
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "bold",
   },
   propContainer: {
+    marginBottom: 10,
+  },
+  rateContainer: {
+    flexDirection: "row",
     marginBottom: 10,
   },
   propTitle: {
     fontSize: 14,
     fontWeight: "bold",
     marginBottom: 2,
+    marginRight: 2,
+  },
+  propText: {
+    fontSize: 14,
   },
   input: {
-    marginBottom: 10,
+    marginTop: 4,
+    marginBottom: 2,
     borderWidth: 2,
-    padding: 10,
+    padding: 4,
     borderRadius: 20,
     borderColor: "#D3D3D3",
-    width: 270,
+    width: "100%",
     backgroundColor: "#F6F6F6",
+  },
+  radioGroup: {
+    alignItems: "left",
   },
   buttonContainer: {
     position: "absolute",
