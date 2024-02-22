@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useContext } from "react";
 import { Modal, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { TextInput } from "react-native-gesture-handler";
+import { TextInput, ScrollView } from "react-native-gesture-handler";
 import { BlurView } from "expo-blur";
 import Constants from "expo-constants";
 import bookingsApi from "../../api/bookings";
@@ -12,10 +12,12 @@ import notificationsApi from "../../api/notifications";
 import AuthContext from "../../auth/context";
 import colors from "../../config/colors";
 import RadioGroup from "react-native-radio-buttons-group";
+import DateTimePicker from "@react-native-community/datetimepicker";
 // import Payment from "./Payment_old";
 import PaymentScreen from "./Payment";
 import {useStripe, useConfirmPayment} from '@stripe/stripe-react-native';
 import paymentApi from "../../api/payment";
+import RNPickerSelect from "react-native-picker-select";
 
 function BookModal({
   visible,
@@ -35,33 +37,93 @@ function BookModal({
   const [bookingProgress, setBookingProgress] = useState(false);
   const [bookingDone, setBookingDone] = useState(false);
   const [selectedLocationOption, setSelectedLocationOption] = useState("2");
+  const [appointmentDuration, setAppointmentDuration] = useState(0);
+  // const [selectedDateTime, setSelectedDateTime] = useState(earliestAppointment);
   const { user, setUser } = useContext(AuthContext);
+  // const { testPaymentObj, setTestPaymentObj } = useState({
+  //   amount: appointmentDuration * therapistHourly,
+  //   currency: "usd",
+  //   payment_method_types: ["card"],
+  //   description: "SportStretch Recovery Specialist Appointment",
+  //   receipt_email: "kevinliu428@gmail.com",
+  // });
+  const [subTotal, setSubTotal] = useState(0);
+
+  const handleDateChange = (event, selectedDate) => {
+    // one second timeout to allow for the date to be set
+
+      // console.warn("Date changed", selectedDate);
+      // if selected date's hours are after closeTime, set time to 30 minutes before closeTime
+      console.warn("selectedHour = ", selectedDate.getHours());
+      if (selectedDate.getHours() >= closeTime) {
+        console.warn("Date is after close time");
+        selectedDate.setHours(closeTime - 1, 30, 0, 0);
+      } else if (selectedDate.getHours() < openTime) {
+        console.warn("Date is before open time");
+        selectedDate.setHours(openTime, 0, 0, 0);
+      }
+      console.warn("new Date = ", selectedDate);
+      setSelectedDateTime(selectedDate);
+  };
+
+  const getNextAvailableTime = () => {
+    const now = new Date();
+    // if currently within open hours, set next available time to 30 minutes from now
+    if (now.getHours() >= openTime && now.getHours() < closeTime) {
+      return new Date(now.getTime() + 30 * 60000);
+    }
+    // if currently outside of open hours, set next available time to open hours
+    const nextAvailableTime = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      openTime,
+      0,
+      0,
+      0
+    );
+
+    if (now.getHours() >= closeTime) {
+      nextAvailableTime.setDate(now.getDate() + 1);
+    }
+
+    return nextAvailableTime;
+  }
+
+  // can modify these to be dynamic based on clinic hours
+  const openTime = 8; // 8:00 AM
+  const closeTime = 20; // 8:00 PM
+
+  const currentDate = new Date();
+  const earliestAppointment = getNextAvailableTime();
+  const minDate = earliestAppointment;
+
+  const [selectedDateTime, setSelectedDateTime] = useState(earliestAppointment);
+
+  // const minDate = new Date(currentDate);
+  // minDate.setHours(8, 0, 0); // 8:00 AM
   const [currentStep, setCurrentStep] = useState(1);
   const {initPaymentSheet, presentPaymentSheet} = useStripe();
   const [clientSecret, setClientSecret] = useState("");
   
-  const testPaymentObj = {
-    amount: 1099,
+  let paymentObj = {
+    amount: appointmentDuration * therapistHourly,
     currency: "usd",
     payment_method_types: ["card"],
-    description: "Stylish Widget",
-    receipt_email: "customer@example.com",
+    description: "SportStretch Recovery Specialist Appointment",
+    receipt_email: "kevinliu428@gmail.com",
   }
 
   const getClientSecret = async () => {
-    let res = await paymentApi.createPaymentIntent(testPaymentObj);
-    console.warn("res.data.clientSecret = ", res.data.clientSecret);
-    // console.warn("secret = ", secret.data.clientSecret);
-    // await setClientSecret(secret.data.clientSecret);
-    // console.warn("clientSecret = ", clientSecret)
+    console.warn("getting client secret")
+    let res = await paymentApi.createPaymentIntent(paymentObj);
     setClientSecret(res.data.clientSecret)
     return;
-    // return res.data.clientSecret;
   }
 
-  useEffect(() => {
-    getClientSecret();
-  }, []);
+  // useEffect(() => {
+  //   getClientSecret();
+  // }, []);
 
   // const clientSecret = getClientSecret();
 
@@ -133,6 +195,14 @@ function BookModal({
     // }
   };
 
+  const handleDurationChange = (value) => {
+    const subTotalAmount = value * therapistHourly;
+    paymentObj.amount = subTotalAmount;
+    setSubTotal(subTotalAmount);
+    setAppointmentDuration(value);
+    getClientSecret();
+  };
+
   const handleSubmit = async () => {
     await initializePaymentSheet();
   };
@@ -158,12 +228,19 @@ function BookModal({
     }
   };
 
+  // useEffect(() => {
+  //   // This ensures the DatePicker component re-renders after the state update
+  // }, [selectedDateTime]);
+
+  
+
+
   const AppointmentDetailsStep = ({}) => (
     <View style={styles.modalContent}>
       <Text style={styles.modalText}>
         Book your appointment with {therapistName}!
       </Text>
-      <View style={styles.therapistDetails}>
+      <ScrollView style={styles.scrollTherapistDetails} keyboardShouldPersistTaps="handled" contentContainerStyle={{padding: 0, alignItems: 'left', marginBottom: 0}}>
         <View style={styles.propContainer}>
           <Text style={styles.propTitle}>Your Recovery Specialist:</Text>
           <Text style={styles.propText}>{therapistName}</Text>
@@ -180,14 +257,48 @@ function BookModal({
           <Text style={styles.propTitle}>Hourly Rate:</Text>
           <Text style={styles.propText}>${therapistHourly}</Text>
         </View>
-      </View>
-
+      </ScrollView>
       <View style={styles.propContainer}>
         <Text style={styles.propTitle}>Date & Time:</Text>
-        <Text style={styles.propText}>Date time picker modal placeholder</Text>
+        <DateTimePicker
+          testID="dateTimePicker"
+          value={selectedDateTime}
+          mode="datetime"
+          is24Hour={true}
+          display="default"
+          onChange={handleDateChange}
+          style={styles.datePicker}
+          minimumDate={minDate}
+        />
       </View>
-
+      <View style={styles.propContainer}>
+        <Text style={styles.propTitle}>Duration:</Text>
+        {/* Dropdown menu */}
+        <View>
+          <RNPickerSelect
+          onValueChange={(value) => handleDurationChange(value)}
+          items={[
+            { label: '1 Hour', value: 1 },
+            { label: '2 Hours', value: 2 },
+            { label: '3 Hours', value: 3 },
+            { label: '4 Hours', value: 4 },
+            { label: '5 Hours', value: 5 },
+            { label: '6 Hours', value: 6 },
+            { label: '7 Hours', value: 7 },
+            { label: '8 Hours', value: 8 },
+          ]}
+          placeholder={{ label: 'Select duration for appointment', value: 0 }}
+          value={appointmentDuration}
+          style={styles.durationPicker}
+        />
+        </View>
+      </View>
+      <View style={styles.rateContainer}>
+          <Text style={styles.propTitle}>Subtotal:</Text>
+          <Text style={styles.propText}>{appointmentDuration === 0 ? "(Select a duration)" : `$${subTotal}`}</Text>
+        </View>
       <View style={styles.locationFormContainer}>
+      <Text style={styles.propTitle}>Location:</Text>
         <RadioGroup
           radioButtons={locations}
           onPress={setSelectedLocationOption}
@@ -211,10 +322,11 @@ function BookModal({
           />
         </View>
       ) : (
-        <Text style={styles.propText}>
+        <Text style={styles.clinicInfoText}>
           Clinic address will be provided upon confirmation of appointment.
         </Text>
       )}
+      
       {/* <TextInput
       style={styles.input}
       onChangeText={onChangeText}
@@ -270,9 +382,15 @@ function BookModal({
         </View>
         <View style={styles.rateContainer}>
           <Text style={styles.propTitle}>Total:</Text>
-          <Text style={styles.propText}>45$</Text>
+          <Text style={styles.propText}>${subTotal}</Text>
         </View>
       </View>
+      <View style={styles.termasAndConditionsContainer}>
+                <Text style={styles.propText}>
+                  By clicking "Request to Book", you agree to our Terms and
+                  Conditions.
+                </Text>
+              </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.secondaryButton}
@@ -344,7 +462,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    height: "90%",
+    height: "92%",
     width: 300,
   },
   modalContent: {
@@ -352,23 +470,40 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     height: "92%",
     width: "92%",
+    flex: 1,
+  },
+  scrollTherapistDetails: {
+    height: "34%",
+    marginBottom: 2,
+    padding: 0,
+    flexGrow: 0,
   },
   paymentScreen: {
     height: "50%",
     width: "100%",
   },
   modalText: {
-    marginBottom: 16,
+    marginBottom: 8,
     textAlign: "center",
     fontSize: 14,
     fontWeight: "bold",
   },
   propContainer: {
-    marginBottom: 10,
+    marginBottom: 8,
+  },
+  locationFormContainer: {
+    marginBottom: 8,
   },
   rateContainer: {
     flexDirection: "row",
-    marginBottom: 10,
+    marginBottom: 8,
+  },
+  durationPicker: {
+    backgroundColor: colors.white,
+    borderRadius: 25,
+    padding: 10,
+    marginVertical: 10,
+    marginHorizontal: 10,
   },
   propTitle: {
     fontSize: 14,
@@ -379,6 +514,10 @@ const styles = StyleSheet.create({
   propText: {
     fontSize: 14,
   },
+  clinicInfoText: {
+    fontSize: 14,
+    marginBottom: 8,
+  },
   input: {
     marginTop: 4,
     marginBottom: 2,
@@ -388,6 +527,11 @@ const styles = StyleSheet.create({
     borderColor: "#D3D3D3",
     width: "100%",
     backgroundColor: "#F6F6F6",
+  },
+  datePicker: {
+    alignItems: "left",
+    marginLeft: "auto",
+    marginRight: "auto",
   },
   radioGroup: {
     alignItems: "left",
