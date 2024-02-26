@@ -105,6 +105,7 @@ function AthleteBookNow(props) {
         selectedTherapist={selectedTherapist}
         athleteAddress={athleteAddress}
       ></AthleteBookNowCard> */}
+      {/* <Payment></Payment> */}
     </View>
   );
 }
