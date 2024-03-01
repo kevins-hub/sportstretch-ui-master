@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useMemo, useContext } from "react";
-import { Modal, StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import {
+  Modal,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  FlatList,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { TextInput, ScrollView } from "react-native-gesture-handler";
 import { BlurView } from "expo-blur";
@@ -15,7 +22,7 @@ import RadioGroup from "react-native-radio-buttons-group";
 import DateTimePicker from "@react-native-community/datetimepicker";
 // import Payment from "./Payment_old";
 import PaymentScreen from "./Payment";
-import {useStripe, useConfirmPayment} from '@stripe/stripe-react-native';
+import { useStripe, useConfirmPayment } from "@stripe/stripe-react-native";
 import paymentApi from "../../api/payment";
 import RNPickerSelect from "react-native-picker-select";
 
@@ -32,41 +39,14 @@ function BookModal({
 }) {
   if (!visible) return null;
 
-  const navigation = useNavigation();
-  const [text, onChangeText] = useState(athleteLocation);
-  const [bookingProgress, setBookingProgress] = useState(false);
-  const [bookingDone, setBookingDone] = useState(false);
-  const [selectedLocationOption, setSelectedLocationOption] = useState("2");
-  const [appointmentDuration, setAppointmentDuration] = useState(0);
-  // const [selectedDateTime, setSelectedDateTime] = useState(earliestAppointment);
-  const { user, setUser } = useContext(AuthContext);
-  // const { testPaymentObj, setTestPaymentObj } = useState({
-  //   amount: appointmentDuration * therapistHourly,
-  //   currency: "usd",
-  //   payment_method_types: ["card"],
-  //   description: "SportStretch Recovery Specialist Appointment",
-  //   receipt_email: "kevinliu428@gmail.com",
-  // });
-  const [subTotal, setSubTotal] = useState(0);
+  // can modify these to be dynamic based on clinic hours
+  const openTime = 8; // 8:00 AM
+  const closeTime = 20; // 8:00 PM
 
-  const handleDateChange = (event, selectedDate) => {
-    // one second timeout to allow for the date to be set
-
-      // console.warn("Date changed", selectedDate);
-      // if selected date's hours are after closeTime, set time to 30 minutes before closeTime
-      console.warn("selectedHour = ", selectedDate.getHours());
-      if (selectedDate.getHours() >= closeTime) {
-        console.warn("Date is after close time");
-        selectedDate.setHours(closeTime - 1, 30, 0, 0);
-      } else if (selectedDate.getHours() < openTime) {
-        console.warn("Date is before open time");
-        selectedDate.setHours(openTime, 0, 0, 0);
-      }
-      console.warn("new Date = ", selectedDate);
-      setSelectedDateTime(selectedDate);
-  };
+  let minDate = new Date();
 
   const getNextAvailableTime = () => {
+    console.warn("getNextAvailableTime");
     const now = new Date();
     // if currently within open hours, set next available time to 30 minutes from now
     if (now.getHours() >= openTime && now.getHours() < closeTime) {
@@ -87,45 +67,72 @@ function BookModal({
       nextAvailableTime.setDate(now.getDate() + 1);
     }
 
+    minDate = nextAvailableTime;
+
     return nextAvailableTime;
-  }
+  };
 
-  // can modify these to be dynamic based on clinic hours
-  const openTime = 8; // 8:00 AM
-  const closeTime = 20; // 8:00 PM
-
-  const currentDate = new Date();
-  const earliestAppointment = getNextAvailableTime();
-  const minDate = earliestAppointment;
-
-  const [selectedDateTime, setSelectedDateTime] = useState(earliestAppointment);
-
-  // const minDate = new Date(currentDate);
-  // minDate.setHours(8, 0, 0); // 8:00 AM
+  const navigation = useNavigation();
+  const [text, onChangeText] = useState(athleteLocation);
+  const [bookingProgress, setBookingProgress] = useState(false);
+  const [bookingDone, setBookingDone] = useState(false);
+  const [selectedLocationOption, setSelectedLocationOption] = useState("2");
+  const [appointmentDuration, setAppointmentDuration] = useState(0);
+  // const [selectedDateTime, setSelectedDateTime] = useState(earliestAppointment);
+  const { user, setUser } = useContext(AuthContext);
+  const [subTotal, setSubTotal] = useState(0);
+  const [selectedDateTime, setSelectedDateTime] = useState(getNextAvailableTime());
+  // const [selectedDateTime, setSelectedDateTime] = useState(new Date());
   const [currentStep, setCurrentStep] = useState(1);
-  const {initPaymentSheet, presentPaymentSheet} = useStripe();
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [clientSecret, setClientSecret] = useState("");
-  
+
+  // let minDate = new Date();
+
+
+  const handleDateChange = (event, selectedDate) => {
+    console.warn("handleDateChange");
+    // one second timeout to allow for the date to be set
+
+    // console.warn("Date changed", selectedDate);
+    // if selected date's hours are after closeTime, set time to 30 minutes before closeTime
+    console.warn("selectedHour = ", selectedDate.getHours());
+    if (selectedDate.getHours() >= closeTime) {
+      console.warn("Date is after close time");
+      selectedDate.setHours(closeTime - 1, 30, 0, 0);
+    } else if (selectedDate.getHours() < openTime) {
+      console.warn("Date is before open time");
+      selectedDate.setHours(openTime, 0, 0, 0);
+    }
+    console.warn("new Date = ", selectedDate);
+    setSelectedDateTime(selectedDate);
+  };
+
+  const appointmentDurationOptions = [
+    { label: "1 Hour", value: 1 },
+    { label: "2 Hours", value: 2 },
+    { label: "3 Hours", value: 3 },
+    { label: "4 Hours", value: 4 },
+    { label: "5 Hours", value: 5 },
+    { label: "6 Hours", value: 6 },
+    { label: "7 Hours", value: 7 },
+    { label: "8 Hours", value: 8 },
+  ];
+
   let paymentObj = {
     amount: appointmentDuration * therapistHourly,
     currency: "usd",
     payment_method_types: ["card"],
     description: "SportStretch Recovery Specialist Appointment",
     receipt_email: "kevinliu428@gmail.com",
-  }
+  };
 
   const getClientSecret = async () => {
-    console.warn("getting client secret")
+    console.warn("getClientSecret");
     let res = await paymentApi.createPaymentIntent(paymentObj);
-    setClientSecret(res.data.clientSecret)
+    setClientSecret(res.data.clientSecret);
     return;
-  }
-
-  // useEffect(() => {
-  //   getClientSecret();
-  // }, []);
-
-  // const clientSecret = getClientSecret();
+  };
 
   const locations = useMemo(
     () => [
@@ -146,7 +153,9 @@ function BookModal({
   // Need to call backend for payment intent
 
   const proceedToReview = async () => {
-    console.warn("init payment sheet");
+    console.warn("proceedToReview");
+    console.warn("date = ", selectedDateTime);
+    // console.warn("init payment sheet");
     try {
       // let secret = await paymentApi.createPaymentIntent(testPaymentObj);
       // console.warn("secret = ", secret.data.clientSecret);
@@ -163,23 +172,22 @@ function BookModal({
         paymentIntentClientSecret: clientSecret,
         returnURL: "payments-example://stripe-redirect",
         customerId: "",
-        merchantDisplayName: "", 
+        merchantDisplayName: "",
         ephemeralKeySecret: "",
         // Additional configuration options
       });
 
       console.warn("response = ", response);
-      setCurrentStep(2);
+      setCurrentStep(3);
     } catch (error) {
       console.warn("Error initializing PaymentSheet", error);
     }
-
   };
 
   const openPaymentSheet = async () => {
     console.warn("open payment sheet");
     try {
-      const {error} = await presentPaymentSheet();
+      const { error } = await presentPaymentSheet();
       if (error) {
         console.warn("Error opening PaymentSheet", error);
       }
@@ -195,19 +203,26 @@ function BookModal({
     // }
   };
 
-  const handleDurationChange = (value) => {
+  const handleDurationChange = async (value) => {
+    console.warn("handleDurationChange");
+    // setAppointmentDuration(value);
+    // console.warn("handleDurationChange");
+    // console.warn("value = ", value);
+    if (!value) return;
+    setAppointmentDuration(Number(value));
     const subTotalAmount = value * therapistHourly;
     paymentObj.amount = subTotalAmount;
     setSubTotal(subTotalAmount);
-    setAppointmentDuration(value);
     getClientSecret();
   };
 
   const handleSubmit = async () => {
+    console.warn("handleSubmit");
     await initializePaymentSheet();
   };
 
   const onConfirmPress = async () => {
+    console.warn("onConfirmPress");
     try {
       //showProgress
       setBookingProgress(true);
@@ -228,19 +243,43 @@ function BookModal({
     }
   };
 
+  // const convertUTCDateToLocalDate = (date) => {
+  //   var newDate = new Date(
+  //     date.getTime() + date.getTimezoneOffset() * 60 * 1000
+  //   );
+
+  //   var offset = date.getTimezoneOffset() / 60;
+  //   var hours = date.getHours();
+
+  //   newDate.setHours(hours - offset);
+
+  //   return newDate;
+  // }
+
+  const convertUTCDateToLocalDateTimeString = (date) => {
+    // convert UTC date to date time string with format such as: Friday, March 1, 2024, 12:00 PM
+    const options = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+    };
+    return date.toLocaleDateString("en-US", options);
+  };
+
+
   // useEffect(() => {
   //   // This ensures the DatePicker component re-renders after the state update
   // }, [selectedDateTime]);
 
-  
-
-
-  const AppointmentDetailsStep = ({}) => (
+  const TherapistDetailsStep = ({}) => (
     <View style={styles.modalContent}>
       <Text style={styles.modalText}>
         Book your appointment with {therapistName}!
       </Text>
-      <ScrollView style={styles.scrollTherapistDetails} keyboardShouldPersistTaps="handled" contentContainerStyle={{padding: 0, alignItems: 'left', marginBottom: 0}}>
+      <View style={styles.modalBodyContainer}>
         <View style={styles.propContainer}>
           <Text style={styles.propTitle}>Your Recovery Specialist:</Text>
           <Text style={styles.propText}>{therapistName}</Text>
@@ -257,7 +296,62 @@ function BookModal({
           <Text style={styles.propTitle}>Hourly Rate:</Text>
           <Text style={styles.propText}>${therapistHourly}</Text>
         </View>
-      </ScrollView>
+      </View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={() => {
+            setVisibility(false);
+          }}
+        >
+          <Text style={styles.cancelButtonText}>{"Cancel"}</Text>
+        </TouchableOpacity>
+        {/* <BookButton title="Request to Book" onPress={onConfirmPress} /> */}
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={() => setCurrentStep(2)}
+        >
+          <Text
+            style={styles.primaryButtonText}
+          >{`Book an appointment with ${therapistName}`}</Text>
+        </TouchableOpacity>
+        {/* <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={openPaymentSheet}
+        >
+          <Text style={styles.primaryButtonText}>{"Open payment sheet"}</Text>
+        </TouchableOpacity> */}
+      </View>
+    </View>
+  );
+
+  const AppointmentDetailsStep = ({}) => (
+    <View style={styles.modalContent}>
+      <Text style={styles.modalText}>
+        Book your appointment with {therapistName}!
+      </Text>
+      {/* <ScrollView style={styles.scrollTherapistDetails} keyboardShouldPersistTaps="handled" contentContainerStyle={{padding: 0, alignItems: 'left', marginBottom: 0}}>
+        <View style={styles.propContainer}>
+          <Text style={styles.propTitle}>Your Recovery Specialist:</Text>
+          <Text style={styles.propText}>{therapistName}</Text>
+        </View>
+        <View style={styles.propContainer}>
+          <Text style={styles.propTitle}>Summary:</Text>
+          <Text style={styles.propText}>{therapistSummary}</Text>
+        </View>
+        <View style={styles.propContainer}>
+          <Text style={styles.propTitle}>Services:</Text>
+          <Text style={styles.propText}>{therapistServices}</Text>
+        </View>
+        <View style={styles.rateContainer}>
+          <Text style={styles.propTitle}>Hourly Rate:</Text>
+          <Text style={styles.propText}>${therapistHourly}</Text>
+        </View>
+      </ScrollView> */}
+      <View style={styles.rateContainer}>
+        <Text style={styles.propTitle}>Hourly Rate:</Text>
+        <Text style={styles.propText}>${therapistHourly}</Text>
+      </View>
       <View style={styles.propContainer}>
         <Text style={styles.propTitle}>Date & Time:</Text>
         <DateTimePicker
@@ -271,34 +365,28 @@ function BookModal({
           minimumDate={minDate}
         />
       </View>
+
       <View style={styles.propContainer}>
         <Text style={styles.propTitle}>Duration:</Text>
         {/* Dropdown menu */}
         <View>
           <RNPickerSelect
-          onValueChange={(value) => handleDurationChange(value)}
-          items={[
-            { label: '1 Hour', value: 1 },
-            { label: '2 Hours', value: 2 },
-            { label: '3 Hours', value: 3 },
-            { label: '4 Hours', value: 4 },
-            { label: '5 Hours', value: 5 },
-            { label: '6 Hours', value: 6 },
-            { label: '7 Hours', value: 7 },
-            { label: '8 Hours', value: 8 },
-          ]}
-          placeholder={{ label: 'Select duration for appointment', value: 0 }}
-          value={appointmentDuration}
-          style={styles.durationPicker}
-        />
+            onValueChange={(value) => handleDurationChange(value)}
+            items={appointmentDurationOptions}
+            placeholder={{ label: "Select duration for appointment", value: 0}}
+            value={appointmentDuration}
+            style={styles.durationPicker}
+          />
         </View>
       </View>
       <View style={styles.rateContainer}>
-          <Text style={styles.propTitle}>Subtotal:</Text>
-          <Text style={styles.propText}>{appointmentDuration === 0 ? "(Select a duration)" : `$${subTotal}`}</Text>
-        </View>
+        <Text style={styles.propTitle}>Subtotal:</Text>
+        <Text style={styles.propText}>
+          {appointmentDuration === 0 ? "(Select a duration)" : `$${subTotal}`}
+        </Text>
+      </View>
       <View style={styles.locationFormContainer}>
-      <Text style={styles.propTitle}>Location:</Text>
+        <Text style={styles.propTitle}>Location:</Text>
         <RadioGroup
           radioButtons={locations}
           onPress={setSelectedLocationOption}
@@ -326,71 +414,12 @@ function BookModal({
           Clinic address will be provided upon confirmation of appointment.
         </Text>
       )}
-      
+
       {/* <TextInput
       style={styles.input}
       onChangeText={onChangeText}
       value={text}
     /> */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={() => {
-            setVisibility(false);
-          }}
-        >
-          <Text style={styles.cancelButtonText}>{"Cancel"}</Text>
-        </TouchableOpacity>
-        {/* <BookButton title="Request to Book" onPress={onConfirmPress} /> */}
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={proceedToReview}
-        >
-          <Text style={styles.primaryButtonText}>{"Review & Pay"}</Text>
-        </TouchableOpacity>
-        {/* <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={openPaymentSheet}
-        >
-          <Text style={styles.primaryButtonText}>{"Open payment sheet"}</Text>
-        </TouchableOpacity> */}
-      </View>
-    </View>
-  );
-
-  const PaymentStep = ({}) => (
-<View style={styles.modalContent}>
-      <Text style={styles.modalText}>
-        Review your appointment with {therapistName}!
-      </Text>
-      <View style={styles.therapistDetails}>
-        <View style={styles.propContainer}>
-          <Text style={styles.propTitle}>Your Recovery Specialist:</Text>
-          <Text style={styles.propText}>{therapistName}</Text>
-        </View>
-        <View style={styles.propContainer}>
-          <Text style={styles.propTitle}>Location:</Text>
-          <Text style={styles.propText}>{"Location placeholder"}</Text>
-        </View>
-        <View style={styles.propContainer}>
-          <Text style={styles.propTitle}>Start time:</Text>
-          <Text style={styles.propText}>{"Start time placeholder"}</Text>
-        </View>
-        <View style={styles.rateContainer}>
-          <Text style={styles.propTitle}>Duration:</Text>
-          <Text style={styles.propText}>{2} Hours</Text>
-        </View>
-        <View style={styles.rateContainer}>
-          <Text style={styles.propTitle}>Total:</Text>
-          <Text style={styles.propText}>${subTotal}</Text>
-        </View>
-      </View>
-      <View style={styles.termasAndConditionsContainer}>
-                <Text style={styles.propText}>
-                  By clicking "Request to Book", you agree to our Terms and
-                  Conditions.
-                </Text>
-              </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.secondaryButton}
@@ -411,9 +440,77 @@ function BookModal({
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.primaryButton}
+          onPress={proceedToReview}
+        >
+          <Text style={styles.primaryButtonText}>{"Review & Pay"}</Text>
+        </TouchableOpacity>
+        {/* <TouchableOpacity
+          style={styles.primaryButton}
           onPress={openPaymentSheet}
         >
-          <Text style={styles.primaryButtonText}>{"Confirm Booking & Pay"}</Text>
+          <Text style={styles.primaryButtonText}>{"Open payment sheet"}</Text>
+        </TouchableOpacity> */}
+      </View>
+    </View>
+  );
+
+  const PaymentStep = ({}) => (
+    <View style={styles.modalContent}>
+      <Text style={styles.modalText}>
+        Review your appointment with {therapistName}!
+      </Text>
+      <View style={styles.therapistDetails}>
+        <View style={styles.propContainer}>
+          <Text style={styles.propTitle}>Your Recovery Specialist:</Text>
+          <Text style={styles.propText}>{therapistName}</Text>
+        </View>
+        <View style={styles.propContainer}>
+          <Text style={styles.propTitle}>Location:</Text>
+          <Text style={styles.propText}>{selectedLocationOption === "2" ? text : "Clinic address will be provided after your request is accepted."}</Text>
+        </View>
+        <View style={styles.propContainer}>
+          <Text style={styles.propTitle}>Start time:</Text>
+          <Text style={styles.propText}>{convertUTCDateToLocalDateTimeString(selectedDateTime)}</Text>
+        </View>
+        <View style={styles.rateContainer}>
+          <Text style={styles.propTitle}>Duration:</Text>
+          <Text style={styles.propText}>{appointmentDuration} Hours</Text>
+        </View>
+        <View style={styles.rateContainer}>
+          <Text style={styles.propTitle}>Total:</Text>
+          <Text style={styles.propText}>${subTotal}</Text>
+        </View>
+      </View>
+      <View style={styles.termasAndConditionsContainer}>
+        <Text style={styles.propText}>
+          By clicking "Request to Book", you agree to our Terms and Conditions.
+        </Text>
+      </View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={() => {
+            setVisibility(false);
+          }}
+        >
+          <Text style={styles.cancelButtonText}>{"Cancel"}</Text>
+        </TouchableOpacity>
+        {/* <BookButton title="Request to Book" onPress={onConfirmPress} /> */}
+        <TouchableOpacity
+          style={styles.previousButton}
+          onPress={() => {
+            setCurrentStep(2);
+          }}
+        >
+          <Text style={styles.cancelButtonText}>{"Previous"}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={openPaymentSheet}
+        >
+          <Text style={styles.primaryButtonText}>
+            {"Confirm Booking & Pay"}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -431,9 +528,12 @@ function BookModal({
           <BookingProgressIndicator visible={bookingProgress} />
           <BookingDoneIndicator visible={bookingDone} />
           {!bookingProgress && !bookingDone && currentStep === 1 && (
-            <AppointmentDetailsStep />
+            <TherapistDetailsStep />
           )}
           {!bookingProgress && !bookingDone && currentStep === 2 && (
+            <AppointmentDetailsStep />
+          )}
+          {!bookingProgress && !bookingDone && currentStep === 3 && (
             <PaymentStep />
           )}
         </View>
@@ -462,14 +562,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    height: "92%",
+    height: "80%",
     width: 300,
   },
   modalContent: {
     margin: 10,
     marginLeft: 10,
-    height: "92%",
-    width: "92%",
+    height: "90%",
+    width: "90%",
     flex: 1,
   },
   scrollTherapistDetails: {
@@ -485,7 +585,7 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 8,
     textAlign: "center",
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "bold",
   },
   propContainer: {
