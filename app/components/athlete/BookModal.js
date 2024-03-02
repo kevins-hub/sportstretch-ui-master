@@ -46,7 +46,7 @@ function BookModal({
   let minDate = new Date();
 
   const getNextAvailableTime = () => {
-    console.warn("getNextAvailableTime");
+    // console.warn("getNextAvailableTime");
     const now = new Date();
     // if currently within open hours, set next available time to 30 minutes from now
     if (now.getHours() >= openTime && now.getHours() < closeTime) {
@@ -91,20 +91,20 @@ function BookModal({
 
 
   const handleDateChange = (event, selectedDate) => {
-    console.warn("handleDateChange");
+    // console.warn("handleDateChange");
     // one second timeout to allow for the date to be set
 
     // console.warn("Date changed", selectedDate);
     // if selected date's hours are after closeTime, set time to 30 minutes before closeTime
-    console.warn("selectedHour = ", selectedDate.getHours());
+    // console.warn("selectedHour = ", selectedDate.getHours());
     if (selectedDate.getHours() >= closeTime) {
-      console.warn("Date is after close time");
+      // console.warn("Date is after close time");
       selectedDate.setHours(closeTime - 1, 30, 0, 0);
     } else if (selectedDate.getHours() < openTime) {
-      console.warn("Date is before open time");
+      // console.warn("Date is before open time");
       selectedDate.setHours(openTime, 0, 0, 0);
     }
-    console.warn("new Date = ", selectedDate);
+    // console.warn("new Date = ", selectedDate);
     setSelectedDateTime(selectedDate);
   };
 
@@ -128,7 +128,7 @@ function BookModal({
   };
 
   const getClientSecret = async () => {
-    console.warn("getClientSecret");
+    // console.warn("getClientSecret");
     let res = await paymentApi.createPaymentIntent(paymentObj);
     setClientSecret(res.data.clientSecret);
     return;
@@ -153,21 +153,7 @@ function BookModal({
   // Need to call backend for payment intent
 
   const proceedToReview = async () => {
-    console.warn("proceedToReview");
-    console.warn("date = ", selectedDateTime);
-    // console.warn("init payment sheet");
     try {
-      // let secret = await paymentApi.createPaymentIntent(testPaymentObj);
-      // console.warn("secret = ", secret.data.clientSecret);
-      // await setClientSecret(secret.data.clientSecret);
-      // console.warn("clientSecret = ", clientSecret);
-
-      // await paymentApi.createPaymentIntent(testPaymentObj).then(res => {
-      //   setClientSecret(res.data.clientSecret);
-      // })
-
-      console.warn("clientSecret = ", clientSecret);
-
       const response = await initPaymentSheet({
         paymentIntentClientSecret: clientSecret,
         returnURL: "payments-example://stripe-redirect",
@@ -177,7 +163,7 @@ function BookModal({
         // Additional configuration options
       });
 
-      console.warn("response = ", response);
+      // console.warn("response = ", response);
       setCurrentStep(3);
     } catch (error) {
       console.warn("Error initializing PaymentSheet", error);
@@ -185,29 +171,23 @@ function BookModal({
   };
 
   const openPaymentSheet = async () => {
-    console.warn("open payment sheet");
+    // console.warn("open payment sheet");
     try {
       const { error } = await presentPaymentSheet();
       if (error) {
         console.warn("Error opening PaymentSheet", error);
+      } else {
+        // post payment operations
+        console.log('Payment successful');
+        createBooking();
+        
       }
     } catch (error) {
       console.warn("Error opening PaymentSheet", error);
     }
-    // const {error} = await presentPaymentSheet();
-
-    // if (error) {
-    //   console.error(`Payment failed: ${error.message}`);
-    // } else {
-    //   console.log('Payment successful');
-    // }
   };
 
   const handleDurationChange = async (value) => {
-    console.warn("handleDurationChange");
-    // setAppointmentDuration(value);
-    // console.warn("handleDurationChange");
-    // console.warn("value = ", value);
     if (!value) return;
     setAppointmentDuration(Number(value));
     const subTotalAmount = value * therapistHourly;
@@ -217,12 +197,11 @@ function BookModal({
   };
 
   const handleSubmit = async () => {
-    console.warn("handleSubmit");
     await initializePaymentSheet();
   };
 
-  const onConfirmPress = async () => {
-    console.warn("onConfirmPress");
+  const createBooking = async () => {
+    // console.warn("onConfirmPress");
     try {
       //showProgress
       setBookingProgress(true);
@@ -243,19 +222,6 @@ function BookModal({
     }
   };
 
-  // const convertUTCDateToLocalDate = (date) => {
-  //   var newDate = new Date(
-  //     date.getTime() + date.getTimezoneOffset() * 60 * 1000
-  //   );
-
-  //   var offset = date.getTimezoneOffset() / 60;
-  //   var hours = date.getHours();
-
-  //   newDate.setHours(hours - offset);
-
-  //   return newDate;
-  // }
-
   const convertUTCDateToLocalDateTimeString = (date) => {
     // convert UTC date to date time string with format such as: Friday, March 1, 2024, 12:00 PM
     const options = {
@@ -268,11 +234,6 @@ function BookModal({
     };
     return date.toLocaleDateString("en-US", options);
   };
-
-
-  // useEffect(() => {
-  //   // This ensures the DatePicker component re-renders after the state update
-  // }, [selectedDateTime]);
 
   const TherapistDetailsStep = ({}) => (
     <View style={styles.modalContent}>
