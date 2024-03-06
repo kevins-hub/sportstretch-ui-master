@@ -206,7 +206,7 @@ function BookModal({
       //showProgress
       setBookingProgress(true);
       //format text and call API
-      await bookingsApi.bookATherapist(athleteId, athleteLocation, therapistId);
+      await bookingsApi.bookATherapist(athleteId, athleteLocation, therapistId, selectedDateTime, therapistHourly, appointmentDuration, subTotal, "Yes", "Paid");
       //hideProgress & showDone
       setBookingProgress(false);
       setBookingDone(true);
@@ -523,7 +523,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    height: "80%",
+    height: "86%",
     width: 300,
   },
   modalContent: {
