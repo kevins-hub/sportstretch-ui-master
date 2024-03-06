@@ -8,13 +8,15 @@ import {
 } from "react-native";
 import LogOutButton from "../components/shared/LogOutButton";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-// import FontAwesome from '@expo/vector-icons';
+// import FontAwesome from "@expo/vector-icons";
 import colors from "../config/colors";
 import authStorage from "../auth/storage";
 import contactApi from "../api/contact";
 import EditContactInfoModal from "../components/shared/EditContactInfoModal";
 import EditBillingInfoModal from "../components/shared/EditBillingInfoModal";
 import ChangePasswordModal from "./password/ChangePasswordModal";
+import Stars from "react-native-stars";
+import { FontAwesome } from "@expo/vector-icons";
 import * as Location from "expo-location";
 
 function ProfileSettings({ route }) {
@@ -22,12 +24,14 @@ function ProfileSettings({ route }) {
     useState(false);
   const [editBillingInfoModalVisible, setEditBillingInfoModalVisible] =
     useState(false);
-  const [changePasswordModalVisible, setChangePasswordModalVisible] = useState(false);
+  const [changePasswordModalVisible, setChangePasswordModalVisible] =
+    useState(false);
   const [contactObj, setContactObj] = useState({});
   const [athleteCity, setAthleteCity] = useState("");
   const [athleteState, setAthleteState] = useState("");
 
   const { user } = route.params;
+  const userObj = user.userObj;
 
   const loadLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -85,7 +89,10 @@ function ProfileSettings({ route }) {
         visible={editBillingInfoModalVisible}
         setVisibility={setEditBillingInfoModalVisible}
       />
-      <ChangePasswordModal visible={changePasswordModalVisible} setVisibility={setChangePasswordModalVisible} />
+      <ChangePasswordModal
+        visible={changePasswordModalVisible}
+        setVisibility={setChangePasswordModalVisible}
+      />
       <ScrollView style={styles.scrollViewStyle}>
         <View style={styles.container}>
           {/* <Text>Profile settings</Text> */}
@@ -107,7 +114,7 @@ function ProfileSettings({ route }) {
               </Text>
               <Text>
                 {user.role === "therapist"
-                  ? "Recovery Specialist"
+                  ? userObj.profession
                   : user.role.charAt(0).toUpperCase() + user.role.slice(1)}
               </Text>
             </View>
@@ -115,7 +122,7 @@ function ProfileSettings({ route }) {
 
           <View style={styles.cardsContainer}>
             {/* only display if athlete */}
-            {user.role === "athlete" && (
+            {/* {user.role === "athlete" && (
               <View style={styles.cardOutterContainer}>
                 <View style={styles.cardInnerContainer}>
                   <View style={styles.cardContent}>
@@ -129,6 +136,116 @@ function ProfileSettings({ route }) {
                       <Text style={styles.locationPropLabel}>Location:</Text>
                       <Text style={styles.locationProp}>
                         {athleteCity}, {athleteState}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            )} */}
+
+            <View style={styles.cardOutterContainer}>
+              <View style={styles.cardInnerContainer}>
+                <View style={styles.cardContent}>
+                    {user.role === "athlete" && (
+                      <View style={styles.locationPropContainer}>
+                        <MaterialCommunityIcons
+                          name="map-marker"
+                          style={styles.locationIcon}
+                          size={18}
+                          color="red"
+                        />
+                        <Text style={styles.locationPropLabel}>Location:</Text>
+                        <Text style={styles.locationProp}>
+                          {athleteCity}, {athleteState}
+                        </Text>
+                      </View>
+                    )}
+                    {user.role === "therapist" && (
+                      <View style={styles.ratingContainer}>
+                        <Text style={styles.ratingPropLabel}>Rating:</Text>
+                        <Stars
+                          default={parseFloat(userObj.avg_rating)}
+                          half={true}
+                          starSize={40}
+                          disabled
+                          fullStar={
+                            <FontAwesome
+                              name={"star"}
+                              style={{ color: colors.gold }}
+                              size={18}
+                            />
+                          }
+                          halfStar={
+                            <FontAwesome
+                              name="star-half-empty"
+                              style={{ color: colors.gold }}
+                              size={18}
+                            />
+                          }
+                          emptyStar={
+                            <FontAwesome
+                              name={"star-o"}
+                              style={{ color: colors.secondary }}
+                              size={18}
+                            />
+                          }
+                        />
+                        <Text style={styles.locationProp}>
+                          {`(${userObj.avg_rating})`}
+                        </Text>
+                      </View>
+                    )}
+                </View>
+              </View>
+            </View>
+
+            {/* only display if therapist */}
+            {user.role === "therapist" && (
+              <View style={styles.cardOutterContainer}>
+                <View style={styles.cardInnerContainer}>
+                  <Text style={styles.cardTitle}>Specialist Profile</Text>
+                  <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => setEditContactInfoModalVisible(true)}
+                  >
+                    <View>
+                      <Text style={styles.buttonText}>Edit</Text>
+                    </View>
+                  </TouchableOpacity>
+                  <View style={styles.cardContent}>
+                    <View style={styles.propContainer}>
+                      <Text style={styles.propLabel}>Services Offered:</Text>
+                      <Text>{userObj.services}</Text>
+                    </View>
+                    <View style={styles.propContainer}>
+                      <Text style={styles.propLabel}>Summary: </Text>
+                      <Text>{userObj.summary}</Text>
+                    </View>
+                    <View style={styles.propContainer}>
+                      <Text style={styles.propLabel}>Hourly Rate: </Text>
+                      <Text>${userObj.hourly_rate}</Text>
+                    </View>
+
+                    <View style={styles.propContainer}>
+                      <Text style={styles.propLabel}>Clinic Address:</Text>
+                      <Text>
+                        {contactObj.street} {contactObj.apartment_no}
+                      </Text>
+                      <Text>
+                        {contactObj.city}, {contactObj.state}{" "}
+                        {contactObj.zipcode}
+                      </Text>
+                    </View>
+                    <View style={styles.propContainer}>
+                      <Text style={styles.propLabel}>Accepts House Calls:</Text>
+                      <Text>{userObj.accepts_house_calls ? "Yes" : "No"}</Text>
+                    </View>
+                    <View style={styles.propContainer}>
+                      <Text style={styles.propLabel}>License status:</Text>
+                      <Text>
+                        {userObj.license_infourl
+                          ? userObj.license_infourl
+                          : "License not yet uploaded. Please upload license to enable services."}
                       </Text>
                     </View>
                   </View>
@@ -156,17 +273,18 @@ function ProfileSettings({ route }) {
                     <Text style={styles.propLabel}>Email: </Text>
                     <Text>{contactObj.email}</Text>
                   </View>
-                  {user.role !== "athlete" && (
+                  {/* {user.role !== "athlete" && (
                     <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>Address: </Text>
                       <Text>
                         {contactObj.street} {contactObj.apartment_no}
                       </Text>
                       <Text>
-                        {contactObj.city}, {contactObj.state} {contactObj.zipcode}
+                        {contactObj.city}, {contactObj.state}{" "}
+                        {contactObj.zipcode}
                       </Text>
                     </View>
-                  )}
+                  )} */}
                 </View>
               </View>
             </View>
@@ -221,7 +339,10 @@ function ProfileSettings({ route }) {
               </ScrollView> */}
           <View style={styles.buttonContainer}>
             <LogOutButton />
-            <TouchableOpacity style={styles.cancelButton} onPress={() => setChangePasswordModalVisible(true)}>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setChangePasswordModalVisible(true)}
+            >
               <View>
                 <Text style={styles.bottomButtonText}>Change Password</Text>
               </View>
@@ -315,6 +436,16 @@ const styles = StyleSheet.create({
   locationPropLabel: {
     fontWeight: "bold",
   },
+  ratingContainer: {
+    display: "flex",
+    flexDirection: "row",
+    width: "100%",
+    alignItems: "center",
+  },
+  ratingPropLabel: {
+    fontWeight: "bold",
+    marginRight: 8,
+  },
   propLabel: {
     fontWeight: "bold",
     marginBottom: 5,
@@ -324,7 +455,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "column-reverse",
     width: "92%",
-    margin: "4%"
+    margin: "4%",
   },
   button: {
     backgroundColor: colors.primary,
@@ -358,8 +489,6 @@ const styles = StyleSheet.create({
     color: colors.secondary,
     fontSize: 14,
   },
-
-
 
   // accountIcon: {
   //   marginTop: '5%'

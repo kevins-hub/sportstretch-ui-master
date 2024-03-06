@@ -36,6 +36,7 @@ function BookModal({
   therapistHourly,
   therapistSummary,
   therapistServices,
+  therapistAcceptsHouseCalls,
 }) {
   if (!visible) return null;
 
@@ -76,19 +77,22 @@ function BookModal({
   const [text, onChangeText] = useState(athleteLocation);
   const [bookingProgress, setBookingProgress] = useState(false);
   const [bookingDone, setBookingDone] = useState(false);
-  const [selectedLocationOption, setSelectedLocationOption] = useState("2");
+  const [selectedLocationOption, setSelectedLocationOption] = useState(
+    therapistAcceptsHouseCalls ? "2" : "1"
+  );
   const [appointmentDuration, setAppointmentDuration] = useState(0);
   // const [selectedDateTime, setSelectedDateTime] = useState(earliestAppointment);
   const { user, setUser } = useContext(AuthContext);
   const [subTotal, setSubTotal] = useState(0);
-  const [selectedDateTime, setSelectedDateTime] = useState(getNextAvailableTime());
+  const [selectedDateTime, setSelectedDateTime] = useState(
+    getNextAvailableTime()
+  );
   // const [selectedDateTime, setSelectedDateTime] = useState(new Date());
   const [currentStep, setCurrentStep] = useState(1);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [clientSecret, setClientSecret] = useState("");
 
   // let minDate = new Date();
-
 
   const handleDateChange = (event, selectedDate) => {
     // console.warn("handleDateChange");
@@ -134,21 +138,32 @@ function BookModal({
     return;
   };
 
-  const locations = useMemo(
-    () => [
-      {
-        id: "1",
-        label: "Clinic",
-        value: "clinic",
-      },
-      {
-        id: "2",
-        label: "Home/Facility",
-        value: "home",
-      },
-    ],
-    []
-  );
+  const locations = therapistAcceptsHouseCalls
+    ? useMemo(
+        () => [
+          {
+            id: "1",
+            label: "Clinic",
+            value: "clinic",
+          },
+          {
+            id: "2",
+            label: "Home/Facility",
+            value: "home",
+          },
+        ],
+        []
+      )
+    : useMemo(
+        () => [
+          {
+            id: "1",
+            label: "Clinic",
+            value: "clinic",
+          },
+        ],
+        []
+      );
 
   // Need to call backend for payment intent
 
@@ -178,9 +193,8 @@ function BookModal({
         console.warn("Error opening PaymentSheet", error);
       } else {
         // post payment operations
-        console.log('Payment successful');
+        console.log("Payment successful");
         createBooking();
-        
       }
     } catch (error) {
       console.warn("Error opening PaymentSheet", error);
@@ -206,7 +220,17 @@ function BookModal({
       //showProgress
       setBookingProgress(true);
       //format text and call API
-      await bookingsApi.bookATherapist(athleteId, athleteLocation, therapistId, selectedDateTime, therapistHourly, appointmentDuration, subTotal, "Yes", "Paid");
+      await bookingsApi.bookATherapist(
+        athleteId,
+        athleteLocation,
+        therapistId,
+        selectedDateTime,
+        therapistHourly,
+        appointmentDuration,
+        subTotal,
+        "Yes",
+        "Paid"
+      );
       //hideProgress & showDone
       setBookingProgress(false);
       setBookingDone(true);
@@ -252,6 +276,12 @@ function BookModal({
         <View style={styles.propContainer}>
           <Text style={styles.propTitle}>Services:</Text>
           <Text style={styles.propText}>{therapistServices}</Text>
+        </View>
+        <View style={styles.propContainer}>
+          <Text style={styles.propTitle}>Accepts House Calls:</Text>
+          <Text style={styles.propText}>
+            {therapistAcceptsHouseCalls ? "Yes" : "No"}
+          </Text>
         </View>
         <View style={styles.rateContainer}>
           <Text style={styles.propTitle}>Hourly Rate:</Text>
@@ -334,7 +364,7 @@ function BookModal({
           <RNPickerSelect
             onValueChange={(value) => handleDurationChange(value)}
             items={appointmentDurationOptions}
-            placeholder={{ label: "Select duration for appointment", value: 0}}
+            placeholder={{ label: "Select duration for appointment", value: 0 }}
             value={appointmentDuration}
             style={styles.durationPicker}
           />
@@ -427,11 +457,17 @@ function BookModal({
         </View>
         <View style={styles.propContainer}>
           <Text style={styles.propTitle}>Location:</Text>
-          <Text style={styles.propText}>{selectedLocationOption === "2" ? text : "Clinic address will be provided after your request is accepted."}</Text>
+          <Text style={styles.propText}>
+            {selectedLocationOption === "2"
+              ? text
+              : "Clinic address will be provided after your request is accepted."}
+          </Text>
         </View>
         <View style={styles.propContainer}>
           <Text style={styles.propTitle}>Start time:</Text>
-          <Text style={styles.propText}>{convertUTCDateToLocalDateTimeString(selectedDateTime)}</Text>
+          <Text style={styles.propText}>
+            {convertUTCDateToLocalDateTimeString(selectedDateTime)}
+          </Text>
         </View>
         <View style={styles.rateContainer}>
           <Text style={styles.propTitle}>Duration:</Text>
