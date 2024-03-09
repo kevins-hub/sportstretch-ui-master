@@ -24,12 +24,13 @@ import { useNavigation } from "@react-navigation/native";
 import registerApi from "../../api/register";
 import { stateConverter } from "../../lib/states";
 import RNPickerSelect from "react-native-picker-select";
+import Checkbox from "expo-checkbox";
 
 const ReviewSchema = yup.object({
   fname: yup.string().required().min(1).label("First Name"),
   lname: yup.string().required().min(1).label("Last Name"),
   email: yup.string().required().email().label("Email"),
-  password: yup.string().required().min(6).label("Password"),
+  password: yup.string().required().min(8).label("Password"),
   confirmPassword: yup
     .string()
     .when("password", {
@@ -38,7 +39,7 @@ const ReviewSchema = yup.object({
       then: yup.string().oneOf([yup.ref("password")], "Passwords must match"),
     })
     .required()
-    .min(6)
+    .min(8)
     .label("Confirm Password"),
   phone: yup.string().phone().required().label("Phone"),
   addressL1: yup.string().required().label("Street Address"),
@@ -56,12 +57,17 @@ const ReviewSchema = yup.object({
   services: yup.string().required().max(150).label("Services"),
   summary: yup.string().required().max(150).label("Summary"),
   hourlyRate: yup.number().required().label("Hourly Rate"),
+  licenseUrl: yup.string().required().label("License URL"),
 });
 
 function TherapistForm(props) {
   const navigation = useNavigation();
   const [currentStep, setCurrentStep] = useState(1);
   const [showInvalidFieldError, setShowInvalidFieldError] = useState(false);
+
+  const [enableHouseCalls, setEnableHouseCalls] = useState(false);
+  const [enableInClinic, setEnableInClinic] = useState(false);
+
   const register_therapist = async (values) => {
     try {
       let register_response = await registerApi.registerTherapist(values);
@@ -82,29 +88,42 @@ function TherapistForm(props) {
     { label: "Physical Therapist", value: "Physical Therapist" },
     { label: "Occupational Therapist", value: "Occupational Therapist" },
     { label: "Speech Therapist", value: "Speech Therapist" },
-  ]
+  ];
 
   const handleNext = (values) => {
     if (currentStep === 1) {
       Promise.all([
-        ReviewSchema.validateAt('fname', values),
-        ReviewSchema.validateAt('lname', values),
-        ReviewSchema.validateAt('email', values),
-        ReviewSchema.validateAt('phone', values),
-      ]).then(() => {
-        setShowInvalidFieldError(false);
-        setCurrentStep(currentStep + 1);
-      }).catch(err => setShowInvalidFieldError(true));
+        ReviewSchema.validateAt("fname", values),
+        ReviewSchema.validateAt("lname", values),
+        ReviewSchema.validateAt("email", values),
+        ReviewSchema.validateAt("phone", values),
+      ])
+        .then(() => {
+          setShowInvalidFieldError(false);
+          setCurrentStep(currentStep + 1);
+        })
+        .catch((err) => setShowInvalidFieldError(true));
     } else if (currentStep === 2) {
       Promise.all([
-        ReviewSchema.validateAt('addressL1', values),
-        ReviewSchema.validateAt('city', values),
-        ReviewSchema.validateAt('state', values),
-        ReviewSchema.validateAt('zipcode', values),
-      ]).then(() => {
-        setShowInvalidFieldError(false);
-        setCurrentStep(currentStep + 1);
-      }).catch(err => setShowInvalidFieldError(true));
+        ReviewSchema.validateAt("addressL1", values),
+        ReviewSchema.validateAt("city", values),
+        ReviewSchema.validateAt("state", values),
+        ReviewSchema.validateAt("zipcode", values),
+      ])
+        .then(() => {
+          setShowInvalidFieldError(false);
+          setCurrentStep(currentStep + 1);
+        })
+        .catch((err) => setShowInvalidFieldError(true));
+    } else if (currentStep === 3) {
+      Promise.all([
+        ReviewSchema.validateAt("licenseUrl", values),
+      ])
+        .then(() => {
+          setShowInvalidFieldError(false);
+          setCurrentStep(currentStep + 1);
+        })
+        .catch((err) => setShowInvalidFieldError(true));
     }
     return;
   };
@@ -112,8 +131,7 @@ function TherapistForm(props) {
   const handlePrevious = () => {
     setShowInvalidFieldError(false);
     setCurrentStep(currentStep - 1);
-  }
-
+  };
 
   const ContactStep = (props) => (
     // contact details
@@ -136,10 +154,8 @@ function TherapistForm(props) {
           textContentType="givenName"
         />
       </View>
-      {(props.touched.fname && props.errors.fname) && (
-        <Text style={styles.errorText}>
-          {props.errors.fname}
-        </Text>
+      {props.touched.fname && props.errors.fname && (
+        <Text style={styles.errorText}>{props.errors.fname}</Text>
       )}
       <View style={styles.inputContainer}>
         <View>
@@ -159,10 +175,8 @@ function TherapistForm(props) {
           textContentType="familyName"
         />
       </View>
-      {(props.touched.lname && props.errors.lname) && (
-        <Text style={styles.errorText}>
-          {props.errors.lname}
-        </Text>
+      {props.touched.lname && props.errors.lname && (
+        <Text style={styles.errorText}>{props.errors.lname}</Text>
       )}
 
       <View style={styles.inputContainer}>
@@ -186,10 +200,8 @@ function TherapistForm(props) {
           autoCapitalize="none"
         />
       </View>
-      {(props.touched.email && props.errors.email) && (
-        <Text style={styles.errorText}>
-          {props.errors.email}
-        </Text>
+      {props.touched.email && props.errors.email && (
+        <Text style={styles.errorText}>{props.errors.email}</Text>
       )}
       <View style={styles.inputContainer}>
         <View>
@@ -210,10 +222,8 @@ function TherapistForm(props) {
           textContentType="telephoneNumber"
         />
       </View>
-      {(props.touched.phone && props.errors.phone) && (
-        <Text style={styles.errorText}>
-          {props.errors.phone}
-        </Text>
+      {props.touched.phone && props.errors.phone && (
+        <Text style={styles.errorText}>{props.errors.phone}</Text>
       )}
     </>
   );
@@ -237,12 +247,10 @@ function TherapistForm(props) {
           value={props.values.profession}
         />
       </View>
-      {(props.touched.profession && props.errors.profession) && (
-        <Text style={styles.errorText}>
-          {props.errors.profession}
-        </Text>
+      {props.touched.profession && props.errors.profession && (
+        <Text style={styles.errorText}>{props.errors.profession}</Text>
       )}
-      {/* Services offered */ }
+      {/* Services offered */}
       <View style={styles.inputContainer}>
         <View>
           <MaterialCommunityIcons
@@ -261,10 +269,8 @@ function TherapistForm(props) {
           multiline={true}
         />
       </View>
-      {(props.touched.services && props.errors.services) && (
-        <Text style={styles.errorText}>
-          {props.errors.services}
-        </Text>
+      {props.touched.services && props.errors.services && (
+        <Text style={styles.errorText}>{props.errors.services}</Text>
       )}
       <View style={styles.inputContainer}>
         <View>
@@ -284,10 +290,8 @@ function TherapistForm(props) {
           multiline={true}
         />
       </View>
-      {(props.touched.summary && props.errors.summary) && (
-        <Text style={styles.errorText}>
-          {props.errors.summary}
-        </Text>
+      {props.touched.summary && props.errors.summary && (
+        <Text style={styles.errorText}>{props.errors.summary}</Text>
       )}
 
       <View style={styles.inputContainer}>
@@ -307,11 +311,31 @@ function TherapistForm(props) {
           onBlur={props.handleBlur("hourlyRate")}
         />
       </View>
-      {(props.touched.hourlyRate && props.errors.hourlyRate) && (
-        <Text style={styles.errorText}>
-          {props.errors.hourlyRate}
-        </Text>
+      {props.touched.hourlyRate && props.errors.hourlyRate && (
+        <Text style={styles.errorText}>{props.errors.hourlyRate}</Text>
       )}
+
+      <View style={styles.checkboxContainer}>
+        <Checkbox
+          value={enableInClinic}
+          onValueChange={setEnableInClinic}
+          style={styles.checkbox}
+        />
+        <Text style={styles.label}>
+          I have a clinic/facility for clients to visit
+        </Text>
+      </View>
+      <View style={styles.checkboxContainer}>
+        <Checkbox
+          value={enableHouseCalls}
+          onValueChange={setEnableHouseCalls}
+          style={styles.checkbox}
+        />
+        <Text style={styles.label}>
+          I am open to traveling to clients for our appointments
+        </Text>
+      </View>
+      <Text style={styles.subheaderText}>{enableInClinic ? "Clinic Address:" : "Home / Office Address:"}</Text>
       <View style={styles.inputContainerAddress}>
         <View>
           <FontAwesome
@@ -330,10 +354,13 @@ function TherapistForm(props) {
           textContentType="streetAddressLine1"
         />
       </View>
-      <Text style={styles.errorText}>
-        {" "}
-        {props.touched.addressL1 && props.errors.addressL1}
-      </Text>
+      {props.touched.addressL1 && props.errors.addressL1 && (
+        <Text style={styles.errorText}>{props.errors.addressL1}</Text>
+      )}
+      {/* <Text style={styles.errorText}>
+            {" "}
+            {props.touched.addressL1 && props.errors.addressL1}
+          </Text> */}
 
       <View style={styles.inputContainerAddress}>
         <TextInput
@@ -345,10 +372,13 @@ function TherapistForm(props) {
           textContentType="streetAddressLine2"
         />
       </View>
-      <Text style={styles.errorText}>
-        {" "}
-        {props.touched.addressL2 && props.errors.addressL2}
-      </Text>
+      {props.touched.addressL2 && props.errors.addressL2 && (
+        <Text style={styles.errorText}>{props.errors.addressL2}</Text>
+      )}
+      {/* <Text style={styles.errorText}>
+            {" "}
+            {props.touched.addressL2 && props.errors.addressL2}
+          </Text> */}
 
       <View style={styles.inputContainerCityState}>
         <View style={{ width: "45%" }}>
@@ -369,10 +399,13 @@ function TherapistForm(props) {
               textContentType="addressCity"
             />
           </View>
-          <Text style={styles.errorTextCityState}>
-            {" "}
-            {props.touched.city && props.errors.city}
-          </Text>
+          {props.touched.city && props.errors.city && (
+            <Text style={styles.errorTextCityState}>{props.errors.city}</Text>
+          )}
+          {/* <Text style={styles.errorTextCityState}>
+                {" "}
+                {props.touched.city && props.errors.city}
+              </Text> */}
         </View>
 
         <View style={{ marginHorizontal: "10%", width: "45%" }}>
@@ -385,14 +418,13 @@ function TherapistForm(props) {
               textContentType="addressState"
             />
           </View>
-          <Text style={styles.errorTextCityState}>
-            {" "}
-            {props.touched.state && props.errors.state}
-          </Text>
+          {props.touched.state && props.errors.state && (
+            <Text style={styles.errorTextCityState}>{props.errors.state}</Text>
+          )}
         </View>
       </View>
 
-      <View style={styles.inputContainer}>
+      <View style={styles.inputContainerZip}>
         <View>
           <SimpleLineIcons
             name="location-pin"
@@ -417,9 +449,45 @@ function TherapistForm(props) {
     </>
   );
 
+  const LicenseStep = (props) => (
+    // license
+    <>
+      <View style={styles.inputContainer}>
+        <View>
+          <MaterialCommunityIcons
+            name="license"
+            size={16}
+            color="black"
+            style={{ paddingRight: "5%" }}
+          />
+        </View>
+        <TextInput
+
+          style={{ flex: 1, flexWrap: "wrap" }}
+          placeholder="License URL"
+          onChangeText={props.handleChange("licenseUrl")}
+          value={props.values.licenseUrl}
+          onBlur={props.handleBlur("licenseUrl")}
+          textContentType="licenseUrl"
+          autoCapitalize="none"
+        />
+      </View>
+      {
+        props.touched.licenseUrl && props.errors.licenseUrl && (
+          <Text style={styles.errorText}>
+            {props.errors.licenseUrl}
+          </Text>
+        )
+      }
+      <Text style={styles.subheaderText}>Please provide a link to your active license. This information is essential in assuring the safety and legitimacy of services to your clients.</Text>
+    </>
+  );
+
+
   const PasswordStep = (props) => (
     // password
     <>
+      <Text style={styles.subheaderText}>Please create a password for your account that is at least 8 characters in length.</Text>
       <View style={styles.inputContainer}>
         <View>
           <MaterialCommunityIcons
@@ -494,9 +562,16 @@ function TherapistForm(props) {
         />
         <Text style={styles.headerText}>Recovery On The Go</Text>
       </View>
-      {currentStep === 1 && <Text style={styles.accountText}>Tell us about yourself</Text>}
-      {currentStep === 2 && <Text style={styles.accountText}>Tell us about your business</Text>}
-      {currentStep === 3 && <Text style={styles.accountText}>Last Step!</Text>}
+      {currentStep === 1 && (
+        <Text style={styles.accountText}>Tell us about yourself</Text>
+      )}
+      {currentStep === 2 && (
+        <Text style={styles.accountText}>Tell us about your business</Text>
+      )}
+      {currentStep === 3 && (
+        <Text style={styles.accountText}>Please provide your license information</Text>
+      )}
+      {currentStep === 4 && <Text style={styles.accountText}>Last Step!</Text>}
       {/* <Text style={styles.accountText}>Create your profile</Text> */}
       <Formik
         initialValues={{
@@ -512,6 +587,10 @@ function TherapistForm(props) {
           state: "",
           zipcode: "",
           profession: "",
+          services: "",
+          summary: "",
+          hourlyRate: "",
+          licenseUrl: "",
         }}
         validationSchema={ReviewSchema}
         onSubmit={(values, actions) => {
@@ -523,266 +602,15 @@ function TherapistForm(props) {
         {(props) => (
           <View style={styles.propsContainer}>
             {currentStep === 1 && <ContactStep {...props} />}
-            {/* <View style={styles.inputContainer}>
-              <View>
-                <FontAwesome5
-                  name="user-alt"
-                  size={16}
-                  color="black"
-                  style={{ paddingRight: "5%" }}
-                />
-              </View>
-              <TextInput
-                style={{ flex: 1, flexWrap: "wrap" }}
-                placeholder="First Name"
-                onChangeText={props.handleChange("fname")}
-                value={props.values.fname}
-                onBlur={props.handleBlur("fname")}
-                textContentType="givenName"
-              />
-            </View>
-            <Text style={styles.errorText}>
-              {" "}
-              {props.touched.fname && props.errors.fname}
-            </Text>
-            <View style={styles.inputContainer}>
-              <View>
-                <FontAwesome5
-                  name="user-alt"
-                  size={16}
-                  color="black"
-                  style={{ paddingRight: "5%" }}
-                />
-              </View>
-              <TextInput
-                style={{ flex: 1, flexWrap: "wrap" }}
-                placeholder="Last Name"
-                onChangeText={props.handleChange("lname")}
-                value={props.values.lname}
-                onBlur={props.handleBlur("lname")}
-                textContentType="familyName"
-              />
-            </View>
-            <Text style={styles.errorText}>
-              {" "}
-              {props.touched.lname && props.errors.lname}
-            </Text>
-
-            <View style={styles.inputContainer}>
-              <View>
-                <MaterialCommunityIcons
-                  name="email-open"
-                  size={16}
-                  color="black"
-                  style={{ paddingRight: "5%" }}
-                />
-              </View>
-              <TextInput
-                style={{ flex: 1, flexWrap: "wrap" }}
-                placeholder="Email"
-                onChangeText={props.handleChange("email")}
-                value={props.values.email}
-                keyboardType="email-address"
-                onBlur={props.handleBlur("email")}
-                textContentType="emailAddress"
-                autoCorrect={false}
-                autoCapitalize="none"
-              />
-            </View>
-            <Text style={styles.errorText}>
-              {" "}
-              {props.touched.email && props.errors.email}
-            </Text> */}
-
-            {currentStep === 3 && <PasswordStep {...props} />}
-
-            {/* <View style={styles.inputContainer}>
-              <View>
-                <MaterialCommunityIcons
-                  name="key-variant"
-                  size={16}
-                  color="black"
-                  style={{ paddingRight: "5%" }}
-                />
-              </View>
-              <TextInput
-                style={{ flex: 1, flexWrap: "wrap" }}
-                autoCorrect={false}
-                autoCapitalize="none"
-                placeholder="Password"
-                onChangeText={props.handleChange("password")}
-                value={props.values.password}
-                keyboardType="visible-password"
-                onBlur={props.handleBlur("password")}
-                textContentType="newPassword"
-                secureTextEntry={true}
-              />
-            </View>
-            <Text style={styles.errorText}>
-              {" "}
-              {props.touched.password && props.errors.password}
-            </Text>
-
-            <View style={styles.inputContainer}>
-              <View>
-                <MaterialCommunityIcons
-                  name="key-variant"
-                  size={16}
-                  color="black"
-                  style={{ paddingRight: "5%" }}
-                />
-              </View>
-              <TextInput
-                style={{ flex: 1, flexWrap: "wrap" }}
-                autoCorrect={false}
-                autoCapitalize="none"
-                placeholder="Confirm Password"
-                onChangeText={props.handleChange("confirmPassword")}
-                value={props.values.confirmPassword}
-                keyboardType="visible-password"
-                onBlur={props.handleBlur("confirmPassword")}
-                textContentType="newPassword"
-                secureTextEntry={true}
-              />
-            </View>
-            <Text style={styles.errorText}>
-              {" "}
-              {props.touched.confirmPassword && props.errors.confirmPassword}
-            </Text> */}
-
-            {/* <View style={styles.inputContainer}>
-              <View>
-                <MaterialCommunityIcons
-                  name="phone"
-                  size={16}
-                  color="black"
-                  style={{ paddingRight: "5%" }}
-                />
-              </View>
-              <TextInput
-                style={{ flex: 1, flexWrap: "wrap" }}
-                placeholder="Phone"
-                onChangeText={props.handleChange("phone")}
-                value={props.values.phone}
-                keyboardType="phone-pad"
-                onBlur={props.handleBlur("phone")}
-                textContentType="telephoneNumber"
-              />
-            </View>
-            <Text style={styles.errorText}>
-              {" "}
-              {props.touched.phone && props.errors.phone}
-            </Text> */}
             {currentStep === 2 && <ServicesStep {...props} />}
-            {/* <View style={styles.inputContainerAddress}>
-              <View>
-                <FontAwesome
-                  name="address-book"
-                  size={16}
-                  color="black"
-                  style={{ paddingRight: "5%" }}
-                />
-              </View>
-              <TextInput
-                style={{ flex: 1, flexWrap: "wrap" }}
-                placeholder="Street Address"
-                onChangeText={props.handleChange("addressL1")}
-                value={props.values.addressL1}
-                onBlur={props.handleBlur("addressL1")}
-                textContentType="streetAddressLine1"
-              />
-            </View>
-            <Text style={styles.errorText}>
-              {" "}
-              {props.touched.addressL1 && props.errors.addressL1}
-            </Text>
-
-            <View style={styles.inputContainerAddress}>
-              <TextInput
-                style={{ flex: 1, flexWrap: "wrap" }}
-                placeholder="Apt, Suite, Floor, Building"
-                onChangeText={props.handleChange("addressL2")}
-                value={props.values.addressL2}
-                onBlur={props.handleBlur("addressL2")}
-                textContentType="streetAddressLine2"
-              />
-            </View>
-            <Text style={styles.errorText}>
-              {" "}
-              {props.touched.addressL2 && props.errors.addressL2}
-            </Text>
-
-            <View style={styles.inputContainerCityState}>
-              <View style={{ width: "45%" }}>
-                <View style={styles.inputContainerCity}>
-                  <View>
-                    <MaterialCommunityIcons
-                      name="city"
-                      size={16}
-                      color="black"
-                      style={{ paddingRight: "5%" }}
-                    />
-                  </View>
-                  <TextInput
-                    placeholder="City"
-                    onChangeText={props.handleChange("city")}
-                    value={props.values.city}
-                    onBlur={props.handleBlur("city")}
-                    textContentType="addressCity"
-                  />
-                </View>
-                <Text style={styles.errorTextCityState}>
-                  {" "}
-                  {props.touched.city && props.errors.city}
-                </Text>
-              </View>
-
-              <View style={{ marginHorizontal: "10%", width: "45%" }}>
-                <View style={styles.inputContainerState}>
-                  <TextInput
-                    placeholder="State"
-                    onChangeText={props.handleChange("state")}
-                    value={props.values.state}
-                    onBlur={props.handleBlur("state")}
-                    textContentType="addressState"
-                  />
-                </View>
-                <Text style={styles.errorTextCityState}>
-                  {" "}
-                  {props.touched.state && props.errors.state}
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.inputContainer}>
-              <View>
-                <SimpleLineIcons
-                  name="location-pin"
-                  size={16}
-                  color="black"
-                  style={{ paddingRight: "5%" }}
-                />
-              </View>
-              <TextInput
-                style={{ flex: 1, flexWrap: "wrap" }}
-                placeholder="Zipcode"
-                onChangeText={props.handleChange("zipcode")}
-                value={props.values.zipcode}
-                onBlur={props.handleBlur("zipcode")}
-                textContentType="postalCode"
-              />
-            </View>
-            <Text style={styles.errorText}>
-              {" "}
-              {props.touched.zipcode && props.errors.zipcode}
-            </Text> */}
-
+            {currentStep === 3 && <LicenseStep {...props} />}
+            {currentStep === 4 && <PasswordStep {...props} />}
             <View style={styles.buttonContainer}>
               {showInvalidFieldError && (
-                  <Text style={styles.errorText}>
-                    Please fix errors in fields before continuing.
-                  </Text>
-                )}
+                <Text style={styles.errorText}>
+                  Please fix errors in fields before continuing.
+                </Text>
+              )}
               {currentStep > 1 && (
                 <TouchableOpacity
                   style={styles.secondaryButton}
@@ -791,16 +619,18 @@ function TherapistForm(props) {
                   <Text style={styles.secondaryButtonText}>Previous</Text>
                 </TouchableOpacity>
               )}
-              {currentStep < 3 && (
+              {currentStep < 4 && (
                 <TouchableOpacity
                   style={styles.button}
-                  onPress={() => {handleNext(props.values)}}
+                  onPress={() => {
+                    handleNext(props.values);
+                  }}
                   type="button"
                 >
                   <Text style={styles.buttonText}>Next</Text>
                 </TouchableOpacity>
               )}
-              {currentStep === 3 && (
+              {currentStep === 4 && (
                 <TouchableOpacity
                   style={styles.button}
                   onPress={props.handleSubmit}
@@ -809,7 +639,6 @@ function TherapistForm(props) {
                 </TouchableOpacity>
               )}
             </View>
-
 
             {/* {currentStep === 3 && (
               <TouchableOpacity
@@ -902,8 +731,13 @@ const styles = StyleSheet.create({
     marginLeft: "0%",
     fontWeight: "bold",
   },
+  subheaderText: {
+    color: colors.primary,
+    marginHorizontal: "10%",
+    marginTop: "5%",
+  },
   errorText: {
-    marginHorizontal: "5%",
+    marginHorizontal: "10%",
     padding: "1%",
     color: colors.grey,
     fontWeight: "bold",
@@ -942,12 +776,30 @@ const styles = StyleSheet.create({
   inputContainerCityState: {
     flexDirection: "row",
     marginHorizontal: "10%",
+    marginTop: "5%",
   },
   inputContainerState: {
     borderWidth: 1,
     borderRadius: 15,
     paddingVertical: "4%",
     paddingHorizontal: "7%",
+  },
+  inputContainerZip: {
+    flexDirection: "row",
+    borderWidth: 1,
+    borderRadius: 15,
+    padding: "2%",
+    marginHorizontal: "10%",
+    marginTop: "2%",
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    marginHorizontal: "12%",
+    marginTop: "5%",
+  },
+  checkbox: {
+    alignSelf: "top",
+    marginRight: "5%",
   },
   buttonContainer: {
     flexDirection: "column-reverse",
