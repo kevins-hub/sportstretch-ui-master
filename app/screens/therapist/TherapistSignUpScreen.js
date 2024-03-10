@@ -58,13 +58,13 @@ const ReviewSchema = yup.object({
   summary: yup.string().required().max(150).label("Summary"),
   hourlyRate: yup.number().required().label("Hourly Rate"),
   licenseUrl: yup.string().required().label("License URL"),
+  acceptsHouseCalls: yup.boolean().required().label("Accepts House Calls"),
 });
 
 function TherapistForm(props) {
   const navigation = useNavigation();
   const [currentStep, setCurrentStep] = useState(1);
   const [showInvalidFieldError, setShowInvalidFieldError] = useState(false);
-
   const [enableHouseCalls, setEnableHouseCalls] = useState(false);
   const [enableInClinic, setEnableInClinic] = useState(false);
 
@@ -116,9 +116,7 @@ function TherapistForm(props) {
         })
         .catch((err) => setShowInvalidFieldError(true));
     } else if (currentStep === 3) {
-      Promise.all([
-        ReviewSchema.validateAt("licenseUrl", values),
-      ])
+      Promise.all([ReviewSchema.validateAt("licenseUrl", values)])
         .then(() => {
           setShowInvalidFieldError(false);
           setCurrentStep(currentStep + 1);
@@ -335,7 +333,9 @@ function TherapistForm(props) {
           I am open to traveling to clients for our appointments
         </Text>
       </View>
-      <Text style={styles.subheaderText}>{enableInClinic ? "Clinic Address:" : "Home / Office Address:"}</Text>
+      <Text style={styles.subheaderText}>
+        {enableInClinic ? "Clinic Address:" : "Home / Office Address:"}
+      </Text>
       <View style={styles.inputContainerAddress}>
         <View>
           <FontAwesome
@@ -462,32 +462,33 @@ function TherapistForm(props) {
           />
         </View>
         <TextInput
-
           style={{ flex: 1, flexWrap: "wrap" }}
           placeholder="License URL"
           onChangeText={props.handleChange("licenseUrl")}
           value={props.values.licenseUrl}
           onBlur={props.handleBlur("licenseUrl")}
-          textContentType="licenseUrl"
+          textContentType="URL"
           autoCapitalize="none"
         />
       </View>
-      {
-        props.touched.licenseUrl && props.errors.licenseUrl && (
-          <Text style={styles.errorText}>
-            {props.errors.licenseUrl}
-          </Text>
-        )
-      }
-      <Text style={styles.subheaderText}>Please provide a link to your active license. This information is essential in assuring the safety and legitimacy of services to your clients.</Text>
+      {props.touched.licenseUrl && props.errors.licenseUrl && (
+        <Text style={styles.errorText}>{props.errors.licenseUrl}</Text>
+      )}
+      <Text style={styles.subheaderText}>
+        Please provide a link to your active license. This information is
+        essential in assuring the safety and legitimacy of services to your
+        clients.
+      </Text>
     </>
   );
-
 
   const PasswordStep = (props) => (
     // password
     <>
-      <Text style={styles.subheaderText}>Please create a password for your account that is at least 8 characters in length.</Text>
+      <Text style={styles.subheaderText}>
+        Please create a password for your account that is at least 8 characters
+        in length.
+      </Text>
       <View style={styles.inputContainer}>
         <View>
           <MaterialCommunityIcons
@@ -569,7 +570,9 @@ function TherapistForm(props) {
         <Text style={styles.accountText}>Tell us about your business</Text>
       )}
       {currentStep === 3 && (
-        <Text style={styles.accountText}>Please provide your license information</Text>
+        <Text style={styles.accountText}>
+          Please provide your license information
+        </Text>
       )}
       {currentStep === 4 && <Text style={styles.accountText}>Last Step!</Text>}
       {/* <Text style={styles.accountText}>Create your profile</Text> */}
@@ -591,10 +594,12 @@ function TherapistForm(props) {
           summary: "",
           hourlyRate: "",
           licenseUrl: "",
+          acceptsHouseCalls: false,
         }}
         validationSchema={ReviewSchema}
         onSubmit={(values, actions) => {
           values.state = stateConverter(values.state);
+          values.acceptsHouseCalls = enableHouseCalls;
           register_therapist(values);
           actions.resetForm();
         }}
@@ -639,16 +644,6 @@ function TherapistForm(props) {
                 </TouchableOpacity>
               )}
             </View>
-
-            {/* {currentStep === 3 && (
-              <TouchableOpacity
-                style={styles.button}
-                onPress={props.handleSubmit}
-              >
-                <Text style={styles.buttonText}>Sign Up</Text>
-              </TouchableOpacity>
-            )} */}
-
             <View style={styles.backToLoginContainer}>
               <Text>Already have an account?</Text>
               <TouchableOpacity
