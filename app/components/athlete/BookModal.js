@@ -25,6 +25,7 @@ import PaymentScreen from "./Payment";
 import { useStripe, useConfirmPayment } from "@stripe/stripe-react-native";
 import paymentApi from "../../api/payment";
 import RNPickerSelect from "react-native-picker-select";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 function BookModal({
   visible,
@@ -42,36 +43,141 @@ function BookModal({
 
   // can modify these to be dynamic based on clinic hours
   const openTime = 8; // 8:00 AM
-  const closeTime = 20; // 8:00 PM
+  const closeTime = 22; // 10:00 PM
 
   let minDate = new Date();
 
-  const getNextAvailableTime = () => {
-    // console.warn("getNextAvailableTime");
+  // let timeStrDateTimeMap = {};
+
+  const [availableDateTimes, setAvailableDateTimes] = useState([]);
+  const [timeStrDateTimeMap, setTimeStrDateTimeMap] = useState({});
+
+  const getBookingsOnDate = async (date) => {
+    try {
+      const dateStr = date.toISOString().split("T")[0];
+      const response = await bookingsApi.getTherapistBookingsOnDate(therapistId, dateStr);
+      return response.data;
+    } catch (error) {
+      console.warn("Error getting bookings on date", error);
+    }
+  }
+
+  const convertHourToDateTime = (hour, date) => {
+    // hour is either a number between 0 and 23 including 0.5 increments
+    // date is a Date object
+    const hourString = hour.toString();
+    const hourInt = parseInt(hourString);
+    const minute = hourString.includes(".5") ? "30" : "00";
+    const timeString = hourInt + ":" + minute;
+    const dateTimeString = date.toISOString().split("T")[0] + "T" + timeString;
+    return new Date(dateTimeString);
+  }
+
+
+  convertDateTimeToLocalTimeStr = (dateTime) => {
+    // convert date time to local time str with format H:MM with AM/PM
+    const options = {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    };
+    return dateTime.toLocaleTimeString("en-US", options);
+  }
+
+
+  const getAvailableTimes = async (date, duration) => {
+
+    // console.warn("getAvailableTimes");
+    // date is date object
+    const open = "08:00";
+    const close = "20:00";
+    // get time intervals between open and close time in 30 minnute increments that are not already booked
+    let bookings = await getBookingsOnDate(date);
+    // console.warn("bookings = ", bookings);
     const now = new Date();
-    // if currently within open hours, set next available time to 30 minutes from now
-    if (now.getHours() >= openTime && now.getHours() < closeTime) {
-      return new Date(now.getTime() + 30 * 60000);
-    }
-    // if currently outside of open hours, set next available time to open hours
-    const nextAvailableTime = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-      openTime,
-      0,
-      0,
-      0
-    );
 
-    if (now.getHours() >= closeTime) {
-      nextAvailableTime.setDate(now.getDate() + 1);
+    let schedule = {};
+
+    startTime = Number(openTime);
+
+    while (startTime <= Number(closeTime)-Number(duration)) {
+      schedule[startTime] = 0;
+      startTime += 0.5
     }
 
-    minDate = nextAvailableTime;
+    bookings.forEach((booking) => {
+      const bookingDate = new Date(booking.booking_time);
+      const bookingHour = bookingDate.getHours();
+      const bookingMinute = bookingDate.getMinutes();
+      const bookingTime = bookingHour + bookingMinute / 60;
+      const bookingDuration = booking.duration;
+      
+      let bookedTime = Number(bookingTime);
+      while (bookedTime < Number(bookingTime) + Number(bookingDuration)) {
+        // console.warn("bookedTime = ", bookedTime);
+        if (bookedTime in schedule) {
+          schedule[bookedTime] = 1;
+        }
+        bookedTime += 0.5;
+      }
+    });
 
-    return nextAvailableTime;
-  };
+    // console.warn("schedule = ", schedule);
+
+    const availableTimes = Object.keys(schedule).filter((time) => schedule[time] === 0).map(el => Number(el));
+    availableTimes.sort(function(a,b) {
+      return a - b;
+    });
+    const availableDateTimesList = availableTimes.map((time) => convertHourToDateTime(time, new Date(date)));
+    //console.warn("availableDateTimes = ", availableDateTimes);
+    let id = 0;
+    const timeStrMap = {};
+    const availableDateTimeStrs = availableDateTimesList.map((dateTime) => { 
+      // console.warn("dateTime = ", dateTime);
+      // key is local time string in format HH:MM value is datetime
+      // key is H:MM with AM/PM string, value is datetime
+      id += 1;
+      timeStrMap[dateTime.toISOString()] = convertDateTimeToLocalTimeStr(dateTime);
+      return {key: id, text: dateTime.toISOString()};
+    });
+    // console.warn("availableDateTimeStrs = ", availableDateTimeStrs);
+    setAvailableDateTimes(availableDateTimeStrs);
+    setTimeStrDateTimeMap(timeStrMap);
+    // console.warn("availableDateTimes = ", availableDateTimes);
+    // console.warn("timeStrDateTimeMap = ", timeStrDateTimeMap);
+    return
+  }
+
+
+
+
+
+  // const getNextAvailableTime = () => {
+  //  getAvailableTimes("2023-07-07", 2);
+  //   const now = new Date();
+  //   // if currently within open hours, set next available time to 30 minutes from now
+  //   if (now.getHours() >= openTime && now.getHours() < closeTime) {
+  //     return new Date(now.getTime() + 30 * 60000);
+  //   }
+  //   // if currently outside of open hours, set next available time to open hours
+  //   const nextAvailableTime = new Date(
+  //     now.getFullYear(),
+  //     now.getMonth(),
+  //     now.getDate(),
+  //     openTime,
+  //     0,
+  //     0,
+  //     0
+  //   );
+
+  //   if (now.getHours() >= closeTime) {
+  //     nextAvailableTime.setDate(now.getDate() + 1);
+  //   }
+
+  //   minDate = nextAvailableTime;
+
+  //   return nextAvailableTime;
+  // };
 
   const navigation = useNavigation();
   const [text, onChangeText] = useState(athleteLocation);
@@ -80,22 +186,28 @@ function BookModal({
   const [selectedLocationOption, setSelectedLocationOption] = useState(
     therapistAcceptsHouseCalls ? "2" : "1"
   );
-  const [appointmentDuration, setAppointmentDuration] = useState(0);
+  const [appointmentDuration, setAppointmentDuration] = useState(2);
   // const [selectedDateTime, setSelectedDateTime] = useState(earliestAppointment);
   const { user, setUser } = useContext(AuthContext);
   const [subTotal, setSubTotal] = useState(0);
-  const [selectedDateTime, setSelectedDateTime] = useState(
-    getNextAvailableTime()
-  );
+  const [selectedDateTime, setSelectedDateTime] = useState(new Date());
   // const [selectedDateTime, setSelectedDateTime] = useState(new Date());
   const [currentStep, setCurrentStep] = useState(1);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [clientSecret, setClientSecret] = useState("");
+  // const [availableDateTimes, setAvailableDateTimes] = useState([]);
 
   // let minDate = new Date();
 
+
+  const getTimeFromMap = (dateTimeISOString) => {
+    console.warn("dateTimeISOString = ", dateTimeISOString);
+    console.warn("timeStrDateTimeMap = ", timeStrDateTimeMap);
+    console.warn("timeStrDateTimeMap[dateTimeISOString] = ", timeStrDateTimeMap[dateTimeISOString])
+    return timeStrDateTimeMap[dateTimeISOString];
+  }
+
   const handleDateChange = (event, selectedDate) => {
-    // console.warn("handleDateChange");
     // one second timeout to allow for the date to be set
 
     // console.warn("Date changed", selectedDate);
@@ -110,6 +222,7 @@ function BookModal({
     }
     // console.warn("new Date = ", selectedDate);
     setSelectedDateTime(selectedDate);
+    getAvailableTimes(selectedDate, appointmentDuration);
   };
 
   const appointmentDurationOptions = [
@@ -214,17 +327,23 @@ function BookModal({
     await initializePaymentSheet();
   };
 
+
   const createBooking = async () => {
     // console.warn("onConfirmPress");
     try {
       //showProgress
       setBookingProgress(true);
       //format text and call API
+      
+      const bookingDateStr = selectedDateTime.toISOString().split("T")[0];
+      const bookingDate = new Date(bookingDateStr);
+
       await bookingsApi.bookATherapist(
         athleteId,
         athleteLocation,
         therapistId,
         selectedDateTime,
+        bookingDate,
         therapistHourly,
         appointmentDuration,
         subTotal,
@@ -300,7 +419,10 @@ function BookModal({
         {/* <BookButton title="Request to Book" onPress={onConfirmPress} /> */}
         <TouchableOpacity
           style={styles.primaryButton}
-          onPress={() => setCurrentStep(2)}
+          onPress={() => {
+            setCurrentStep(2)
+            getAvailableTimes(selectedDateTime, appointmentDuration);
+          }}
         >
           <Text
             style={styles.primaryButtonText}
@@ -321,24 +443,6 @@ function BookModal({
       <Text style={styles.modalText}>
         Book your appointment with {therapistName}!
       </Text>
-      {/* <ScrollView style={styles.scrollTherapistDetails} keyboardShouldPersistTaps="handled" contentContainerStyle={{padding: 0, alignItems: 'left', marginBottom: 0}}>
-        <View style={styles.propContainer}>
-          <Text style={styles.propTitle}>Your Recovery Specialist:</Text>
-          <Text style={styles.propText}>{therapistName}</Text>
-        </View>
-        <View style={styles.propContainer}>
-          <Text style={styles.propTitle}>Summary:</Text>
-          <Text style={styles.propText}>{therapistSummary}</Text>
-        </View>
-        <View style={styles.propContainer}>
-          <Text style={styles.propTitle}>Services:</Text>
-          <Text style={styles.propText}>{therapistServices}</Text>
-        </View>
-        <View style={styles.rateContainer}>
-          <Text style={styles.propTitle}>Hourly Rate:</Text>
-          <Text style={styles.propText}>${therapistHourly}</Text>
-        </View>
-      </ScrollView> */}
       <View style={styles.rateContainer}>
         <Text style={styles.propTitle}>Hourly Rate:</Text>
         <Text style={styles.propText}>${therapistHourly}</Text>
@@ -348,15 +452,25 @@ function BookModal({
         <DateTimePicker
           testID="dateTimePicker"
           value={selectedDateTime}
-          mode="datetime"
-          is24Hour={true}
+          mode="date"
           display="default"
           onChange={handleDateChange}
           style={styles.datePicker}
           minimumDate={minDate}
         />
+        {
+          availableDateTimes.map((item) => {
+            // console.warn("availableDateTimes = ", availableDateTimes);
+            // console.warn("dateTime.toISOString() = ", dateTime);
+            // console.warn("timeStrDateTimeMap[dateTime] = ", timeStrDateTimeMap[dateTime])
+            return (
+              <Text key={item.key} style={styles.propText}>
+                {getTimeFromMap(item.text)}
+              </Text>
+            )
+          })
+        }
       </View>
-
       <View style={styles.propContainer}>
         <Text style={styles.propTitle}>Duration:</Text>
         {/* Dropdown menu */}

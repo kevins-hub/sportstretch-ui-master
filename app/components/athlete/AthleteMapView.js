@@ -25,7 +25,7 @@ function AthleteMapView({
 
   useEffect(() => {
     if (userLocation) {
-      if (stateShortToLong(userRegion) !== selectedTherapist?.state) {
+      if (stateShortToLong(userRegion) !== selectedTherapist.state) {
         setRegionToTherapistRegion(selectedTherapist);
       } else {
         setRegion({
