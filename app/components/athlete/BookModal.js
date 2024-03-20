@@ -20,7 +20,6 @@ import AuthContext from "../../auth/context";
 import colors from "../../config/colors";
 import RadioGroup from "react-native-radio-buttons-group";
 import DateTimePicker from "@react-native-community/datetimepicker";
-// import Payment from "./Payment_old";
 import PaymentScreen from "./Payment";
 import { useStripe, useConfirmPayment } from "@stripe/stripe-react-native";
 import paymentApi from "../../api/payment";
@@ -43,11 +42,9 @@ function BookModal({
 
   // can modify these to be dynamic based on clinic hours
   const openTime = 8; // 8:00 AM
-  const closeTime = 22; // 10:00 PM
+  const closeTime = 17; // 10:00 PM
 
   let minDate = new Date();
-
-  // let timeStrDateTimeMap = {};
 
   const [availableDateTimes, setAvailableDateTimes] = useState([]);
   const [timeStrDateTimeMap, setTimeStrDateTimeMap] = useState({});
@@ -55,12 +52,15 @@ function BookModal({
   const getBookingsOnDate = async (date) => {
     try {
       const dateStr = date.toISOString().split("T")[0];
-      const response = await bookingsApi.getTherapistBookingsOnDate(therapistId, dateStr);
+      const response = await bookingsApi.getTherapistBookingsOnDate(
+        therapistId,
+        dateStr
+      );
       return response.data;
     } catch (error) {
       console.warn("Error getting bookings on date", error);
     }
-  }
+  };
 
   const convertHourToDateTime = (hour, date) => {
     // hour is either a number between 0 and 23 including 0.5 increments
@@ -71,8 +71,7 @@ function BookModal({
     const timeString = hourInt + ":" + minute;
     const dateTimeString = date.toISOString().split("T")[0] + "T" + timeString;
     return new Date(dateTimeString);
-  }
-
+  };
 
   convertDateTimeToLocalTimeStr = (dateTime) => {
     // convert date time to local time str with format H:MM with AM/PM
@@ -82,27 +81,23 @@ function BookModal({
       hour12: true,
     };
     return dateTime.toLocaleTimeString("en-US", options);
-  }
-
+  };
 
   const getAvailableTimes = async (date, duration) => {
-
-    // console.warn("getAvailableTimes");
     // date is date object
     const open = "08:00";
     const close = "20:00";
     // get time intervals between open and close time in 30 minnute increments that are not already booked
     let bookings = await getBookingsOnDate(date);
-    // console.warn("bookings = ", bookings);
     const now = new Date();
 
     let schedule = {};
 
     startTime = Number(openTime);
 
-    while (startTime <= Number(closeTime)-Number(duration)) {
+    while (startTime <= Number(closeTime) - Number(duration)) {
       schedule[startTime] = 0;
-      startTime += 0.5
+      startTime += 0.5;
     }
 
     bookings.forEach((booking) => {
@@ -111,10 +106,9 @@ function BookModal({
       const bookingMinute = bookingDate.getMinutes();
       const bookingTime = bookingHour + bookingMinute / 60;
       const bookingDuration = booking.duration;
-      
+
       let bookedTime = Number(bookingTime);
       while (bookedTime < Number(bookingTime) + Number(bookingDuration)) {
-        // console.warn("bookedTime = ", bookedTime);
         if (bookedTime in schedule) {
           schedule[bookedTime] = 1;
         }
@@ -122,62 +116,29 @@ function BookModal({
       }
     });
 
-    // console.warn("schedule = ", schedule);
-
-    const availableTimes = Object.keys(schedule).filter((time) => schedule[time] === 0).map(el => Number(el));
-    availableTimes.sort(function(a,b) {
+    const availableTimes = Object.keys(schedule)
+      .filter((time) => schedule[time] === 0)
+      .map((el) => Number(el));
+    availableTimes.sort(function (a, b) {
       return a - b;
     });
-    const availableDateTimesList = availableTimes.map((time) => convertHourToDateTime(time, new Date(date)));
-    //console.warn("availableDateTimes = ", availableDateTimes);
+    const availableDateTimesList = availableTimes.map((time) =>
+      convertHourToDateTime(time, new Date(date))
+    );
     let id = 0;
     const timeStrMap = {};
-    const availableDateTimeStrs = availableDateTimesList.map((dateTime) => { 
-      // console.warn("dateTime = ", dateTime);
+    const availableDateTimeStrs = availableDateTimesList.map((dateTime) => {
       // key is local time string in format HH:MM value is datetime
       // key is H:MM with AM/PM string, value is datetime
       id += 1;
-      timeStrMap[dateTime.toISOString()] = convertDateTimeToLocalTimeStr(dateTime);
-      return {key: id, text: dateTime.toISOString()};
+      timeStrMap[dateTime.toISOString()] =
+        convertDateTimeToLocalTimeStr(dateTime);
+      return { key: id, text: dateTime.toISOString() };
     });
-    // console.warn("availableDateTimeStrs = ", availableDateTimeStrs);
     setAvailableDateTimes(availableDateTimeStrs);
     setTimeStrDateTimeMap(timeStrMap);
-    // console.warn("availableDateTimes = ", availableDateTimes);
-    // console.warn("timeStrDateTimeMap = ", timeStrDateTimeMap);
-    return
-  }
-
-
-
-
-
-  // const getNextAvailableTime = () => {
-  //  getAvailableTimes("2023-07-07", 2);
-  //   const now = new Date();
-  //   // if currently within open hours, set next available time to 30 minutes from now
-  //   if (now.getHours() >= openTime && now.getHours() < closeTime) {
-  //     return new Date(now.getTime() + 30 * 60000);
-  //   }
-  //   // if currently outside of open hours, set next available time to open hours
-  //   const nextAvailableTime = new Date(
-  //     now.getFullYear(),
-  //     now.getMonth(),
-  //     now.getDate(),
-  //     openTime,
-  //     0,
-  //     0,
-  //     0
-  //   );
-
-  //   if (now.getHours() >= closeTime) {
-  //     nextAvailableTime.setDate(now.getDate() + 1);
-  //   }
-
-  //   minDate = nextAvailableTime;
-
-  //   return nextAvailableTime;
-  // };
+    return;
+  };
 
   const navigation = useNavigation();
   const [text, onChangeText] = useState(athleteLocation);
@@ -189,7 +150,9 @@ function BookModal({
   const [appointmentDuration, setAppointmentDuration] = useState(2);
   // const [selectedDateTime, setSelectedDateTime] = useState(earliestAppointment);
   const { user, setUser } = useContext(AuthContext);
-  const [subTotal, setSubTotal] = useState(0);
+  const [subTotal, setSubTotal] = useState(
+    therapistHourly * appointmentDuration
+  );
   const [selectedDateTime, setSelectedDateTime] = useState(new Date());
   // const [selectedDateTime, setSelectedDateTime] = useState(new Date());
   const [currentStep, setCurrentStep] = useState(1);
@@ -199,28 +162,18 @@ function BookModal({
 
   // let minDate = new Date();
 
-
   const getTimeFromMap = (dateTimeISOString) => {
-    console.warn("dateTimeISOString = ", dateTimeISOString);
-    console.warn("timeStrDateTimeMap = ", timeStrDateTimeMap);
-    console.warn("timeStrDateTimeMap[dateTimeISOString] = ", timeStrDateTimeMap[dateTimeISOString])
     return timeStrDateTimeMap[dateTimeISOString];
-  }
+  };
 
   const handleDateChange = (event, selectedDate) => {
     // one second timeout to allow for the date to be set
-
-    // console.warn("Date changed", selectedDate);
     // if selected date's hours are after closeTime, set time to 30 minutes before closeTime
-    // console.warn("selectedHour = ", selectedDate.getHours());
     if (selectedDate.getHours() >= closeTime) {
-      // console.warn("Date is after close time");
       selectedDate.setHours(closeTime - 1, 30, 0, 0);
     } else if (selectedDate.getHours() < openTime) {
-      // console.warn("Date is before open time");
       selectedDate.setHours(openTime, 0, 0, 0);
     }
-    // console.warn("new Date = ", selectedDate);
     setSelectedDateTime(selectedDate);
     getAvailableTimes(selectedDate, appointmentDuration);
   };
@@ -245,7 +198,6 @@ function BookModal({
   };
 
   const getClientSecret = async () => {
-    // console.warn("getClientSecret");
     let res = await paymentApi.createPaymentIntent(paymentObj);
     setClientSecret(res.data.clientSecret);
     return;
@@ -290,8 +242,6 @@ function BookModal({
         ephemeralKeySecret: "",
         // Additional configuration options
       });
-
-      // console.warn("response = ", response);
       setCurrentStep(3);
     } catch (error) {
       console.warn("Error initializing PaymentSheet", error);
@@ -299,7 +249,6 @@ function BookModal({
   };
 
   const openPaymentSheet = async () => {
-    // console.warn("open payment sheet");
     try {
       const { error } = await presentPaymentSheet();
       if (error) {
@@ -327,14 +276,12 @@ function BookModal({
     await initializePaymentSheet();
   };
 
-
   const createBooking = async () => {
-    // console.warn("onConfirmPress");
     try {
       //showProgress
       setBookingProgress(true);
       //format text and call API
-      
+
       const bookingDateStr = selectedDateTime.toISOString().split("T")[0];
       const bookingDate = new Date(bookingDateStr);
 
@@ -420,7 +367,7 @@ function BookModal({
         <TouchableOpacity
           style={styles.primaryButton}
           onPress={() => {
-            setCurrentStep(2)
+            setCurrentStep(2);
             getAvailableTimes(selectedDateTime, appointmentDuration);
           }}
         >
@@ -443,82 +390,112 @@ function BookModal({
       <Text style={styles.modalText}>
         Book your appointment with {therapistName}!
       </Text>
-      <View style={styles.rateContainer}>
-        <Text style={styles.propTitle}>Hourly Rate:</Text>
-        <Text style={styles.propText}>${therapistHourly}</Text>
-      </View>
-      <View style={styles.propContainer}>
-        <Text style={styles.propTitle}>Date & Time:</Text>
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={selectedDateTime}
-          mode="date"
-          display="default"
-          onChange={handleDateChange}
-          style={styles.datePicker}
-          minimumDate={minDate}
-        />
-        {
-          availableDateTimes.map((item) => {
-            // console.warn("availableDateTimes = ", availableDateTimes);
-            // console.warn("dateTime.toISOString() = ", dateTime);
-            // console.warn("timeStrDateTimeMap[dateTime] = ", timeStrDateTimeMap[dateTime])
-            return (
-              <Text key={item.key} style={styles.propText}>
-                {getTimeFromMap(item.text)}
-              </Text>
-            )
-          })
-        }
-      </View>
-      <View style={styles.propContainer}>
-        <Text style={styles.propTitle}>Duration:</Text>
-        {/* Dropdown menu */}
-        <View>
-          <RNPickerSelect
-            onValueChange={(value) => handleDurationChange(value)}
-            items={appointmentDurationOptions}
-            placeholder={{ label: "Select duration for appointment", value: 0 }}
-            value={appointmentDuration}
-            style={styles.durationPicker}
-          />
-        </View>
-      </View>
-      <View style={styles.rateContainer}>
-        <Text style={styles.propTitle}>Subtotal:</Text>
-        <Text style={styles.propText}>
-          {appointmentDuration === 0 ? "(Select a duration)" : `$${subTotal}`}
-        </Text>
-      </View>
-      <View style={styles.locationFormContainer}>
-        <Text style={styles.propTitle}>Location:</Text>
-        <RadioGroup
-          radioButtons={locations}
-          onPress={setSelectedLocationOption}
-          flexDirection="column"
-          selectedId={selectedLocationOption}
-          containerStyle={styles.radioGroup}
-        />
-        {/* <View style={styles.selectedLocationOptionContainer}>
+      <View style={styles.appointmentScrollViewContainer}>
+        <ScrollView
+          style={styles.appointmentDetailsScrollView}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.rateContainer}>
+            <Text style={styles.propTitle}>Hourly Rate:</Text>
+            <Text style={styles.propText}>${therapistHourly}</Text>
+          </View>
+          <View style={styles.propContainer}>
+            <Text style={styles.propTitle}>Date & Time:</Text>
+            <DateTimePicker
+              testID="dateTimePicker"
+              value={selectedDateTime}
+              mode="date"
+              display="default"
+              onChange={handleDateChange}
+              style={styles.datePicker}
+              minimumDate={minDate}
+            />
+            <View style={styles.timeSlotContainer}>
+              {availableDateTimes.map((item) => {
+                return (
+                  <TouchableOpacity
+                    key={item.key}
+                    style={
+                      selectedDateTime.toLocaleString() ==
+                      new Date(item.text).toLocaleString()
+                        ? styles.timeSlotButtonSelected
+                        : styles.timeSlotButton
+                    }
+                    onPress={() => {
+                      setSelectedDateTime(new Date(item.text));
+                    }}
+                  >
+                    <Text
+                      key={item.key}
+                      style={
+                        selectedDateTime.toLocaleString() ==
+                        new Date(item.text).toLocaleString()
+                          ? styles.timeSlotButtonSelectedText
+                          : styles.timeSlotButtonText
+                      }
+                    >
+                      {getTimeFromMap(item.text)}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+          <View style={styles.propContainer}>
+            <Text style={styles.propTitle}>Duration:</Text>
+            {/* Dropdown menu */}
+            <View>
+              <RNPickerSelect
+                onValueChange={(value) => handleDurationChange(value)}
+                items={appointmentDurationOptions}
+                placeholder={{
+                  label: "Select duration for appointment",
+                  value: 0,
+                }}
+                value={appointmentDuration}
+                style={styles.durationPicker}
+              />
+            </View>
+          </View>
+          <View style={styles.rateContainer}>
+            <Text style={styles.propTitle}>Subtotal:</Text>
+            <Text style={styles.propText}>
+              {appointmentDuration === 0
+                ? "(Select a duration)"
+                : `$${subTotal}`}
+            </Text>
+          </View>
+          <View style={styles.locationFormContainer}>
+            <Text style={styles.propTitle}>Location:</Text>
+            <RadioGroup
+              radioButtons={locations}
+              onPress={setSelectedLocationOption}
+              flexDirection="column"
+              selectedId={selectedLocationOption}
+              containerStyle={styles.radioGroup}
+            />
+            {/* <View style={styles.selectedLocationOptionContainer}>
         <Text style={styles.selectedLocationOptionText}>
           Selected Location: {selectedLocationOption}
         </Text>
       </View> */}
+          </View>
+          {selectedLocationOption === "2" ? (
+            <View style={styles.propContainer}>
+              <Text style={styles.propTitle}>Your Location:</Text>
+              <TextInput
+                style={styles.input}
+                onChangeText={onChangeText}
+                value={text}
+              />
+            </View>
+          ) : (
+            <Text style={styles.clinicInfoText}>
+              Clinic address will be provided upon confirmation of appointment.
+            </Text>
+          )}
+        </ScrollView>
       </View>
-      {selectedLocationOption === "2" ? (
-        <View style={styles.propContainer}>
-          <Text style={styles.propTitle}>Your Location:</Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={onChangeText}
-            value={text}
-          />
-        </View>
-      ) : (
-        <Text style={styles.clinicInfoText}>
-          Clinic address will be provided upon confirmation of appointment.
-        </Text>
-      )}
 
       {/* <TextInput
       style={styles.input}
@@ -673,7 +650,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    height: "86%",
+    height: "88%",
     width: 300,
   },
   modalContent: {
@@ -682,6 +659,12 @@ const styles = StyleSheet.create({
     height: "90%",
     width: "90%",
     flex: 1,
+  },
+  appointmentScrollViewContainer: {
+    height: "75%",
+  },
+  appointmentDetailsScrollView: {
+    height: "50%",
   },
   scrollTherapistDetails: {
     height: "34%",
@@ -708,6 +691,12 @@ const styles = StyleSheet.create({
   rateContainer: {
     flexDirection: "row",
     marginBottom: 8,
+  },
+  timeSlotContainer: {
+    width: "100%",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginTop: "3%",
   },
   durationPicker: {
     backgroundColor: colors.white,
@@ -755,6 +744,28 @@ const styles = StyleSheet.create({
     flexDirection: "column-reverse",
     width: "100%",
   },
+  timeSlotButton: {
+    backgroundColor: colors.secondary,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    width: "20%",
+    height: 30,
+    margin: 5,
+    borderColor: colors.primary,
+    borderWidth: 1,
+    marginBottom: 1,
+  },
+  timeSlotButtonSelected: {
+    backgroundColor: colors.primary,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    width: "20%",
+    height: 30,
+    margin: 5,
+    marginBottom: 1,
+  },
   secondaryButton: {
     backgroundColor: colors.secondary,
     borderRadius: 25,
@@ -794,6 +805,15 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     color: colors.primary,
     fontSize: 12,
+  },
+  timeSlotButtonText: {
+    color: colors.primary,
+    fontSize: 10,
+  },
+  timeSlotButtonSelectedText: {
+    color: colors.secondary,
+    fontSize: 10,
+    fontWeight: "bold",
   },
 });
 
