@@ -42,7 +42,7 @@ function BookModal({
 
   // can modify these to be dynamic based on clinic hours
   const openTime = 8; // 8:00 AM
-  const closeTime = 17; // 10:00 PM
+  const closeTime = 23; // 10:00 PM
 
   let minDate = new Date();
 
@@ -51,7 +51,9 @@ function BookModal({
 
   const getBookingsOnDate = async (date) => {
     try {
-      const dateStr = date.toISOString().split("T")[0];
+      // convert date to local date string YYYY-MM-DD
+      const month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
+      const dateStr = date.getFullYear() + "-" + month + "-" + date.getDate();
       const response = await bookingsApi.getTherapistBookingsOnDate(
         therapistId,
         dateStr
@@ -93,7 +95,7 @@ function BookModal({
 
     let schedule = {};
 
-    startTime = Number(openTime);
+    startTime = now.toLocaleDateString() == date.toLocaleDateString() ? Math.max(now.getHours()+1, Number(openTime)) : Number(openTime);
 
     while (startTime <= Number(closeTime) - Number(duration)) {
       schedule[startTime] = 0;
@@ -411,7 +413,7 @@ function BookModal({
               minimumDate={minDate}
             />
             <View style={styles.timeSlotContainer}>
-              {availableDateTimes.map((item) => {
+              {availableDateTimes.length > 0 ? availableDateTimes.map((item) => {
                 return (
                   <TouchableOpacity
                     key={item.key}
@@ -438,7 +440,7 @@ function BookModal({
                     </Text>
                   </TouchableOpacity>
                 );
-              })}
+              }): <Text>No more availability on this date.</Text>}
             </View>
           </View>
           <View style={styles.propContainer}>
