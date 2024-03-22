@@ -33,7 +33,11 @@ function ProfileSettings({ route }) {
   const [athleteState, setAthleteState] = useState("");
 
   const { user } = route.params;
-  const userObj = user.userObj;
+  let userObj = user.userObj;
+
+  // const mergeUserTherapist = (userObj, therapistObj) => {
+  //   userObj = { ...userObj, ...therapistObj };
+  // }
 
   const loadLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -90,6 +94,7 @@ function ProfileSettings({ route }) {
         user={user}
         visible={editTherapistServicesModalVisible}
         setVisibility={setEditTherapistServicesModalVisible}
+        // mergeUserTherapist={mergeUserTherapist}
       />
 
       <EditBillingInfoModal

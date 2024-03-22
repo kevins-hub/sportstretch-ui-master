@@ -34,6 +34,14 @@ const setToggle = (therapistId, enabled) => {
   return apiClient.put(endpoint + "/toggle/" + therapistId, enabled);
 };
 
+const getTherapist = (therapistId) => {
+  return apiClient.get(endpoint + "/" + therapistId);
+}
+
+const editTherapist = (therapistId, therapistAddressServicesObj) => {
+  return apiClient.put(endpoint + "/edit/" + therapistId, therapistAddressServicesObj);
+}
+
 export default {
   getAllTherapists,
   getTherapistsByState,
@@ -43,4 +51,5 @@ export default {
   denyTherapist,
   approveTherapist,
   setToggle,
+  editTherapist,
 };
