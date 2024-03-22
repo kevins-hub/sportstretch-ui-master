@@ -13,6 +13,7 @@ import colors from "../config/colors";
 import authStorage from "../auth/storage";
 import contactApi from "../api/contact";
 import EditContactInfoModal from "../components/shared/EditContactInfoModal";
+import TherapistEditServicesModal from "./therapist/TherapistEditServicesModal";
 import EditBillingInfoModal from "../components/shared/EditBillingInfoModal";
 import ChangePasswordModal from "./password/ChangePasswordModal";
 import Stars from "react-native-stars";
@@ -22,6 +23,7 @@ import * as Location from "expo-location";
 function ProfileSettings({ route }) {
   const [editContactInfoModalVisible, setEditContactInfoModalVisible] =
     useState(false);
+  const [editTherapistServicesModalVisible, setEditTherapistServicesModalVisible] = useState(false);
   const [editBillingInfoModalVisible, setEditBillingInfoModalVisible] =
     useState(false);
   const [changePasswordModalVisible, setChangePasswordModalVisible] =
@@ -31,7 +33,11 @@ function ProfileSettings({ route }) {
   const [athleteState, setAthleteState] = useState("");
 
   const { user } = route.params;
-  const userObj = user.userObj;
+  let userObj = user.userObj;
+
+  // const mergeUserTherapist = (userObj, therapistObj) => {
+  //   userObj = { ...userObj, ...therapistObj };
+  // }
 
   const loadLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -84,6 +90,13 @@ function ProfileSettings({ route }) {
         setContactObj={setContactObj}
         onClose={handleModalClose}
       />
+      <TherapistEditServicesModal
+        user={user}
+        visible={editTherapistServicesModalVisible}
+        setVisibility={setEditTherapistServicesModalVisible}
+        // mergeUserTherapist={mergeUserTherapist}
+      />
+
       <EditBillingInfoModal
         user={user}
         visible={editBillingInfoModalVisible}
@@ -206,7 +219,7 @@ function ProfileSettings({ route }) {
                   <Text style={styles.cardTitle}>Specialist Profile</Text>
                   <TouchableOpacity
                     style={styles.button}
-                    onPress={() => setEditContactInfoModalVisible(true)}
+                    onPress={() => setEditTherapistServicesModalVisible(true)}
                   >
                     <View>
                       <Text style={styles.buttonText}>Edit</Text>
