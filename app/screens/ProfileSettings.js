@@ -39,6 +39,8 @@ function ProfileSettings({ route }) {
   //   userObj = { ...userObj, ...therapistObj };
   // }
 
+  const businessHours = userObj.business_hours;
+
   const loadLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") return;
@@ -64,6 +66,17 @@ function ProfileSettings({ route }) {
       console.error("Error fetching contact info", error);
     }
   };
+
+  const hoursTupleToTimeString = (hours) => {
+    // convert [9, 17] to "9:00 AM - 5:00 PM"
+    let start = hours[0];
+    let end = hours[1];
+    let startStr = start % 12 === 0 ? "12" : (start % 12).toString();
+    let endStr = end % 12 === 0 ? "12" : (end % 12).toString();
+    let startSuffix = start >= 12 ? "PM" : "AM";
+    let endSuffix = end >= 12 ? "PM" : "AM";
+    return `${startStr}:00 ${startSuffix} - ${endStr}:00 ${endSuffix}`;
+  }
 
   useEffect(() => {
     (async () => {
@@ -250,8 +263,44 @@ function ProfileSettings({ route }) {
                       </Text>
                     </View>
                     <View style={styles.propContainer}>
+                      <Text style={styles.propLabel}>Operating Hours:</Text>
+                      <Text>Monday:</Text>
+                      {businessHours["0"] && businessHours["0"].length > 0 ? businessHours["0"].map((hours) => {
+                        return <Text style={styles.hoursText}>{hoursTupleToTimeString(hours)}</Text>;
+                      }) : <Text style={styles.closedText}>Closed</Text>}
+                      <Text>Tuesday:</Text>
+                      {businessHours["1"] && businessHours["1"].length > 0 ? businessHours["1"].map((hours) => {
+                        return <Text style={styles.hoursText}>{hoursTupleToTimeString(hours)}</Text>;
+                      }) : <Text style={styles.closedText}>Closed</Text>}
+                      <Text>Wednesday:</Text>
+                      {businessHours["2"] && businessHours["2"].length > 0 ? businessHours["2"].map((hours) => {
+                        return <Text style={styles.hoursText}>{hoursTupleToTimeString(hours)}</Text>;
+                      }) : <Text style={styles.closedText}>Closed</Text>}
+                      <Text>Thursday:</Text>
+                      {businessHours["3"] && businessHours["3"].length > 0 ? businessHours["3"].map((hours) => {
+                        return <Text style={styles.hoursText}>{hoursTupleToTimeString(hours)}</Text>;
+                      }) : <Text style={styles.closedText}>Closed</Text>}
+                      <Text>Friday:</Text>
+                      {businessHours["4"] && businessHours["4"].length > 0 ? businessHours["4"].map((hours) => {
+                        return <Text style={styles.hoursText}>{hoursTupleToTimeString(hours)}</Text>;
+                      }) : <Text style={styles.closedText}>Closed</Text>}
+                      <Text>Saturday:</Text>
+                      {businessHours["5"] && businessHours["5"].length > 0 ? businessHours["5"].map((hours) => {
+                        return <Text style={styles.hoursText}>{hoursTupleToTimeString(hours)}</Text>;
+                      }) : <Text style={styles.closedText}>Closed</Text>}
+                      <Text>Sunday:</Text>
+                      {businessHours["6"] && businessHours["6"].length > 0 ? businessHours["6"].map((hours) => {
+                        return <Text style={styles.hoursText}>{hoursTupleToTimeString(hours)}</Text>;
+                      }) : <Text style={styles.closedText}>Closed</Text>}
+
+                    </View>
+                    <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>Accepts House Calls:</Text>
                       <Text>{userObj.accepts_house_calls ? "Yes" : "No"}</Text>
+                    </View>
+                    <View style={styles.propContainer}>
+                      <Text style={styles.propLabel}>Accepts In Clinic:</Text>
+                      <Text>{userObj.accepts_in_clinic ? "Yes" : "No"}</Text>
                     </View>
                     <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>License status:</Text>
@@ -462,6 +511,13 @@ const styles = StyleSheet.create({
   propLabel: {
     fontWeight: "bold",
     marginBottom: 5,
+  },
+  hoursText: {
+    marginLeft: "5%",
+  },
+  closedText: {
+    marginLeft: "5%",
+    fontStyle: "italic",
   },
   buttonContainer: {
     justifyContent: "center",
