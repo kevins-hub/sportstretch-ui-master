@@ -29,7 +29,7 @@ function TherapistEditServicesModal({ user, visible, setVisibility }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [showInvalidFieldError, setShowInvalidFieldError] = useState(false);
   //   const [enableHouseCalls, setEnableHouseCalls] = useState(false);
-  const [enableInClinic, setEnableInClinic] = useState(false);
+//   const [enableInClinic, setEnableInClinic] = useState(false);
 
   const professionsList = [
     { label: "Physical Therapist", value: "Physical Therapist" },
@@ -58,6 +58,7 @@ function TherapistEditServicesModal({ user, visible, setVisibility }) {
     hourlyRate: yup.number().required().label("Hourly Rate"),
     licenseUrl: yup.string().required().label("License URL"),
     acceptsHouseCalls: yup.boolean().required().label("Accepts House Calls"),
+    acceptsInClinic: yup.boolean().required().label("Accepts In Clinic"),
   });
 
   const handlePrevious = () => {
@@ -157,8 +158,8 @@ function TherapistEditServicesModal({ user, visible, setVisibility }) {
 
         <View style={styles.checkboxContainer}>
           <Checkbox
-            value={enableInClinic}
-            onValueChange={setEnableInClinic}
+            value={props.values.acceptsInClinic}
+            onValueChange={props.handleChange("acceptsInClinic")}
             style={styles.checkbox}
           />
           <Text style={styles.label}>
@@ -176,7 +177,7 @@ function TherapistEditServicesModal({ user, visible, setVisibility }) {
           </Text>
         </View>
         <Text style={styles.subheaderText}>
-          {enableInClinic ? "Clinic Address:" : "Home / Office Address:"}
+          {props.values.acceptsInClinic ? "Clinic Address:" : "Home / Office Address:"}
         </Text>
         <View style={styles.inputContainerAddress}>
           <View>
@@ -382,6 +383,7 @@ function TherapistEditServicesModal({ user, visible, setVisibility }) {
               hourlyRate: userObj.hourly_rate,
               licenseUrl: userObj.license_infourl,
               acceptsHouseCalls: userObj.accepts_house_calls,
+              acceptsInClinic: userObj.accepts_in_clinic,
             }}
             validationSchema={ReviewSchema}
             onSubmit={async (values, actions) => {
