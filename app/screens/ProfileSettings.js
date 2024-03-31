@@ -16,6 +16,7 @@ import EditContactInfoModal from "../components/shared/EditContactInfoModal";
 import TherapistEditServicesModal from "./therapist/TherapistEditServicesModal";
 import EditBillingInfoModal from "../components/shared/EditBillingInfoModal";
 import ChangePasswordModal from "./password/ChangePasswordModal";
+import DeleteAccountModal from "../components/shared/DeleteAccountModal";
 import Stars from "react-native-stars";
 import { FontAwesome } from "@expo/vector-icons";
 import * as Location from "expo-location";
@@ -23,10 +24,15 @@ import * as Location from "expo-location";
 function ProfileSettings({ route }) {
   const [editContactInfoModalVisible, setEditContactInfoModalVisible] =
     useState(false);
-  const [editTherapistServicesModalVisible, setEditTherapistServicesModalVisible] = useState(false);
+  const [
+    editTherapistServicesModalVisible,
+    setEditTherapistServicesModalVisible,
+  ] = useState(false);
   const [editBillingInfoModalVisible, setEditBillingInfoModalVisible] =
     useState(false);
   const [changePasswordModalVisible, setChangePasswordModalVisible] =
+    useState(false);
+  const [deleteAccountModalVisible, setDeleteAccountModalVisible] =
     useState(false);
   const [contactObj, setContactObj] = useState({});
   const [athleteCity, setAthleteCity] = useState("");
@@ -34,6 +40,8 @@ function ProfileSettings({ route }) {
 
   const { user } = route.params;
   let userObj = user.userObj;
+
+  // console.warn("user = ", user);
 
   // const mergeUserTherapist = (userObj, therapistObj) => {
   //   userObj = { ...userObj, ...therapistObj };
@@ -76,7 +84,7 @@ function ProfileSettings({ route }) {
     let startSuffix = start >= 12 ? "PM" : "AM";
     let endSuffix = end >= 12 ? "PM" : "AM";
     return `${startStr}:00 ${startSuffix} - ${endStr}:00 ${endSuffix}`;
-  }
+  };
 
   useEffect(() => {
     (async () => {
@@ -118,6 +126,11 @@ function ProfileSettings({ route }) {
       <ChangePasswordModal
         visible={changePasswordModalVisible}
         setVisibility={setChangePasswordModalVisible}
+      />
+      <DeleteAccountModal
+        visible={deleteAccountModalVisible}
+        setVisibility={setDeleteAccountModalVisible}
+        authId={user.authorization_id}
       />
       <ScrollView style={styles.scrollViewStyle}>
         <View style={styles.container}>
@@ -172,55 +185,61 @@ function ProfileSettings({ route }) {
             <View style={styles.cardOutterContainer}>
               <View style={styles.cardInnerContainer}>
                 <View style={styles.cardContent}>
-                    {user.role === "athlete" && (
-                      <View style={styles.locationPropContainer}>
-                        <MaterialCommunityIcons
-                          name="map-marker"
-                          style={styles.locationIcon}
-                          size={18}
-                          color="red"
-                        />
-                        <Text style={styles.locationPropLabel}>Location:</Text>
-                        <Text style={styles.locationProp}>
-                          {athleteCity}, {athleteState}
-                        </Text>
-                      </View>
-                    )}
-                    {user.role === "therapist" && (
-                      <View style={styles.ratingContainer}>
-                        <Text style={styles.ratingPropLabel}>Rating:</Text>
-                        <Stars
-                          default={parseFloat(userObj.avg_rating)}
-                          half={true}
-                          starSize={40}
-                          disabled
-                          fullStar={
-                            <FontAwesome
-                              name={"star"}
-                              style={{ color: colors.gold }}
-                              size={18}
-                            />
-                          }
-                          halfStar={
-                            <FontAwesome
-                              name="star-half-empty"
-                              style={{ color: colors.gold }}
-                              size={18}
-                            />
-                          }
-                          emptyStar={
-                            <FontAwesome
-                              name={"star-o"}
-                              style={{ color: colors.secondary }}
-                              size={18}
-                            />
-                          }
-                        />
-                        <Text style={styles.locationProp}>
-                          {`(${userObj.avg_rating})`}
-                        </Text>
-                      </View>
-                    )}
+                  {user.role === "athlete" && (
+                    <View style={styles.locationPropContainer}>
+                      <MaterialCommunityIcons
+                        name="map-marker"
+                        style={styles.locationIcon}
+                        size={18}
+                        color="red"
+                      />
+                      <Text style={styles.locationPropLabel}>Location:</Text>
+                      <Text style={styles.locationProp}>
+                        {athleteCity}, {athleteState}
+                      </Text>
+                    </View>
+                  )}
+                  {user.role === "therapist" && (
+                    <View style={styles.ratingContainer}>
+                      <Text style={styles.ratingPropLabel}>Rating:</Text>
+                      {parseFloat(userObj.avg_rating) > 0 ? (
+                        <>
+                          <Stars
+                            default={parseFloat(userObj.avg_rating)}
+                            half={true}
+                            starSize={40}
+                            disabled
+                            fullStar={
+                              <FontAwesome
+                                name={"star"}
+                                style={{ color: colors.gold }}
+                                size={18}
+                              />
+                            }
+                            halfStar={
+                              <FontAwesome
+                                name="star-half-empty"
+                                style={{ color: colors.gold }}
+                                size={18}
+                              />
+                            }
+                            emptyStar={
+                              <FontAwesome
+                                name={"star-o"}
+                                style={{ color: colors.secondary }}
+                                size={18}
+                              />
+                            }
+                          />
+                          <Text style={styles.locationProp}>
+                            {`(${userObj.avg_rating})`}
+                          </Text>
+                        </>
+                      ) : (
+                        <Text style={styles.locationProp}>No ratings yet</Text>
+                      )}
+                    </View>
+                  )}
                 </View>
               </View>
             </View>
@@ -265,34 +284,103 @@ function ProfileSettings({ route }) {
                     <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>Operating Hours:</Text>
                       <Text>Monday:</Text>
-                      {businessHours["0"] && businessHours["0"].length > 0 ? businessHours["0"].map((hours) => {
-                        return <Text style={styles.hoursText}>{hoursTupleToTimeString(hours)}</Text>;
-                      }) : <Text style={styles.closedText}>Closed</Text>}
+                      {businessHours &&
+                      businessHours["0"] &&
+                      businessHours["0"].length > 0 ? (
+                        businessHours["0"].map((hours) => {
+                          return (
+                            <Text style={styles.hoursText}>
+                              {hoursTupleToTimeString(hours)}
+                            </Text>
+                          );
+                        })
+                      ) : (
+                        <Text style={styles.closedText}>Closed</Text>
+                      )}
                       <Text>Tuesday:</Text>
-                      {businessHours["1"] && businessHours["1"].length > 0 ? businessHours["1"].map((hours) => {
-                        return <Text style={styles.hoursText}>{hoursTupleToTimeString(hours)}</Text>;
-                      }) : <Text style={styles.closedText}>Closed</Text>}
+                      {businessHours &&
+                      businessHours["1"] &&
+                      businessHours["1"].length > 0 ? (
+                        businessHours["1"].map((hours) => {
+                          return (
+                            <Text style={styles.hoursText}>
+                              {hoursTupleToTimeString(hours)}
+                            </Text>
+                          );
+                        })
+                      ) : (
+                        <Text style={styles.closedText}>Closed</Text>
+                      )}
                       <Text>Wednesday:</Text>
-                      {businessHours["2"] && businessHours["2"].length > 0 ? businessHours["2"].map((hours) => {
-                        return <Text style={styles.hoursText}>{hoursTupleToTimeString(hours)}</Text>;
-                      }) : <Text style={styles.closedText}>Closed</Text>}
+                      {businessHours &&
+                      businessHours["2"] &&
+                      businessHours["2"].length > 0 ? (
+                        businessHours["2"].map((hours) => {
+                          return (
+                            <Text style={styles.hoursText}>
+                              {hoursTupleToTimeString(hours)}
+                            </Text>
+                          );
+                        })
+                      ) : (
+                        <Text style={styles.closedText}>Closed</Text>
+                      )}
                       <Text>Thursday:</Text>
-                      {businessHours["3"] && businessHours["3"].length > 0 ? businessHours["3"].map((hours) => {
-                        return <Text style={styles.hoursText}>{hoursTupleToTimeString(hours)}</Text>;
-                      }) : <Text style={styles.closedText}>Closed</Text>}
+                      {businessHours &&
+                      businessHours["3"] &&
+                      businessHours["3"].length > 0 ? (
+                        businessHours["3"].map((hours) => {
+                          return (
+                            <Text style={styles.hoursText}>
+                              {hoursTupleToTimeString(hours)}
+                            </Text>
+                          );
+                        })
+                      ) : (
+                        <Text style={styles.closedText}>Closed</Text>
+                      )}
                       <Text>Friday:</Text>
-                      {businessHours["4"] && businessHours["4"].length > 0 ? businessHours["4"].map((hours) => {
-                        return <Text style={styles.hoursText}>{hoursTupleToTimeString(hours)}</Text>;
-                      }) : <Text style={styles.closedText}>Closed</Text>}
+                      {businessHours &&
+                      businessHours["4"] &&
+                      businessHours["4"].length > 0 ? (
+                        businessHours["4"].map((hours) => {
+                          return (
+                            <Text style={styles.hoursText}>
+                              {hoursTupleToTimeString(hours)}
+                            </Text>
+                          );
+                        })
+                      ) : (
+                        <Text style={styles.closedText}>Closed</Text>
+                      )}
                       <Text>Saturday:</Text>
-                      {businessHours["5"] && businessHours["5"].length > 0 ? businessHours["5"].map((hours) => {
-                        return <Text style={styles.hoursText}>{hoursTupleToTimeString(hours)}</Text>;
-                      }) : <Text style={styles.closedText}>Closed</Text>}
+                      {businessHours &&
+                      businessHours["5"] &&
+                      businessHours["5"].length > 0 ? (
+                        businessHours["5"].map((hours) => {
+                          return (
+                            <Text style={styles.hoursText}>
+                              {hoursTupleToTimeString(hours)}
+                            </Text>
+                          );
+                        })
+                      ) : (
+                        <Text style={styles.closedText}>Closed</Text>
+                      )}
                       <Text>Sunday:</Text>
-                      {businessHours["6"] && businessHours["6"].length > 0 ? businessHours["6"].map((hours) => {
-                        return <Text style={styles.hoursText}>{hoursTupleToTimeString(hours)}</Text>;
-                      }) : <Text style={styles.closedText}>Closed</Text>}
-
+                      {businessHours &&
+                      businessHours["6"] &&
+                      businessHours["6"].length > 0 ? (
+                        businessHours["6"].map((hours) => {
+                          return (
+                            <Text style={styles.hoursText}>
+                              {hoursTupleToTimeString(hours)}
+                            </Text>
+                          );
+                        })
+                      ) : (
+                        <Text style={styles.closedText}>Closed</Text>
+                      )}
                     </View>
                     <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>Accepts House Calls:</Text>
@@ -401,6 +489,14 @@ function ProfileSettings({ route }) {
               </ScrollView> */}
           <View style={styles.buttonContainer}>
             <LogOutButton />
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setDeleteAccountModalVisible(true)}
+            >
+              <View>
+                <Text style={styles.bottomButtonText}>Delete Account</Text>
+              </View>
+            </TouchableOpacity>
             <TouchableOpacity
               style={styles.cancelButton}
               onPress={() => setChangePasswordModalVisible(true)}
