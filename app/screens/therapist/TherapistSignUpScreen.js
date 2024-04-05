@@ -25,6 +25,7 @@ import registerApi from "../../api/register";
 import { stateConverter } from "../../lib/states";
 import RNPickerSelect from "react-native-picker-select";
 import Checkbox from "expo-checkbox";
+import TherapistBusinessHours from "../../components/therapist/TherapistBusinessHours";
 
 const ReviewSchema = yup.object({
   fname: yup.string().required().min(1).label("First Name"),
@@ -61,12 +62,23 @@ const ReviewSchema = yup.object({
   acceptsHouseCalls: yup.boolean().required().label("Accepts House Calls"),
 });
 
+let businessHoursObj = {
+  0: [],
+  1: [],
+  2: [],
+  3: [],
+  4: [],
+  5: [],
+  6: [],
+}
+
 function TherapistForm(props) {
   const navigation = useNavigation();
   const [currentStep, setCurrentStep] = useState(1);
   const [showInvalidFieldError, setShowInvalidFieldError] = useState(false);
   const [enableHouseCalls, setEnableHouseCalls] = useState(false);
   const [enableInClinic, setEnableInClinic] = useState(false);
+  const [businessHours, setBusinessHours ] = useState(businessHoursObj);
 
   const register_therapist = async (values) => {
     try {
@@ -566,15 +578,15 @@ function TherapistForm(props) {
       {currentStep === 1 && (
         <Text style={styles.accountText}>Tell us about yourself</Text>
       )}
-      {currentStep === 2 && (
+      {(currentStep === 2 || currentStep === 3) && (
         <Text style={styles.accountText}>Tell us about your business</Text>
       )}
-      {currentStep === 3 && (
+      {currentStep === 4 && (
         <Text style={styles.accountText}>
           Please provide your license information
         </Text>
       )}
-      {currentStep === 4 && <Text style={styles.accountText}>Last Step!</Text>}
+      {currentStep === 5 && <Text style={styles.accountText}>Last Step!</Text>}
       {/* <Text style={styles.accountText}>Create your profile</Text> */}
       <Formik
         initialValues={{
@@ -608,8 +620,9 @@ function TherapistForm(props) {
           <View style={styles.propsContainer}>
             {currentStep === 1 && <ContactStep {...props} />}
             {currentStep === 2 && <ServicesStep {...props} />}
-            {currentStep === 3 && <LicenseStep {...props} />}
-            {currentStep === 4 && <PasswordStep {...props} />}
+            {currentStep === 3 && <TherapistBusinessHours businessHours={businessHours} setBusinessHours={setBusinessHours} />}
+            {currentStep === 4 && <LicenseStep {...props} />}
+            {currentStep === 5 && <PasswordStep {...props} />}
             <View style={styles.buttonContainer}>
               {showInvalidFieldError && (
                 <Text style={styles.errorText}>
@@ -624,7 +637,7 @@ function TherapistForm(props) {
                   <Text style={styles.secondaryButtonText}>Previous</Text>
                 </TouchableOpacity>
               )}
-              {currentStep < 4 && (
+              {currentStep < 5 && (
                 <TouchableOpacity
                   style={styles.button}
                   onPress={() => {
@@ -635,7 +648,7 @@ function TherapistForm(props) {
                   <Text style={styles.buttonText}>Next</Text>
                 </TouchableOpacity>
               )}
-              {currentStep === 4 && (
+              {currentStep === 5 && (
                 <TouchableOpacity
                   style={styles.button}
                   onPress={props.handleSubmit}

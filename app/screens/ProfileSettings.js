@@ -75,16 +75,30 @@ function ProfileSettings({ route }) {
     }
   };
 
+  // const hoursTupleToTimeString = (hours) => {
+  //   // convert [9, 17] to "9:00 AM - 5:00 PM"
+  //   let start = hours[0];
+  //   let end = hours[1];
+  //   let startStr = start % 12 === 0 ? "12" : (start % 12).toString();
+  //   let endStr = end % 12 === 0 ? "12" : (end % 12).toString();
+  //   let startSuffix = start >= 12 ? "PM" : "AM";
+  //   let endSuffix = end >= 12 ? "PM" : "AM";
+  //   return `${startStr}:00 ${startSuffix} - ${endStr}:00 ${endSuffix}`;
+  // };
+
   const hoursTupleToTimeString = (hours) => {
     // convert [9, 17] to "9:00 AM - 5:00 PM"
+    // convert [9.5, 17] to "9:30 AM - 5:00 PM"
     let start = hours[0];
     let end = hours[1];
-    let startStr = start % 12 === 0 ? "12" : (start % 12).toString();
-    let endStr = end % 12 === 0 ? "12" : (end % 12).toString();
+    let startStr = start % 12 === 0 ? "12" : Math.floor(start % 12).toString();
+    let endStr = end % 12 === 0 ? "12" : Math.floor(end % 12).toString();
     let startSuffix = start >= 12 ? "PM" : "AM";
     let endSuffix = end >= 12 ? "PM" : "AM";
-    return `${startStr}:00 ${startSuffix} - ${endStr}:00 ${endSuffix}`;
-  };
+    let startMinutes = start % 1 === 0.5 ? "30" : "00";
+    let endMinutes = end % 1 === 0.5 ? "30" : "00";
+    return `${startStr}:${startMinutes} ${startSuffix} - ${endStr}:${endMinutes} ${endSuffix}`;
+  }
 
   useEffect(() => {
     (async () => {
