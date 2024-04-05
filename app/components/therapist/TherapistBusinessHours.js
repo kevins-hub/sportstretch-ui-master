@@ -29,35 +29,27 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
   let newBusinessHours = businessHours;
 
   const [errorText, setErrorText] = useState("");
-  // const { user, setUser } = useContext(AuthContext);
   // default to 9am to 5pm
   // enhanced implementation
-  const [monday, setMonday] = useState([[defaultStartTime, defaultEndTime]]);
-  const [tuesday, setTuesday] = useState([[defaultStartTime, defaultEndTime]]);
-  const [wednesday, setWednesday] = useState([
-    [defaultStartTime, defaultEndTime],
-  ]);
-  const [thursday, setThursday] = useState([
-    [defaultStartTime, defaultEndTime],
-  ]);
-  const [friday, setFriday] = useState([[defaultStartTime, defaultEndTime]]);
-  const [saturday, setSaturday] = useState([
-    [defaultStartTime, defaultEndTime],
-  ]);
-  const [sunday, setSunday] = useState([[defaultStartTime, defaultEndTime]]);
-
+  const [monday, setMonday] = useState([]);
+  const [tuesday, setTuesday] = useState([]);
+  const [wednesday, setWednesday] = useState([]);
+  const [thursday, setThursday] = useState([]);
+  const [friday, setFriday] = useState([]);
+  const [saturday, setSaturday] = useState([]);
+  const [sunday, setSunday] = useState([]);
   const { operatingHours, setOperatingHours } = useState(businessHours);
 
   const timeToHour = (time) => {
     return time.getMinutes() === 30 ? time.getHours() + 0.5 : time.getHours();
   };
 
-  const updateOuterBusinessHours = (numDayOfWeek) => {
-    console.warn("numDayOfWeek = ", numDayOfWeek);
+  const updateBusinessHours = (numDayOfWeek) => {
+    // console.warn("numDayOfWeek = ", numDayOfWeek);
     newBusinessHours[numDayOfWeek] = [];
     switch (numDayOfWeek) {
       case "0":
-        console.warn("monday = ", monday);
+        // console.warn("monday = ", monday);
         monday.forEach((timeSlot) => {
           newBusinessHours[numDayOfWeek].push([
             timeToHour(timeSlot[0]),
@@ -114,9 +106,37 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
         });
         break;
     }
-    console.warn("businessHours = ", newBusinessHours);
     setBusinessHours(newBusinessHours);
+    // console.warn("businessHours = ", newBusinessHours);
   };
+
+  useEffect(() => {
+    updateBusinessHours("0");
+  }, [monday]);
+
+  useEffect(() => {
+    updateBusinessHours("1");
+  }, [tuesday]);
+
+  useEffect(() => {
+    updateBusinessHours("2");
+  }, [wednesday]);
+
+  useEffect(() => {
+    updateBusinessHours("3");
+  }, [thursday]);
+
+  useEffect(() => {
+    updateBusinessHours("4");
+  }, [friday]);
+
+  useEffect(() => {
+    updateBusinessHours("5");
+  }, [saturday]);
+
+  useEffect(() => {
+    updateBusinessHours("6");
+  }, [sunday]);
 
   // const addTimeSlotToBusinessHours = (numDayOfWeek, startTime, endTime) => {
   //   newBusinessHours[numDayOfWeek] += [startTime, endTime];
@@ -338,8 +358,6 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
             : 24
         );
         setMonday([...monday, [newMondayStartTime, newMondayEndTime]]);
-        updateOuterBusinessHours("0");
-        // setMonday([...monday, [defaultStartTime, defaultEndTime]]);
         break;
       case "tuesday":
         // set minimum start time as 1 hour after previous end time
@@ -353,8 +371,6 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
             : 24
         );
         setTuesday([...tuesday, [newTuesdayStartTime, newTuesdayEndTime]]);
-        updateOuterBusinessHours("1");
-        // setTuesday([...tuesday, [defaultStartTime, defaultEndTime]]);
         break;
       case "wednesday":
         // set minimum start time as 1 hour after previous end time
@@ -373,8 +389,6 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
           ...wednesday,
           [newWednesdayStartTime, newWednesdayEndTime],
         ]);
-        updateOuterBusinessHours("2");
-        // setWednesday([...wednesday, [defaultStartTime, defaultEndTime]]);
         break;
       case "thursday":
         // set minimum start time as 1 hour after previous end time
@@ -388,8 +402,6 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
             : 24
         );
         setThursday([...thursday, [newThursdayStartTime, newThursdayEndTime]]);
-        updateOuterBusinessHours("3");
-        // setThursday([...thursday, [defaultStartTime, defaultEndTime]]);
         break;
       case "friday":
         // set minimum start time as 1 hour after previous end time
@@ -403,8 +415,6 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
             : 24
         );
         setFriday([...friday, [newFridayStartTime, newFridayEndTime]]);
-        updateOuterBusinessHours("4");
-        // setFriday([...friday, [defaultStartTime, defaultEndTime]]);
         break;
       case "saturday":
         // set minimum start time as 1 hour after previous end time
@@ -418,8 +428,6 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
             : 24
         );
         setSaturday([...saturday, [newSaturdayStartTime, newSaturdayEndTime]]);
-        updateOuterBusinessHours("5");
-        // setSaturday([...saturday, [defaultStartTime, defaultEndTime]]);
         break;
       case "sunday":
         // set minimum start time as 1 hour after previous end time
@@ -433,8 +441,6 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
             : 24
         );
         setSunday([...sunday, [newSundayStartTime, newSundayEndTime]]);
-        updateOuterBusinessHours("6");
-        // setSunday([...sunday, [defaultStartTime, defaultEndTime]]);
         break;
     }
   };
@@ -486,10 +492,8 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
           // clear monday array
           monday.splice(0, monday.length);
           setMonday([]);
-          updateOuterBusinessHours("0");
-          setMonday([[defaultStartTime, defaultEndTime]]);
         } else {
-          updateOuterBusinessHours("0");
+          setMonday([[defaultStartTime, defaultEndTime]]);
         }
         break;
       case "tuesday":
@@ -497,10 +501,8 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
           // clear tuesday array
           tuesday.splice(0, tuesday.length);
           setTuesday([]);
-          updateOuterBusinessHours("1");
-          setTuesday([[defaultStartTime, defaultEndTime]]);
         } else {
-          updateOuterBusinessHours("1");
+          setTuesday([[defaultStartTime, defaultEndTime]]);
         }
         break;
       case "wednesday":
@@ -508,10 +510,8 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
           // clear wednesday array
           wednesday.splice(0, wednesday.length);
           setWednesday([]);
-          updateOuterBusinessHours("2");
-          setWednesday([[defaultStartTime, defaultEndTime]]);
         } else {
-          updateOuterBusinessHours("2");
+          setWednesday([[defaultStartTime, defaultEndTime]]);
         }
         break;
       case "thursday":
@@ -519,10 +519,8 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
           // clear thursday array
           thursday.splice(0, thursday.length);
           setThursday([]);
-          updateOuterBusinessHours("3");
-          setThursday([[defaultStartTime, defaultEndTime]]);
         } else {
-          updateOuterBusinessHours("3");
+          setThursday([[defaultStartTime, defaultEndTime]]);
         }
         break;
       case "friday":
@@ -530,10 +528,8 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
           // clear friday array
           friday.splice(0, friday.length);
           setFriday([]);
-          updateOuterBusinessHours("4");
-          setFriday([[defaultStartTime, defaultEndTime]]);
         } else {
-          updateOuterBusinessHours("4");
+          setFriday([[defaultStartTime, defaultEndTime]]);
         }
         break;
       case "saturday":
@@ -541,10 +537,8 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
           // clear saturday array
           saturday.splice(0, saturday.length);
           setSaturday([]);
-          updateOuterBusinessHours("5");
-          setSaturday([[defaultStartTime, defaultEndTime]]);
         } else {
-          updateOuterBusinessHours("5");
+          setSaturday([[defaultStartTime, defaultEndTime]]);
         }
         break;
       case "sunday":
@@ -552,14 +546,12 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
           // clear sunday array
           sunday.splice(0, sunday.length);
           setSunday([]);
-          updateOuterBusinessHours("6");
-          setSunday([[defaultStartTime, defaultEndTime]]);
         } else {
-          updateOuterBusinessHours("6");
+          setSunday([[defaultStartTime, defaultEndTime]]);
         }
         break;
     }
-  }
+  };
 
   const handleSubmit = async ({ businessHours }) => {
     try {
@@ -636,9 +628,8 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                     // }}
                     onValueChange={(value) => {
                       props.setFieldValue("0", value);
-                      handleCheckbox("monday", value)
-                    }
-                  }
+                      handleCheckbox("monday", value);
+                    }}
                     style={styles.checkbox}
                   />
                   <Text style={styles.label}>Monday</Text>
@@ -655,7 +646,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                           let mondayCopy = monday.slice(0);
                           mondayCopy[index][0] = selectedDate;
                           setMonday(mondayCopy);
-                          updateOuterBusinessHours("0");
+                          updateBusinessHours("0");
                         }}
                         style={styles.datePicker}
                       />
@@ -669,7 +660,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                           let mondayCopy = monday.slice(0);
                           mondayCopy[index][1] = selectedDate;
                           setMonday(mondayCopy);
-                          updateOuterBusinessHours("0");
+                          updateBusinessHours("0");
                         }}
                         style={styles.datePicker}
                       />
@@ -714,7 +705,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                     // onValueChange={(value) => props.setFieldValue("1", value)}
                     onValueChange={(value) => {
                       props.setFieldValue("1", value);
-                      handleCheckbox("tuesday", value)
+                      handleCheckbox("tuesday", value);
                     }}
                     style={styles.checkbox}
                   />
@@ -732,7 +723,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                           let tuesdayCopy = tuesday.slice(0);
                           tuesdayCopy[index][0] = selectedDate;
                           setTuesday(tuesdayCopy);
-                          updateOuterBusinessHours("1");
+                          updateBusinessHours("1");
                         }}
                         style={styles.datePicker}
                       />
@@ -746,7 +737,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                           let tuesdayCopy = tuesday.splice(0);
                           tuesdayCopy[index][1] = selectedDate;
                           setTuesday(tuesdayCopy);
-                          updateOuterBusinessHours("1");
+                          updateBusinessHours("1");
                         }}
                         style={styles.datePicker}
                       />
@@ -790,7 +781,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                     value={props.values["2"]}
                     onValueChange={(value) => {
                       props.setFieldValue("2", value);
-                      handleCheckbox("wednesday", value)
+                      handleCheckbox("wednesday", value);
                     }}
                     style={styles.checkbox}
                   />
@@ -808,7 +799,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                           let wednesdayCopy = wednesday.slice(0);
                           wednesdayCopy[index][0] = selectedDate;
                           setWednesday(wednesdayCopy);
-                          updateOuterBusinessHours("2");
+                          updateBusinessHours("2");
                         }}
                         style={styles.datePicker}
                       />
@@ -822,7 +813,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                           let wednesdayCopy = wednesday.splice(0);
                           wednesdayCopy[index][1] = selectedDate;
                           setWednesday(wednesdayCopy);
-                          updateOuterBusinessHours("2");
+                          updateBusinessHours("2");
                         }}
                         style={styles.datePicker}
                       />
@@ -867,7 +858,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                     value={props.values["3"]}
                     onValueChange={(value) => {
                       props.setFieldValue("3", value);
-                      handleCheckbox("thursday", value)
+                      handleCheckbox("thursday", value);
                     }}
                     style={styles.checkbox}
                   />
@@ -885,7 +876,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                           let thursdayCopy = thursday.slice(0);
                           thursdayCopy[index][0] = selectedDate;
                           setThursday(thursdayCopy);
-                          updateOuterBusinessHours("3");
+                          updateBusinessHours("3");
                         }}
                         style={styles.datePicker}
                       />
@@ -899,7 +890,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                           let thursdayCopy = thursday.splice(0);
                           thursdayCopy[index][1] = selectedDate;
                           setThursday(thursdayCopy);
-                          updateOuterBusinessHours("3");
+                          updateBusinessHours("3");
                         }}
                         style={styles.datePicker}
                       />
@@ -942,7 +933,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                     value={props.values["4"]}
                     onValueChange={(value) => {
                       props.setFieldValue("4", value);
-                      handleCheckbox("friday", value)
+                      handleCheckbox("friday", value);
                     }}
                     style={styles.checkbox}
                   />
@@ -960,7 +951,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                           let fridayCopy = friday.slice(0);
                           fridayCopy[index][0] = selectedDate;
                           setFriday(fridayCopy);
-                          updateOuterBusinessHours("4");
+                          updateBusinessHours("4");
                         }}
                         style={styles.datePicker}
                       />
@@ -974,7 +965,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                           let fridayCopy = friday.splice(0);
                           fridayCopy[index][1] = selectedDate;
                           setFriday(fridayCopy);
-                          updateOuterBusinessHours("4");
+                          updateBusinessHours("4");
                         }}
                         style={styles.datePicker}
                       />
@@ -1018,7 +1009,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                     value={props.values["5"]}
                     onValueChange={(value) => {
                       props.setFieldValue("5", value);
-                      handleCheckbox("saturday", value)
+                      handleCheckbox("saturday", value);
                     }}
                     style={styles.checkbox}
                   />
@@ -1036,7 +1027,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                           let saturdayCopy = saturday.slice(0);
                           saturdayCopy[index][0] = selectedDate;
                           setSaturday(saturdayCopy);
-                          updateOuterBusinessHours("5");
+                          updateBusinessHours("5");
                         }}
                         style={styles.datePicker}
                       />
@@ -1050,7 +1041,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                           let saturdayCopy = saturday.splice(0);
                           saturdayCopy[index][1] = selectedDate;
                           setSaturday(saturdayCopy);
-                          updateOuterBusinessHours("5");
+                          updateBusinessHours("5");
                         }}
                         style={styles.datePicker}
                       />
@@ -1094,7 +1085,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                     value={props.values["6"]}
                     onValueChange={(value) => {
                       props.setFieldValue("6", value);
-                      handleCheckbox("sunday", value)
+                      handleCheckbox("sunday", value);
                     }}
                     style={styles.checkbox}
                   />
@@ -1112,7 +1103,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                           let sundayCopy = sunday.slice(0);
                           sundayCopy[index][0] = selectedDate;
                           setSunday(sundayCopy);
-                          updateOuterBusinessHours("6");
+                          updateBusinessHours("6");
                         }}
                         style={styles.datePicker}
                       />
@@ -1126,7 +1117,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                           let sundayCopy = sunday.splice(0);
                           sundayCopy[index][1] = selectedDate;
                           setSunday(sundayCopy);
-                          updateOuterBusinessHours("6");
+                          updateBusinessHours("6");
                         }}
                         style={styles.datePicker}
                       />

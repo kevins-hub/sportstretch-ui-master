@@ -128,6 +128,9 @@ function TherapistForm(props) {
         })
         .catch((err) => setShowInvalidFieldError(true));
     } else if (currentStep === 3) {
+      console.warn(businessHours);
+    }
+    else if (currentStep === 4) {
       Promise.all([ReviewSchema.validateAt("licenseUrl", values)])
         .then(() => {
           setShowInvalidFieldError(false);
