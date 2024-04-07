@@ -13,7 +13,8 @@ import colors from "../config/colors";
 import authStorage from "../auth/storage";
 import contactApi from "../api/contact";
 import EditContactInfoModal from "../components/shared/EditContactInfoModal";
-import TherapistEditServicesModal from "./therapist/TherapistEditServicesModal";
+import TherapistEditServicesModal from "../components/therapist/TherapistEditServicesModal";
+import TherapistEditBusinessHoursModal from "../components/therapist/TherapistEditBusinessHoursModal";
 import EditBillingInfoModal from "../components/shared/EditBillingInfoModal";
 import ChangePasswordModal from "./password/ChangePasswordModal";
 import DeleteAccountModal from "../components/shared/DeleteAccountModal";
@@ -34,6 +35,7 @@ function ProfileSettings({ route }) {
     useState(false);
   const [deleteAccountModalVisible, setDeleteAccountModalVisible] =
     useState(false);
+  const [editBusinessHoursModalVisible, setEditBusinessHoursModalVisible] = useState(false);
   const [contactObj, setContactObj] = useState({});
   const [athleteCity, setAthleteCity] = useState("");
   const [athleteState, setAthleteState] = useState("");
@@ -98,7 +100,7 @@ function ProfileSettings({ route }) {
     let startMinutes = start % 1 === 0.5 ? "30" : "00";
     let endMinutes = end % 1 === 0.5 ? "30" : "00";
     return `${startStr}:${startMinutes} ${startSuffix} - ${endStr}:${endMinutes} ${endSuffix}`;
-  }
+  };
 
   useEffect(() => {
     (async () => {
@@ -145,6 +147,12 @@ function ProfileSettings({ route }) {
         visible={deleteAccountModalVisible}
         setVisibility={setDeleteAccountModalVisible}
         authId={user.authorization_id}
+      />
+      <TherapistEditBusinessHoursModal
+        user={user}
+        visible={editBusinessHoursModalVisible}
+        setVisibility={setEditBusinessHoursModalVisible}
+        businessHours={businessHours}
       />
       <ScrollView style={styles.scrollViewStyle}>
         <View style={styles.container}>
@@ -295,7 +303,7 @@ function ProfileSettings({ route }) {
                         {contactObj.zipcode}
                       </Text>
                     </View>
-                    <View style={styles.propContainer}>
+                    {/* <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>Operating Hours:</Text>
                       <Text>Monday:</Text>
                       {businessHours &&
@@ -395,7 +403,7 @@ function ProfileSettings({ route }) {
                       ) : (
                         <Text style={styles.closedText}>Closed</Text>
                       )}
-                    </View>
+                    </View> */}
                     <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>Accepts House Calls:</Text>
                       <Text>{userObj.accepts_house_calls ? "Yes" : "No"}</Text>
@@ -411,6 +419,148 @@ function ProfileSettings({ route }) {
                           ? userObj.license_infourl
                           : "License not yet uploaded. Please upload license to enable services."}
                       </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            )}
+
+            {user.role === "therapist" && (
+              <View style={styles.cardOutterContainer}>
+                <View style={styles.cardInnerContainer}>
+                  <Text style={styles.cardTitle}>Availability</Text>
+                  <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => setEditBusinessHoursModalVisible(true)}
+                  >
+                    <View>
+                      <Text style={styles.buttonText}>Edit</Text>
+                    </View>
+                  </TouchableOpacity>
+                  <View style={styles.dayHoursContainer}>
+                    <Text>Monday:</Text>
+                    <View style={styles.hoursContainer}>
+                      {businessHours &&
+                      businessHours["0"] &&
+                      businessHours["0"].length > 0 ? (
+                        businessHours["0"].map((hours) => {
+                          return (
+                            <Text style={styles.hoursText}>
+                              {hoursTupleToTimeString(hours)}
+                            </Text>
+                          );
+                        })
+                      ) : (
+                        <Text style={styles.closedText}>Closed</Text>
+                      )}
+                    </View>
+                  </View>
+                  <View style={styles.dayHoursContainer}>
+                    <Text>Tuesday:</Text>
+                    <View style={styles.hoursContainer}>
+                      {businessHours &&
+                      businessHours["1"] &&
+                      businessHours["1"].length > 0 ? (
+                        businessHours["1"].map((hours) => {
+                          return (
+                            <Text style={styles.hoursText}>
+                              {hoursTupleToTimeString(hours)}
+                            </Text>
+                          );
+                        })
+                      ) : (
+                        <Text style={styles.closedText}>Closed</Text>
+                      )}
+                    </View>
+                  </View>
+                  <View style={styles.dayHoursContainer}>
+                    <Text>Wednesday:</Text>
+                    <View style={styles.hoursContainer}>
+                      {businessHours &&
+                      businessHours["2"] &&
+                      businessHours["2"].length > 0 ? (
+                        businessHours["2"].map((hours) => {
+                          return (
+                            <Text style={styles.hoursText}>
+                              {hoursTupleToTimeString(hours)}
+                            </Text>
+                          );
+                        })
+                      ) : (
+                        <Text style={styles.closedText}>Closed</Text>
+                      )}
+                    </View>
+                  </View>
+                  <View style={styles.dayHoursContainer}>
+                    <Text>Thursday:</Text>
+                    <View style={styles.hoursContainer}>
+                      {businessHours &&
+                      businessHours["3"] &&
+                      businessHours["3"].length > 0 ? (
+                        businessHours["3"].map((hours) => {
+                          return (
+                            <Text style={styles.hoursText}>
+                              {hoursTupleToTimeString(hours)}
+                            </Text>
+                          );
+                        })
+                      ) : (
+                        <Text style={styles.closedText}>Closed</Text>
+                      )}
+                    </View>
+                  </View>
+                  <View style={styles.dayHoursContainer}>
+                    <Text>Friday:</Text>
+                    <View style={styles.hoursContainer}>
+                      {businessHours &&
+                      businessHours["4"] &&
+                      businessHours["4"].length > 0 ? (
+                        businessHours["4"].map((hours) => {
+                          return (
+                            <Text style={styles.hoursText}>
+                              {hoursTupleToTimeString(hours)}
+                            </Text>
+                          );
+                        })
+                      ) : (
+                        <Text style={styles.closedText}>Closed</Text>
+                      )}
+                    </View>
+                  </View>
+                  <View style={styles.dayHoursContainer}>
+                    <Text>Saturday:</Text>
+                    <View style={styles.hoursContainer}>
+                      {businessHours &&
+                      businessHours["5"] &&
+                      businessHours["5"].length > 0 ? (
+                        businessHours["5"].map((hours) => {
+                          return (
+                            <Text style={styles.hoursText}>
+                              {hoursTupleToTimeString(hours)}
+                            </Text>
+                          );
+                        })
+                      ) : (
+                        <Text style={styles.closedText}>Closed</Text>
+                      )}
+                    </View>
+                  </View>
+                  <View style={styles.dayHoursContainer}>
+                    <Text>Sunday:</Text>
+                    <View style={styles.hoursContainer}>
+                      {businessHours &&
+                      businessHours["6"] &&
+                      businessHours["6"].length > 0 ? (
+                        businessHours["6"].map((hours) => {
+                          return (
+                            <Text style={styles.hoursText}>
+                              {hoursTupleToTimeString(hours)}
+                            </Text>
+                          );
+                        })
+                      ) : (
+                        <Text style={styles.closedText}>Closed</Text>
+                      )}
                     </View>
                   </View>
                 </View>
@@ -628,6 +778,12 @@ const styles = StyleSheet.create({
   closedText: {
     marginLeft: "5%",
     fontStyle: "italic",
+  },
+  dayHoursContainer: {
+    marginBottom: 10,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   buttonContainer: {
     justifyContent: "center",

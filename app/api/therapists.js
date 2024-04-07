@@ -42,6 +42,10 @@ const editTherapist = (therapistId, therapistAddressServicesObj) => {
   return apiClient.put(endpoint + "/edit/" + therapistId, therapistAddressServicesObj);
 }
 
+const editTherapistHours = (therapistId, hoursObj) => {
+  return apiClient.put(endpoint + "/editHours/" + therapistId, hoursObj);
+}
+
 export default {
   getAllTherapists,
   getTherapistsByState,
@@ -52,4 +56,5 @@ export default {
   approveTherapist,
   setToggle,
   editTherapist,
+  editTherapistHours,
 };
