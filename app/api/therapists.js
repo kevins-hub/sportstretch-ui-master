@@ -43,7 +43,11 @@ const editTherapist = (therapistId, therapistAddressServicesObj) => {
 }
 
 const editTherapistHours = (therapistId, hoursObj) => {
-  return apiClient.put(endpoint + "/editHours/" + therapistId, hoursObj);
+  businessHoursObj = {
+    "businessHours": hoursObj,
+  };
+  businessHoursObjJSON = JSON.stringify(businessHoursObj);
+  return apiClient.put(endpoint + "/edit-hours/" + therapistId, businessHoursObjJSON);
 }
 
 export default {

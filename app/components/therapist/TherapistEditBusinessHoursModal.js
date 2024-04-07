@@ -22,11 +22,30 @@ function TherapistEditBusinessHoursModal({
 }) {
   if (!visible) return null;
 
+  console.warn("pre-edit business hours = ", businessHours);
+
   const therapistId = user.userObj.therapist_id;
+
+  console.warn("therapistId = ", therapistId);
 
   const navigation = useNavigation();
 
   const [editedBusinessHours, setEditedBusinessHours] = useState(businessHours);
+
+  const handleSubmit = async () => {
+    console.warn("Submit");
+    try {
+        console.warn("editedBusinessHours = ", editedBusinessHours);
+        await therapists.editTherapistHours(
+            therapistId,
+            editedBusinessHours
+          );
+          setVisibility(false);
+    } catch(e) {
+        console.warn("Error editing business hours: ", e);
+    }
+  }
+
 
   return (
     <Modal
@@ -53,13 +72,7 @@ function TherapistEditBusinessHoursModal({
 
             <TouchableOpacity
               style={styles.button}
-              onPress={async () => {
-                await therapists.editTherapistHours(
-                  therapistId,
-                  editedBusinessHours
-                );
-                setVisibility(false);
-              }}
+              onPress={handleSubmit}
             >
               <Text style={styles.buttonText}>Save</Text>
             </TouchableOpacity>

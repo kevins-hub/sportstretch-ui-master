@@ -50,6 +50,12 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
     return time.getMinutes() === 30 ? time.getHours() + 0.5 : time.getHours();
   };
 
+  const initBusinessHours = () => {
+    // take businessHours object and set state for each day of the week
+
+  }
+ 
+
   const updateBusinessHours = (numDayOfWeek) => {
     newBusinessHours[numDayOfWeek] = [];
     switch (numDayOfWeek) {
@@ -111,7 +117,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
         break;
     }
     setBusinessHours(newBusinessHours);
-    console.warn("businessHours = ", newBusinessHours);
+    // console.warn("businessHours = ", newBusinessHours);
   };
 
   useEffect(() => {
