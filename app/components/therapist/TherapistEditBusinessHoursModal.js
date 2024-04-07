@@ -30,22 +30,19 @@ function TherapistEditBusinessHoursModal({
 
   const navigation = useNavigation();
 
-  const [editedBusinessHours, setEditedBusinessHours] = useState(businessHours);
+  // initialize editedBusinessHours as copy of businessHours
+  const [editedBusinessHours, setEditedBusinessHours] = useState({
+    ...businessHours,
+  });
 
   const handleSubmit = async () => {
-    console.warn("Submit");
     try {
-        console.warn("editedBusinessHours = ", editedBusinessHours);
-        await therapists.editTherapistHours(
-            therapistId,
-            editedBusinessHours
-          );
-          setVisibility(false);
-    } catch(e) {
-        console.warn("Error editing business hours: ", e);
+      await therapists.editTherapistHours(therapistId, editedBusinessHours);
+      setVisibility(false);
+    } catch (e) {
+      console.warn("Error editing business hours: ", e);
     }
-  }
-
+  };
 
   return (
     <Modal
@@ -57,7 +54,7 @@ function TherapistEditBusinessHoursModal({
       <BlurView intensity={50} style={styles.centeredView}>
         <View style={styles.modalView}>
           <TherapistBusinessHours
-            businessHours={businessHours}
+            businessHours={editedBusinessHours}
             setBusinessHours={setEditedBusinessHours}
           ></TherapistBusinessHours>
           <View style={styles.buttonContainer}>
@@ -70,10 +67,7 @@ function TherapistEditBusinessHoursModal({
               <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.button}
-              onPress={handleSubmit}
-            >
+            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
               <Text style={styles.buttonText}>Save</Text>
             </TouchableOpacity>
           </View>

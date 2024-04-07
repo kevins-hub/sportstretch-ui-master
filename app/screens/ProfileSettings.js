@@ -40,8 +40,12 @@ function ProfileSettings({ route }) {
   const [athleteCity, setAthleteCity] = useState("");
   const [athleteState, setAthleteState] = useState("");
 
+ 
+
   const { user } = route.params;
   let userObj = user.userObj;
+
+  const [businessHours, setBusinessHours] = useState(user.role === "therapist" ? userObj.business_hours: {});
 
   // console.warn("user = ", user);
 
@@ -49,7 +53,7 @@ function ProfileSettings({ route }) {
   //   userObj = { ...userObj, ...therapistObj };
   // }
 
-  const businessHours = userObj.business_hours;
+  // const businessHours = userObj.business_hours;
 
   const loadLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
