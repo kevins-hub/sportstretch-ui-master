@@ -26,7 +26,13 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
   const defaultEndTime = new Date();
   defaultEndTime.setHours(17, 0, 0, 0);
 
+  const getUTCOffset = () => {
+    // hours offset from UTC time
+    return new Date().getTimezoneOffset() / 60;
+  };
+
   let newBusinessHours = businessHours;
+  newBusinessHours["utc-offset"] = getUTCOffset();
 
   const [errorText, setErrorText] = useState("");
   // default to 9am to 5pm
@@ -45,11 +51,9 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
   };
 
   const updateBusinessHours = (numDayOfWeek) => {
-    // console.warn("numDayOfWeek = ", numDayOfWeek);
     newBusinessHours[numDayOfWeek] = [];
     switch (numDayOfWeek) {
       case "0":
-        // console.warn("monday = ", monday);
         monday.forEach((timeSlot) => {
           newBusinessHours[numDayOfWeek].push([
             timeToHour(timeSlot[0]),
@@ -107,7 +111,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
         break;
     }
     setBusinessHours(newBusinessHours);
-    // console.warn("businessHours = ", newBusinessHours);
+    console.warn("businessHours = ", newBusinessHours);
   };
 
   useEffect(() => {
@@ -137,212 +141,6 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
   useEffect(() => {
     updateBusinessHours("6");
   }, [sunday]);
-
-  // const addTimeSlotToBusinessHours = (numDayOfWeek, startTime, endTime) => {
-  //   newBusinessHours[numDayOfWeek] += [startTime, endTime];
-  // };
-
-  // const modifyTimeSlotInBusinessHours = (
-  //   numDayOfWeek,
-  //   startTime,
-  //   endTime,
-  //   index
-  // ) => {
-  //   newBusinessHours[numDayOfWeek][index] = [startTime, endTime];
-  // };
-
-  // const businessHourUpdateController = (
-  //   numDayOfWeek,
-  //   startHour,
-  //   endHour,
-  //   index
-  // ) => {
-  //   if (startHour >= endHour) {
-  //     return setErrorText("Start time must be before end time.");
-  //   }
-  //   if (newBusinessHours[numDayOfWeek].length === 0) {
-  //     addTimeSlotToBusinessHours(numDayOfWeek, startHour, endHour);
-  //   } else if (index > newBusinssHours[numDayOfWeek].length - 1) {
-  //     addTimeSlotToBusinessHours(numDayOfWeek, startHour, endHour);
-  //   } else {
-  //     modifyTimeSlotInBusinessHours(numDayOfWeek, startHour, endHour, index);
-  //   }
-  // };
-
-  // // need to link
-  // const updateBusinessHours = (dayOfWeek, startOrEnd, time, index) => {
-  //   switch (dayOfWeek) {
-  //     case "monday":
-  //       if (startOrEnd === "start") {
-  //         const startHour =
-  //           time.getMinutes() === 30 ? time.getHours() + 0.5 : time.getHours();
-  //         const endHour =
-  //           mondayEnd.getMinutes() === 30
-  //             ? mondayEnd.getHours() + 0.5
-  //             : mondayEnd.getHours();
-  //         businessHourUpdateController(0, startHour, endHour, index);
-  //       } else {
-  //         const startHour =
-  //           mondayStart.getMinutes() === 30
-  //             ? mondayStart.getHours() + 0.5
-  //             : mondayStart.getHours();
-  //         const endHour =
-  //           time.getMinutes() === 30 ? time.getHours() + 0.5 : time.getHours();
-  //         businessHourUpdateController(0, startHour, endHour, index);
-  //       }
-  //       break;
-  //     case "tuesday":
-  //       if (startOrEnd === "start") {
-  //         const startHour =
-  //           time.getMinutes() === 30 ? time.getHours() + 0.5 : time.getHours();
-  //         const endHour =
-  //           tuesdayEnd.getMinutes() === 30
-  //             ? tuesdayEnd.getHours() + 0.5
-  //             : tuesdayEnd.getHours();
-  //         businessHourUpdateController(1, startHour, endHour, index);
-  //       } else {
-  //         const startHour =
-  //           tuesdayStart.getMinutes() === 30
-  //             ? tuesdayStart.getHours() + 0.5
-  //             : tuesdayStart.getHours();
-  //         const endHour =
-  //           time.getMinutes() === 30 ? time.getHours() + 0.5 : time.getHours();
-  //         businessHourUpdateController(1, startHour, endHour, index);
-  //       }
-  //       break;
-  //     case "wednesday":
-  //       if (startOrEnd === "start") {
-  //         const startHour =
-  //           time.getMinutes() === 30 ? time.getHours() + 0.5 : time.getHours();
-  //         const endHour =
-  //           wednesdayEnd.getMinutes() === 30
-  //             ? wednesdayEnd.getHours() + 0.5
-  //             : wednesdayEnd.getHours();
-  //         businessHourUpdateController(2, startHour, endHour, index);
-  //       } else {
-  //         const startHour =
-  //           wednesdayStart.getMinutes() === 30
-  //             ? wednesdayStart.getHours() + 0.5
-  //             : wednesdayStart.getHours();
-  //         const endHour =
-  //           time.getMinutes() === 30 ? time.getHours() + 0.5 : time.getHours();
-  //         businessHourUpdateController(2, startHour, endHour, index);
-  //       }
-  //       break;
-  //     case "thursday":
-  //       if (startOrEnd === "start") {
-  //         const startHour =
-  //           time.getMinutes() === 30 ? time.getHours() + 0.5 : time.getHours();
-  //         const endHour =
-  //           thursdayEnd.getMinutes() === 30
-  //             ? thursdayEnd.getHours() + 0.5
-  //             : thursdayEnd.getHours();
-  //         businessHourUpdateController(3, startHour, endHour, index);
-  //       } else {
-  //         const startHour =
-  //           thursdayStart.getMinutes() === 30
-  //             ? thursdayStart.getHours() + 0.5
-  //             : thursdayStart.getHours();
-  //         const endHour =
-  //           time.getMinutes() === 30 ? time.getHours() + 0.5 : time.getHours();
-  //         businessHourUpdateController(3, startHour, endHour, index);
-  //       }
-  //       break;
-  //     case "friday":
-  //       if (startOrEnd === "start") {
-  //         const startHour =
-  //           time.getMinutes() === 30 ? time.getHours() + 0.5 : time.getHours();
-  //         const endHour =
-  //           fridayEnd.getMinutes() === 30
-  //             ? fridayEnd.getHours() + 0.5
-  //             : fridayEnd.getHours();
-  //         businessHourUpdateController(4, startHour, endHour, index);
-  //       } else {
-  //         const startHour =
-  //           fridayStart.getMinutes() === 30
-  //             ? fridayStart.getHours() + 0.5
-  //             : fridayStart.getHours();
-  //         const endHour =
-  //           time.getMinutes() === 30 ? time.getHours() + 0.5 : time.getHours();
-  //         businessHourUpdateController(4, startHour, endHour, index);
-  //       }
-  //       break;
-  //     case "saturday":
-  //       if (startOrEnd === "start") {
-  //         const startHour =
-  //           time.getMinutes() === 30 ? time.getHours() + 0.5 : time.getHours();
-  //         const endHour =
-  //           saturdayEnd.getMinutes() === 30
-  //             ? saturdayEnd.getHours() + 0.5
-  //             : saturdayEnd.getHours();
-  //         businessHourUpdateController(5, startHour, endHour, index);
-  //       } else {
-  //         const startHour =
-  //           saturdayStart.getMinutes() === 30
-  //             ? saturdayStart.getHours() + 0.5
-  //             : saturdayStart.getHours();
-  //         const endHour =
-  //           time.getMinutes() === 30 ? time.getHours() + 0.5 : time.getHours();
-  //         businessHourUpdateController(5, startHour, endHour, index);
-  //       }
-  //       break;
-  //     case "sunday":
-  //       if (startOrEnd === "start") {
-  //         const startHour =
-  //           time.getMinutes() === 30 ? time.getHours() + 0.5 : time.getHours();
-  //         const endHour =
-  //           sundayEnd.getMinutes() === 30
-  //             ? sundayEnd.getHours() + 0.5
-  //             : sundayEnd.getHours();
-  //         businessHourUpdateController(6, startHour, endHour, index);
-  //       } else {
-  //         const startHour =
-  //           sundayStart.getMinutes() === 30
-  //             ? sundayStart.getHours() + 0.5
-  //             : sundayStart.getHours();
-  //         const endHour =
-  //           time.getMinutes() === 30 ? time.getHours() + 0.5 : time.getHours();
-  //         businessHourUpdateController(6, startHour, endHour, index);
-  //       }
-  //       break;
-  //   }
-  // };
-
-  // enhanced implementation
-  //   const handleDateChange = (event, selectedDate, dayOfWeek) => {
-  //     console.warn("event = ", event);
-  //     console.warn("selectedDate = ", selectedDate.toLocaleTimeString());
-  //     console.warn("dayOfWeek = ", dayOfWeek);
-
-  //     // setMondayStart(selectedDate);
-
-  //     switch (dayOfWeek) {
-  //       case "monday":
-  //         console.warn("in case monday");
-  //         setMondayStart(selectedDate);
-  //         break;
-  //       case "tuesday":
-  //         setTuesdayStart(selectedDate);
-  //         break;
-  //       case "wednesday":
-  //         setWednesdayStart(selectedDate);
-  //         break;
-  //       case "thursday":
-  //         setThursdayStart(selectedDate);
-  //         break;
-  //       case "friday":
-  //         setFridayStart(selectedDate);
-  //         break;
-  //       case "saturday":
-  //         setSaturdayStart(selectedDate);
-  //         break;
-  //       case "sunday":
-  //         setSundayStart(selectedDate);
-  //         break;
-  //     }
-
-  //     console.warn("mondayStart = ", mondayStart);
-  //   };
 
   const addTimeSlot = (dayOfWeek) => {
     switch (dayOfWeek) {
@@ -553,6 +351,80 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
     }
   };
 
+  const handleTimeChange = (
+    event,
+    selectedDate,
+    dayOfWeek,
+    index,
+    innerIndex
+  ) => {
+    // innerIndex = 0 for start time, 1 for end time
+    const roundedTime = roundToNearestHalfHour(selectedDate);
+    switch (dayOfWeek) {
+      case "monday":
+        let mondayCopy = monday.slice(0);
+        mondayCopy[index][innerIndex] = roundedTime;
+        setMonday(mondayCopy);
+        break;
+
+      case "tuesday":
+        let tuesdayCopy = tuesday.slice(0);
+        tuesdayCopy[index][innerIndex] = roundedTime;
+        setTuesday(tuesdayCopy);
+        break;
+      case "wednesday":
+        let wednesdayCopy = wednesday.slice(0);
+        wednesdayCopy[index][innerIndex] = roundedTime;
+        setWednesday(wednesdayCopy);
+        break;
+
+      case "thursday":
+        let thursdayCopy = thursday.slice(0);
+        thursdayCopy[index][innerIndex] = roundedTime;
+        setThursday(thursdayCopy);
+        break;
+
+      case "friday":
+        let fridayCopy = friday.slice(0);
+        fridayCopy[index][innerIndex] = roundedTime;
+        setFriday(fridayCopy);
+        break;
+
+      case "saturday":
+        let saturdayCopy = saturday.slice(0);
+        saturdayCopy[index][innerIndex] = roundedTime;
+        setSaturday(saturdayCopy);
+        break;
+
+      case "sunday":
+        let sundayCopy = sunday.slice(0);
+        sundayCopy[index][innerIndex] = roundedTime;
+        setSunday(sundayCopy);
+        break;
+    }
+  };
+
+  const roundToNearestHalfHour = (time) => {
+    const minutes = time.getMinutes();
+    const rounding = minutes < 15 ? 0 : minutes < 45 ? 30 : 60;
+    const roundedDate = new Date(time);
+
+    if (rounding === 60) {
+      roundedDate.setHours(time.getHours() + 1, 0, 0);
+    } else {
+      roundedDate.setMinutes(rounding, 0);
+    }
+
+    return roundedDate;
+  };
+
+  const addHalfHourToDate = (date) => {
+    const newDate = new Date(date);
+    newDate.setMinutes(date.getMinutes() + 30);
+    return newDate;
+  };
+
+
   const handleSubmit = async ({ businessHours }) => {
     try {
       // const result = await therapistApi.setBusinessHours(user.userObj.therapist_id, businessHours);
@@ -572,7 +444,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
       for (let day in operatingHours) {
         initialValues[day] = operatingHours[day].length > 0 ? true : false;
       }
-      console.warn("initialValues = ", initialValues);
+      // console.warn("initialValues = ", initialValues);
       return initialValues;
     }
     return {
@@ -614,18 +486,6 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                 <View style={styles.checkboxContainer}>
                   <Checkbox
                     value={props.values["0"]}
-                    // onValueChange={(value) => {
-                    //   props.setFieldValue("0", value);
-                    //   if (value === false) {
-                    //     // clear monday array
-                    //     monday.splice(0, monday.length);
-                    //     setMonday([]);
-                    //     updateOuterBusinessHours("0");
-                    //     setMonday([[defaultStartTime, defaultEndTime]]);
-                    //   } else {
-                    //     updateOuterBusinessHours("0");
-                    //   }
-                    // }}
                     onValueChange={(value) => {
                       props.setFieldValue("0", value);
                       handleCheckbox("monday", value);
@@ -642,13 +502,9 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={monday[index][0]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => {
-                          let mondayCopy = monday.slice(0);
-                          mondayCopy[index][0] = selectedDate;
-                          setMonday(mondayCopy);
-                          updateBusinessHours("0");
-                        }}
+                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "monday", index, 0)}
                         style={styles.datePicker}
+                        minimumDate={index > 0 ? addHalfHourToDate(monday[index - 1][1]) : null}
                       />
                       <Text style={styles.timeSlotText}>to</Text>
                       <DateTimePicker
@@ -656,13 +512,9 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={monday[index][1]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => {
-                          let mondayCopy = monday.slice(0);
-                          mondayCopy[index][1] = selectedDate;
-                          setMonday(mondayCopy);
-                          updateBusinessHours("0");
-                        }}
+                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "monday", index, 1)}
                         style={styles.datePicker}
+                        minimumDate={addHalfHourToDate(monday[index][0])}
                       />
 
                       {index !== 0 && (
@@ -719,13 +571,9 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={tuesday[index][0]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => {
-                          let tuesdayCopy = tuesday.slice(0);
-                          tuesdayCopy[index][0] = selectedDate;
-                          setTuesday(tuesdayCopy);
-                          updateBusinessHours("1");
-                        }}
+                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "tuesday", index, 0)}
                         style={styles.datePicker}
+                        minimumDate={index > 0 ? addHalfHourToDate(tuesday[index - 1][1]) : null}
                       />
                       <Text style={styles.timeSlotText}>to</Text>
                       <DateTimePicker
@@ -733,13 +581,9 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={tuesday[index][1]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => {
-                          let tuesdayCopy = tuesday.splice(0);
-                          tuesdayCopy[index][1] = selectedDate;
-                          setTuesday(tuesdayCopy);
-                          updateBusinessHours("1");
-                        }}
+                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "tuesday", index, 1)}
                         style={styles.datePicker}
+                        minimumDate={addHalfHourToDate(tuesday[index][0])}
                       />
                       {index !== 0 && (
                         <TouchableOpacity
@@ -795,13 +639,9 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={wednesday[index][0]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => {
-                          let wednesdayCopy = wednesday.slice(0);
-                          wednesdayCopy[index][0] = selectedDate;
-                          setWednesday(wednesdayCopy);
-                          updateBusinessHours("2");
-                        }}
+                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "wednesday", index, 0)}
                         style={styles.datePicker}
+                        minimumDate={index > 0 ? addHalfHourToDate(wednesday[index - 1][1]) : null}
                       />
                       <Text style={styles.timeSlotText}>to</Text>
                       <DateTimePicker
@@ -809,13 +649,9 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={wednesday[index][1]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => {
-                          let wednesdayCopy = wednesday.splice(0);
-                          wednesdayCopy[index][1] = selectedDate;
-                          setWednesday(wednesdayCopy);
-                          updateBusinessHours("2");
-                        }}
+                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "wednesday", index, 1)}
                         style={styles.datePicker}
+                        minimumDate={addHalfHourToDate(wednesday[index][0])}
                       />
                       {index !== 0 && (
                         <TouchableOpacity
@@ -872,13 +708,9 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={thursday[index][0]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => {
-                          let thursdayCopy = thursday.slice(0);
-                          thursdayCopy[index][0] = selectedDate;
-                          setThursday(thursdayCopy);
-                          updateBusinessHours("3");
-                        }}
+                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "thursday", index, 0)}
                         style={styles.datePicker}
+                        minimumDate={index > 0 ? addHalfHourToDate(thursday[index - 1][1]) : null}
                       />
                       <Text style={styles.timeSlotText}>to</Text>
                       <DateTimePicker
@@ -886,13 +718,9 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={thursday[index][1]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => {
-                          let thursdayCopy = thursday.splice(0);
-                          thursdayCopy[index][1] = selectedDate;
-                          setThursday(thursdayCopy);
-                          updateBusinessHours("3");
-                        }}
+                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "thursday", index, 1)}
                         style={styles.datePicker}
+                        minimumDate={addHalfHourToDate(thursday[index][0])}
                       />
                       {index !== 0 && (
                         <TouchableOpacity
@@ -947,13 +775,9 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={friday[index][0]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => {
-                          let fridayCopy = friday.slice(0);
-                          fridayCopy[index][0] = selectedDate;
-                          setFriday(fridayCopy);
-                          updateBusinessHours("4");
-                        }}
+                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "friday", index, 0)}
                         style={styles.datePicker}
+                        minimumDate={index > 0 ? addHalfHourToDate(friday[index - 1][1]) : null}
                       />
                       <Text style={styles.timeSlotText}>to</Text>
                       <DateTimePicker
@@ -961,13 +785,9 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={friday[index][1]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => {
-                          let fridayCopy = friday.splice(0);
-                          fridayCopy[index][1] = selectedDate;
-                          setFriday(fridayCopy);
-                          updateBusinessHours("4");
-                        }}
+                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "friday", index, 1)}
                         style={styles.datePicker}
+                        minimumDate={addHalfHourToDate(friday[index][0])}
                       />
                       {index !== 0 && (
                         <TouchableOpacity
@@ -1023,13 +843,9 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={saturday[index][0]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => {
-                          let saturdayCopy = saturday.slice(0);
-                          saturdayCopy[index][0] = selectedDate;
-                          setSaturday(saturdayCopy);
-                          updateBusinessHours("5");
-                        }}
+                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "saturday", index, 0)}
                         style={styles.datePicker}
+                        minimumDate={index > 0 ? addHalfHourToDate(saturday[index - 1][1]) : null}
                       />
                       <Text style={styles.timeSlotText}>to</Text>
                       <DateTimePicker
@@ -1037,13 +853,9 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={saturday[index][1]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => {
-                          let saturdayCopy = saturday.splice(0);
-                          saturdayCopy[index][1] = selectedDate;
-                          setSaturday(saturdayCopy);
-                          updateBusinessHours("5");
-                        }}
+                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "saturday", index, 1)}
                         style={styles.datePicker}
+                        minimumDate={addHalfHourToDate(saturday[index][0])}
                       />
                       {index !== 0 && (
                         <TouchableOpacity
@@ -1099,13 +911,9 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={sunday[index][0]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => {
-                          let sundayCopy = sunday.slice(0);
-                          sundayCopy[index][0] = selectedDate;
-                          setSunday(sundayCopy);
-                          updateBusinessHours("6");
-                        }}
+                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "sunday", index, 0)}
                         style={styles.datePicker}
+                        minimumDate={index > 0 ? addHalfHourToDate(sunday[index - 1][1]) : null}
                       />
                       <Text style={styles.timeSlotText}>to</Text>
                       <DateTimePicker
@@ -1113,13 +921,9 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={sunday[index][1]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => {
-                          let sundayCopy = sunday.splice(0);
-                          sundayCopy[index][1] = selectedDate;
-                          setSunday(sundayCopy);
-                          updateBusinessHours("6");
-                        }}
+                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "sunday", index, 1)}
                         style={styles.datePicker}
+                        minimumDate={addHalfHourToDate(sunday[index][0])}
                       />
                       {index !== 0 && (
                         <TouchableOpacity

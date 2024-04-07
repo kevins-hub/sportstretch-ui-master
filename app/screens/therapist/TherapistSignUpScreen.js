@@ -26,6 +26,7 @@ import { stateConverter } from "../../lib/states";
 import RNPickerSelect from "react-native-picker-select";
 import Checkbox from "expo-checkbox";
 import TherapistBusinessHours from "../../components/therapist/TherapistBusinessHours";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 const ReviewSchema = yup.object({
   fname: yup.string().required().min(1).label("First Name"),
@@ -70,7 +71,8 @@ let businessHoursObj = {
   4: [],
   5: [],
   6: [],
-}
+  "utc-offset": 0,
+};
 
 function TherapistForm(props) {
   const navigation = useNavigation();
@@ -78,7 +80,7 @@ function TherapistForm(props) {
   const [showInvalidFieldError, setShowInvalidFieldError] = useState(false);
   const [enableHouseCalls, setEnableHouseCalls] = useState(false);
   const [enableInClinic, setEnableInClinic] = useState(false);
-  const [businessHours, setBusinessHours ] = useState(businessHoursObj);
+  const [businessHours, setBusinessHours] = useState(businessHoursObj);
 
   const register_therapist = async (values) => {
     try {
@@ -128,9 +130,9 @@ function TherapistForm(props) {
         })
         .catch((err) => setShowInvalidFieldError(true));
     } else if (currentStep === 3) {
-      console.warn(businessHours);
-    }
-    else if (currentStep === 4) {
+      setShowInvalidFieldError(false);
+      setCurrentStep(currentStep + 1);
+    } else if (currentStep === 4) {
       Promise.all([ReviewSchema.validateAt("licenseUrl", values)])
         .then(() => {
           setShowInvalidFieldError(false);
@@ -581,8 +583,11 @@ function TherapistForm(props) {
       {currentStep === 1 && (
         <Text style={styles.accountText}>Tell us about yourself</Text>
       )}
-      {(currentStep === 2 || currentStep === 3) && (
+      {currentStep === 2 && (
         <Text style={styles.accountText}>Tell us about your business</Text>
+      )}
+      {currentStep === 3 && (
+        <Text style={styles.accountText}>Set your availability</Text>
       )}
       {currentStep === 4 && (
         <Text style={styles.accountText}>
@@ -615,6 +620,7 @@ function TherapistForm(props) {
         onSubmit={(values, actions) => {
           values.state = stateConverter(values.state);
           values.acceptsHouseCalls = enableHouseCalls;
+          values.businessHours = businessHours;
           register_therapist(values);
           actions.resetForm();
         }}
@@ -623,7 +629,12 @@ function TherapistForm(props) {
           <View style={styles.propsContainer}>
             {currentStep === 1 && <ContactStep {...props} />}
             {currentStep === 2 && <ServicesStep {...props} />}
-            {currentStep === 3 && <TherapistBusinessHours businessHours={businessHours} setBusinessHours={setBusinessHours} />}
+            {currentStep === 3 && (
+              <TherapistBusinessHours
+                businessHours={businessHours}
+                setBusinessHours={setBusinessHours}
+              />
+            )}
             {currentStep === 4 && <LicenseStep {...props} />}
             {currentStep === 5 && <PasswordStep {...props} />}
             <View style={styles.buttonContainer}>
