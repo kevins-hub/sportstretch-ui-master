@@ -620,6 +620,7 @@ function TherapistForm(props) {
         onSubmit={(values, actions) => {
           values.state = stateConverter(values.state);
           values.acceptsHouseCalls = enableHouseCalls;
+          values.acceptsInClinic = enableInClinic;
           values.businessHours = businessHours;
           register_therapist(values);
           actions.resetForm();
