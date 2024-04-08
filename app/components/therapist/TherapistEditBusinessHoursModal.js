@@ -13,6 +13,11 @@ import contactApi from "../../api/contact";
 import contact from "../../api/contact";
 import TherapistBusinessHours from "./TherapistBusinessHours";
 import therapists from "../../api/therapists";
+import authApi from "../../api/auth";
+import jwtDecode from "jwt-decode";
+import authStorage from "../../auth/storage";
+import App from "../../../App";
+import { ref } from "yup";
 
 function TherapistEditBusinessHoursModal({
   user,
@@ -22,11 +27,10 @@ function TherapistEditBusinessHoursModal({
 }) {
   if (!visible) return null;
 
-  console.warn("pre-edit business hours = ", businessHours);
+  const authContext = useContext(AuthContext);
 
   const therapistId = user.userObj.therapist_id;
-
-  console.warn("therapistId = ", therapistId);
+  const authId = user.authorization_id;
 
   const navigation = useNavigation();
 

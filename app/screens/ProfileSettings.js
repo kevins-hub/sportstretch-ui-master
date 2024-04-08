@@ -12,6 +12,7 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import colors from "../config/colors";
 import authStorage from "../auth/storage";
 import contactApi from "../api/contact";
+import therapists from "../api/therapists";
 import EditContactInfoModal from "../components/shared/EditContactInfoModal";
 import TherapistEditServicesModal from "../components/therapist/TherapistEditServicesModal";
 import TherapistEditBusinessHoursModal from "../components/therapist/TherapistEditBusinessHoursModal";
@@ -40,20 +41,17 @@ function ProfileSettings({ route }) {
   const [athleteCity, setAthleteCity] = useState("");
   const [athleteState, setAthleteState] = useState("");
 
- 
-
   const { user } = route.params;
   let userObj = user.userObj;
+  const [therapist, setTherapist] = useState(user.role === "therapist" ? userObj: {});
+  const [businessHours, setBusinessHours] = useState(user.role === "therapist" ? therapist.business_hours: {});
 
-  const [businessHours, setBusinessHours] = useState(user.role === "therapist" ? userObj.business_hours: {});
-
-  // console.warn("user = ", user);
-
-  // const mergeUserTherapist = (userObj, therapistObj) => {
-  //   userObj = { ...userObj, ...therapistObj };
-  // }
-
-  // const businessHours = userObj.business_hours;
+  const getTherapist = async () => {
+    therapists.getTherapist(userObj.therapist_id).then(res => {
+      setTherapist(res.data[0])
+      setBusinessHours(res.data[0].business_hours);
+    })
+  }
 
   const loadLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -81,17 +79,6 @@ function ProfileSettings({ route }) {
     }
   };
 
-  // const hoursTupleToTimeString = (hours) => {
-  //   // convert [9, 17] to "9:00 AM - 5:00 PM"
-  //   let start = hours[0];
-  //   let end = hours[1];
-  //   let startStr = start % 12 === 0 ? "12" : (start % 12).toString();
-  //   let endStr = end % 12 === 0 ? "12" : (end % 12).toString();
-  //   let startSuffix = start >= 12 ? "PM" : "AM";
-  //   let endSuffix = end >= 12 ? "PM" : "AM";
-  //   return `${startStr}:00 ${startSuffix} - ${endStr}:00 ${endSuffix}`;
-  // };
-
   const hoursTupleToTimeString = (hours) => {
     // convert [9, 17] to "9:00 AM - 5:00 PM"
     // convert [9.5, 17] to "9:30 AM - 5:00 PM"
@@ -116,6 +103,13 @@ function ProfileSettings({ route }) {
     })();
   }, [editContactInfoModalVisible]);
 
+  useEffect(() => {
+    (async () => {
+      if (user.role === "therapist") {
+        getTherapist();
+      }
+    })();}, [editTherapistServicesModalVisible, editBusinessHoursModalVisible]);
+
   const handleModalClose = () => {
     setEditContactInfoModalVisible(false);
     fetchContactInfo();
@@ -132,10 +126,9 @@ function ProfileSettings({ route }) {
         onClose={handleModalClose}
       />
       <TherapistEditServicesModal
-        user={user}
+        therapist={therapist}
         visible={editTherapistServicesModalVisible}
         setVisibility={setEditTherapistServicesModalVisible}
-        // mergeUserTherapist={mergeUserTherapist}
       />
 
       <EditBillingInfoModal
@@ -286,25 +279,25 @@ function ProfileSettings({ route }) {
                   <View style={styles.cardContent}>
                     <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>Services Offered:</Text>
-                      <Text>{userObj.services}</Text>
+                      <Text>{therapist.services}</Text>
                     </View>
                     <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>Summary: </Text>
-                      <Text>{userObj.summary}</Text>
+                      <Text>{therapist.summary}</Text>
                     </View>
                     <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>Hourly Rate: </Text>
-                      <Text>${userObj.hourly_rate}</Text>
+                      <Text>${therapist.hourly_rate}</Text>
                     </View>
 
                     <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>Clinic Address:</Text>
                       <Text>
-                        {contactObj.street} {contactObj.apartment_no}
+                        {therapist.street} {therapist.apartment_no}
                       </Text>
                       <Text>
-                        {contactObj.city}, {contactObj.state}{" "}
-                        {contactObj.zipcode}
+                        {therapist.city}, {therapist.state}{" "}
+                        {therapist.zipcode}
                       </Text>
                     </View>
                     {/* <View style={styles.propContainer}>
@@ -410,17 +403,17 @@ function ProfileSettings({ route }) {
                     </View> */}
                     <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>Accepts House Calls:</Text>
-                      <Text>{userObj.accepts_house_calls ? "Yes" : "No"}</Text>
+                      <Text>{therapist.accepts_house_calls ? "Yes" : "No"}</Text>
                     </View>
                     <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>Accepts In Clinic:</Text>
-                      <Text>{userObj.accepts_in_clinic ? "Yes" : "No"}</Text>
+                      <Text>{therapist.accepts_in_clinic ? "Yes" : "No"}</Text>
                     </View>
                     <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>License status:</Text>
                       <Text>
-                        {userObj.license_infourl
-                          ? userObj.license_infourl
+                        {therapist.license_infourl
+                          ? therapist.license_infourl
                           : "License not yet uploaded. Please upload license to enable services."}
                       </Text>
                     </View>

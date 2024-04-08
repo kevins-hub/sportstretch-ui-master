@@ -59,6 +59,7 @@ export default {
   denyTherapist,
   approveTherapist,
   setToggle,
+  getTherapist,
   editTherapist,
   editTherapistHours,
 };
