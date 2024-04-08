@@ -22,14 +22,12 @@ import Checkbox from "expo-checkbox";
 import { stateConverter } from "../../lib/states";
 import therapists from "../../api/therapists";
 
-function TherapistEditServicesModal({ user, visible, setVisibility }) {
+function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
   if (!visible) return null;
 
   const navigation = useNavigation();
   const [currentStep, setCurrentStep] = useState(1);
   const [showInvalidFieldError, setShowInvalidFieldError] = useState(false);
-  //   const [enableHouseCalls, setEnableHouseCalls] = useState(false);
-//   const [enableInClinic, setEnableInClinic] = useState(false);
 
   const professionsList = [
     { label: "Physical Therapist", value: "Physical Therapist" },
@@ -37,8 +35,6 @@ function TherapistEditServicesModal({ user, visible, setVisibility }) {
     { label: "Speech Therapist", value: "Speech Therapist" },
     { label: "Sports Massage Therapist", value: "Sports Massage Therapist" },
   ];
-
-  const userObj = user.userObj;
 
   const ReviewSchema = yup.object({
     addressL1: yup.string().required().label("Street Address"),
@@ -159,7 +155,9 @@ function TherapistEditServicesModal({ user, visible, setVisibility }) {
         <View style={styles.checkboxContainer}>
           <Checkbox
             value={props.values.acceptsInClinic}
-            onValueChange={props.handleChange("acceptsInClinic")}
+            onValueChange={(value) => {
+              props.setFieldValue("acceptsInClinic", value);
+            }}
             style={styles.checkbox}
           />
           <Text style={styles.label}>
@@ -169,7 +167,9 @@ function TherapistEditServicesModal({ user, visible, setVisibility }) {
         <View style={styles.checkboxContainer}>
           <Checkbox
             value={props.values.acceptsHouseCalls}
-            onValueChange={props.handleChange("acceptsHouseCalls")}
+            onValueChange={(value) => {
+              props.setFieldValue("acceptsHouseCalls", value);
+            }}
             style={styles.checkbox}
           />
           <Text style={styles.label}>
@@ -177,7 +177,9 @@ function TherapistEditServicesModal({ user, visible, setVisibility }) {
           </Text>
         </View>
         <Text style={styles.subheaderText}>
-          {props.values.acceptsInClinic ? "Clinic Address:" : "Home / Office Address:"}
+          {props.values.acceptsInClinic
+            ? "Clinic Address:"
+            : "Home / Office Address:"}
         </Text>
         <View style={styles.inputContainerAddress}>
           <View>
@@ -372,29 +374,30 @@ function TherapistEditServicesModal({ user, visible, setVisibility }) {
         <View style={styles.modalView}>
           <Formik
             initialValues={{
-              addressL1: userObj.street,
-              addressL2: userObj.apartment_no,
-              city: userObj.city,
-              state: userObj.state,
-              zipcode: userObj.zipcode,
-              profession: userObj.profession,
-              services: userObj.services,
-              summary: userObj.summary,
-              hourlyRate: userObj.hourly_rate,
-              licenseUrl: userObj.license_infourl,
-              acceptsHouseCalls: userObj.accepts_house_calls,
-              acceptsInClinic: userObj.accepts_in_clinic,
+              addressL1: therapist.street,
+              addressL2: therapist.apartment_no,
+              city: therapist.city,
+              state: therapist.state,
+              zipcode: therapist.zipcode,
+              profession: therapist.profession,
+              services: therapist.services,
+              summary: therapist.summary,
+              hourlyRate: therapist.hourly_rate,
+              licenseUrl: therapist.license_infourl,
+              acceptsHouseCalls: therapist.accepts_house_calls ? true : false,
+              acceptsInClinic: therapist.accepts_in_clinic ? true: false,
             }}
             validationSchema={ReviewSchema}
             onSubmit={async (values, actions) => {
               values.state = stateConverter(values.state);
-            //   values.acceptsHouseCalls = enableHouseCalls;
-            //   register_therapist(values);
-                response = await therapists.editTherapist(userObj.therapist_id, values);
-                // console.warn("response", response);
-                // mergeUserTherapist(userObj, response.data[0]);
-              actions.resetForm();
-              setVisibility(false);
+              try {
+                let response = await therapists.editTherapist(therapist.therapist_id, values);
+                actions.resetForm();
+                setVisibility(false);
+              } catch (e) {
+                console.warn("Error updating therapist: ", e);
+              }
+
             }}
           >
             {(props) => (
@@ -492,9 +495,6 @@ const styles = StyleSheet.create({
     marginBottom: "5%",
     justifyContent: "center",
     alignItems: "center",
-    // borderRadius:25,
-    // borderTopStartRadius: 25,
-    // borderTopEndRadius:25
   },
   headerText: {
     color: colors.secondary,

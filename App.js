@@ -7,7 +7,7 @@ import authStorage from "./app/auth/storage";
 import AppContainer from "./app/screens/AppContainer";
 import {StripeProvider} from '@stripe/stripe-react-native';
 
-export default function App() {
+function App() {
   const [user, setUser] = useState();
   const [isReady, setIsReady] = useState(false);
 
@@ -57,3 +57,5 @@ export default function App() {
   // </AuthContext.Provider>
   );
 }
+
+export default App;
