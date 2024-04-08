@@ -16,7 +16,6 @@ import therapists from "../../api/therapists";
 import authApi from "../../api/auth";
 import jwtDecode from "jwt-decode";
 import authStorage from "../../auth/storage";
-import App from "../../../App";
 import { ref } from "yup";
 
 function TherapistEditBusinessHoursModal({
