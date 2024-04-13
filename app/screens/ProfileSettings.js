@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Linking
 } from "react-native";
 import LogOutButton from "../components/shared/LogOutButton";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -22,6 +23,7 @@ import DeleteAccountModal from "../components/shared/DeleteAccountModal";
 import Stars from "react-native-stars";
 import { FontAwesome } from "@expo/vector-icons";
 import * as Location from "expo-location";
+import payment from "../api/payment";
 
 function ProfileSettings({ route }) {
   const [editContactInfoModalVisible, setEditContactInfoModalVisible] =
@@ -36,22 +38,44 @@ function ProfileSettings({ route }) {
     useState(false);
   const [deleteAccountModalVisible, setDeleteAccountModalVisible] =
     useState(false);
-  const [editBusinessHoursModalVisible, setEditBusinessHoursModalVisible] = useState(false);
+  const [editBusinessHoursModalVisible, setEditBusinessHoursModalVisible] =
+    useState(false);
   const [contactObj, setContactObj] = useState({});
   const [athleteCity, setAthleteCity] = useState("");
   const [athleteState, setAthleteState] = useState("");
+  const [isPaymentsEnabled, setIsPaymentsEnabled] = useState(true);
 
   const { user } = route.params;
   let userObj = user.userObj;
-  const [therapist, setTherapist] = useState(user.role === "therapist" ? userObj: {});
-  const [businessHours, setBusinessHours] = useState(user.role === "therapist" ? therapist.business_hours: {});
+  const [therapist, setTherapist] = useState(
+    user.role === "therapist" ? userObj : {}
+  );
+  const [businessHours, setBusinessHours] = useState(
+    user.role === "therapist" ? therapist.business_hours : {}
+  );
+
+  const [stripeOnboardLink, setStripeOnboardLink] = useState("");
+
+  const getStripeOnboardLink = async () => {
+    const response = await payment.getStripeOnboardLink(userObj.therapist_id);
+    setStripeOnboardLink(response.data.url);
+    return response.data.url;
+  };
+
+  const getStripeAccount = async () => {
+    const response = await payment.getStripeAccount(userObj.therapist_id);
+    setIsPaymentsEnabled(
+      response.data.payouts_enabled === "true" ? true : false
+    );
+    return response.data;
+  };
 
   const getTherapist = async () => {
-    therapists.getTherapist(userObj.therapist_id).then(res => {
-      setTherapist(res.data[0])
+    therapists.getTherapist(userObj.therapist_id).then((res) => {
+      setTherapist(res.data[0]);
       setBusinessHours(res.data[0].business_hours);
-    })
-  }
+    });
+  };
 
   const loadLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -108,7 +132,17 @@ function ProfileSettings({ route }) {
       if (user.role === "therapist") {
         getTherapist();
       }
-    })();}, [editTherapistServicesModalVisible, editBusinessHoursModalVisible]);
+    })();
+  }, [editTherapistServicesModalVisible, editBusinessHoursModalVisible]);
+
+  useEffect(() => {
+    (async () => {
+      await getStripeAccount();
+      if (!isPaymentsEnabled) {
+        await getStripeOnboardLink();
+      }
+    })();
+  }, []);
 
   const handleModalClose = () => {
     setEditContactInfoModalVisible(false);
@@ -129,12 +163,6 @@ function ProfileSettings({ route }) {
         therapist={therapist}
         visible={editTherapistServicesModalVisible}
         setVisibility={setEditTherapistServicesModalVisible}
-      />
-
-      <EditBillingInfoModal
-        user={user}
-        visible={editBillingInfoModalVisible}
-        setVisibility={setEditBillingInfoModalVisible}
       />
       <ChangePasswordModal
         visible={changePasswordModalVisible}
@@ -204,6 +232,56 @@ function ProfileSettings({ route }) {
             <View style={styles.cardOutterContainer}>
               <View style={styles.cardInnerContainer}>
                 <View style={styles.cardContent}>
+                  <View style={styles.paymentStatusContainer}>
+                    {!isPaymentsEnabled && (
+                      <>
+                        <TouchableOpacity
+                          onPress={() => {
+                            Linking.openURL(stripeOnboardLink);
+                          }
+                          }
+                        >
+                          <View styles={styles.alertTitleContainer}>
+                            <MaterialCommunityIcons
+                              name="alert"
+                              style={styles.alertIcon}
+                              size={24}
+                              color="orange"
+                            />
+                            <Text style={styles.paymentStatusTitle}>
+                              Payment setup needed!
+                            </Text>
+                          </View>
+                          <Text>
+                            Set up payment details in order to enable bookings
+                            and payments for appointments. Click here to set up.
+                          </Text>
+                        </TouchableOpacity>
+                      </>
+                    ) || (
+                      <>
+                        <MaterialCommunityIcons
+                          name="check-circle"
+                          style={styles.alertIcon}
+                          size={24}
+                          color="green"
+                        />
+                        <Text style={styles.paymentStatusTitle}>
+                          Payment setup complete
+                        </Text>
+                        <Text>
+                          You are all set up to recieve payments.
+                        </Text>
+                      </>
+                    )}
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.cardOutterContainer}>
+              <View style={styles.cardInnerContainer}>
+                <View style={styles.cardContent}>
                   {user.role === "athlete" && (
                     <View style={styles.locationPropContainer}>
                       <MaterialCommunityIcons
@@ -218,6 +296,10 @@ function ProfileSettings({ route }) {
                       </Text>
                     </View>
                   )}
+                  {/* {user.role === "therapist" && (
+
+                  )} */}
+
                   {user.role === "therapist" && (
                     <View style={styles.ratingContainer}>
                       <Text style={styles.ratingPropLabel}>Rating:</Text>
@@ -296,8 +378,7 @@ function ProfileSettings({ route }) {
                         {therapist.street} {therapist.apartment_no}
                       </Text>
                       <Text>
-                        {therapist.city}, {therapist.state}{" "}
-                        {therapist.zipcode}
+                        {therapist.city}, {therapist.state} {therapist.zipcode}
                       </Text>
                     </View>
                     {/* <View style={styles.propContainer}>
@@ -403,7 +484,9 @@ function ProfileSettings({ route }) {
                     </View> */}
                     <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>Accepts House Calls:</Text>
-                      <Text>{therapist.accepts_house_calls ? "Yes" : "No"}</Text>
+                      <Text>
+                        {therapist.accepts_house_calls ? "Yes" : "No"}
+                      </Text>
                     </View>
                     <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>Accepts In Clinic:</Text>
@@ -599,26 +682,6 @@ function ProfileSettings({ route }) {
                 </View>
               </View>
             </View>
-
-            <View style={styles.cardOutterContainer}>
-              <View style={styles.cardInnerContainer}>
-                <Text style={styles.cardTitle}>Billing</Text>
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={() => setEditBillingInfoModalVisible(true)}
-                >
-                  <View>
-                    <Text style={styles.buttonText}>Edit</Text>
-                  </View>
-                </TouchableOpacity>
-                <View style={styles.propContainer}>
-                  <View style={styles.cardContent}>
-                    <Text style={styles.propLabel}>Payment Method</Text>
-                    <Text>XXXX-XXXX-XXXX-1234</Text>
-                  </View>
-                </View>
-              </View>
-            </View>
           </View>
 
           {/* 
@@ -730,6 +793,22 @@ const styles = StyleSheet.create({
     paddingRight: "2%",
     alignItems: "left",
   },
+  paymentStatusContainer: {
+    width: "100%",
+  },
+  paymentStatusTitle: {
+    fontWeight: "bold",
+    fontSize: 16,
+    marginBottom: "4%",
+    marginTop: "1%",
+    marginLeft: "10%",
+  },
+  alertTitleContainer: {
+    display: "flex",
+    flexDirection: "row",
+    width: "100%",
+    alignText: "center",
+  },
   profileSummaryContainer: {
     width: "100%",
     marginTop: "4%",
@@ -739,6 +818,10 @@ const styles = StyleSheet.create({
   },
   propContainer: {
     marginBottom: 10,
+  },
+  alertIcon: {
+    marginRight: 8,
+    position: "absolute",
   },
   locationPropContainer: {
     display: "flex",

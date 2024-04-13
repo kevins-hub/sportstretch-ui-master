@@ -18,9 +18,14 @@ const getStripeOnboardLink = (therapistId) => {
   return apiClient.get(endpoint + "/get-onboard-link/" + therapistId);
 }
 
+const getStripeAccount = (therapistId) => {
+  return apiClient.get(endpoint + "/get-stripe-account/" + therapistId);
+}
+
 export default {
     createPaymentIntent,
     registerStripeAccount,
     generateStripeLoginLink,
     getStripeOnboardLink,
+    getStripeAccount,
 };
