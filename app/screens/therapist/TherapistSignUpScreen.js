@@ -27,6 +27,7 @@ import RNPickerSelect from "react-native-picker-select";
 import Checkbox from "expo-checkbox";
 import TherapistBusinessHours from "../../components/therapist/TherapistBusinessHours";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import payment from "../../api/payment";
 
 const ReviewSchema = yup.object({
   fname: yup.string().required().min(1).label("First Name"),
@@ -617,11 +618,21 @@ function TherapistForm(props) {
           acceptsHouseCalls: false,
         }}
         validationSchema={ReviewSchema}
-        onSubmit={(values, actions) => {
+        onSubmit={ async (values, actions) => {
           values.state = stateConverter(values.state);
           values.acceptsHouseCalls = enableHouseCalls;
           values.acceptsInClinic = enableInClinic;
           values.businessHours = businessHours;
+          try {
+            const registerStripeResponse = await payment.registerStripeAccount({ email: values.email})
+            if (registerStripeResponse.status === 200) {
+              const stripeAccountId = registerStripeResponse.data.account.id;
+              values.stripeAccountId = stripeAccountId;
+            }
+          } catch (error) {
+            console.warn("Error registering stripe account: ", error);
+          }
+
           register_therapist(values);
           actions.resetForm();
         }}
