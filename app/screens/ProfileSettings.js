@@ -67,8 +67,9 @@ function ProfileSettings({ route }) {
 
   const getStripeAccount = async () => {
     const response = await payment.getStripeAccount(userObj.therapist_id);
+    console.warn("response.data", response.data);
     setIsPaymentsEnabled(
-      response.data.payouts_enabled === "true" ? true : false
+      response.data.payouts_enabled === true ? true : false
     );
     return response.data;
   };
@@ -143,7 +144,7 @@ function ProfileSettings({ route }) {
     (async () => {
       if (user.role === "athlete" || user.role === "admin") return;
       await getStripeAccount();
-      if (!isPaymentsEnabled) {
+      if (isPaymentsEnabled === false) {
         await getStripeOnboardLink();
       }
     })();
@@ -233,6 +234,7 @@ function ProfileSettings({ route }) {
                 </View>
               </View>
             )} */}
+            {/* only display if therapist */}
             {user.role === "therapist" && (
               <View style={styles.cardOutterContainer}>
                 <View style={styles.cardInnerContainer}>

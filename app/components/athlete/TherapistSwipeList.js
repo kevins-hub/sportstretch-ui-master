@@ -6,6 +6,7 @@ import AthleteBookNowCard from "./AthleteBookNowCard";
 
 const TherapistSwipeList = (props) => {
   const therapistsInRegion = props.therapists;
+  console.warn("therapistsInRegion = ", therapistsInRegion);
   const athleteAddress = props.athleteAddress;
 
   const renderSwipeableItem = ({ item }) => {
