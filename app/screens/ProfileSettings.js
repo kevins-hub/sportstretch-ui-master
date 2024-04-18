@@ -5,7 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Linking
+  Linking,
 } from "react-native";
 import LogOutButton from "../components/shared/LogOutButton";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -45,7 +45,10 @@ function ProfileSettings({ route }) {
   const [athleteState, setAthleteState] = useState("");
   const [isPaymentsEnabled, setIsPaymentsEnabled] = useState(true);
 
+  let athleteLocation;
+
   const { user } = route.params;
+
   let userObj = user.userObj;
   const [therapist, setTherapist] = useState(
     user.role === "therapist" ? userObj : {}
@@ -81,11 +84,12 @@ function ProfileSettings({ route }) {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") return;
 
-    let athleteLocation = await Location.getCurrentPositionAsync({});
+    athleteLocation = await Location.getCurrentPositionAsync({});
     return athleteLocation;
   };
 
   const getAthleteCityState = async (athleteLocation) => {
+    if (!athleteLocation) return;
     let athleteRegion = await Location.reverseGeocodeAsync(
       athleteLocation.coords
     );
@@ -228,56 +232,55 @@ function ProfileSettings({ route }) {
                 </View>
               </View>
             )} */}
-
-            <View style={styles.cardOutterContainer}>
-              <View style={styles.cardInnerContainer}>
-                <View style={styles.cardContent}>
-                  <View style={styles.paymentStatusContainer}>
-                    {!isPaymentsEnabled && (
-                      <>
-                        <TouchableOpacity
-                          onPress={() => {
-                            Linking.openURL(stripeOnboardLink);
-                          }
-                          }
-                        >
-                          <View styles={styles.alertTitleContainer}>
-                            <MaterialCommunityIcons
-                              name="alert"
-                              style={styles.alertIcon}
-                              size={24}
-                              color="orange"
-                            />
-                            <Text style={styles.paymentStatusTitle}>
-                              Payment setup needed!
+            {user.role === "therapist" && (
+              <View style={styles.cardOutterContainer}>
+                <View style={styles.cardInnerContainer}>
+                  <View style={styles.cardContent}>
+                    <View style={styles.paymentStatusContainer}>
+                      {(!isPaymentsEnabled && (
+                        <>
+                          <TouchableOpacity
+                            onPress={() => {
+                              Linking.openURL(stripeOnboardLink);
+                            }}
+                          >
+                            <View styles={styles.alertTitleContainer}>
+                              <MaterialCommunityIcons
+                                name="alert"
+                                style={styles.alertIcon}
+                                size={24}
+                                color="orange"
+                              />
+                              <Text style={styles.paymentStatusTitle}>
+                                Payment setup needed!
+                              </Text>
+                            </View>
+                            <Text>
+                              Set up payment details in order to enable bookings
+                              and payments for appointments. Click here to set
+                              up.
                             </Text>
-                          </View>
-                          <Text>
-                            Set up payment details in order to enable bookings
-                            and payments for appointments. Click here to set up.
+                          </TouchableOpacity>
+                        </>
+                      )) || (
+                        <>
+                          <MaterialCommunityIcons
+                            name="check-circle"
+                            style={styles.alertIcon}
+                            size={24}
+                            color="green"
+                          />
+                          <Text style={styles.paymentStatusTitle}>
+                            Payment setup complete
                           </Text>
-                        </TouchableOpacity>
-                      </>
-                    ) || (
-                      <>
-                        <MaterialCommunityIcons
-                          name="check-circle"
-                          style={styles.alertIcon}
-                          size={24}
-                          color="green"
-                        />
-                        <Text style={styles.paymentStatusTitle}>
-                          Payment setup complete
-                        </Text>
-                        <Text>
-                          You are all set up to recieve payments.
-                        </Text>
-                      </>
-                    )}
+                          <Text>You are all set up to recieve payments.</Text>
+                        </>
+                      )}
+                    </View>
                   </View>
                 </View>
               </View>
-            </View>
+            )}
 
             <View style={styles.cardOutterContainer}>
               <View style={styles.cardInnerContainer}>
@@ -290,10 +293,26 @@ function ProfileSettings({ route }) {
                         size={18}
                         color="red"
                       />
-                      <Text style={styles.locationPropLabel}>Location:</Text>
-                      <Text style={styles.locationProp}>
-                        {athleteCity}, {athleteState}
-                      </Text>
+
+                      {athleteLocation && (
+                        <>
+                          <Text style={styles.locationPropLabel}>
+                            Location:
+                          </Text>
+                          <Text style={styles.locationProp}>
+                            {athleteCity}, {athleteState}
+                          </Text>
+                        </>
+                      ) || (
+                        <>
+                          <Text style={styles.locationPropLabel}>
+                            Location:
+                          </Text>
+                          <Text style={styles.locationProp}>
+                            Location not available
+                          </Text>
+                        </>
+                      )}
                     </View>
                   )}
                   {/* {user.role === "therapist" && (
