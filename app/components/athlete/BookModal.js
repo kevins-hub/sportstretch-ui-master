@@ -37,6 +37,7 @@ function BookModal({
   therapistSummary,
   therapistServices,
   therapistAcceptsHouseCalls,
+  therapistBusinessHours,
 }) {
   if (!visible) return null;
 
@@ -85,22 +86,33 @@ function BookModal({
     return dateTime.toLocaleTimeString("en-US", options);
   };
 
-  const getAvailableTimes = async (date, duration) => {
-    // date is date object
-    const open = "08:00";
-    const close = "20:00";
-    // get time intervals between open and close time in 30 minnute increments that are not already booked
-    let bookings = await getBookingsOnDate(date);
+  const getAvailableTimesInTimeSlot = async (date, duration, slotStartTime, slotEndTime, schedule) => {
     const now = new Date();
-
-    let schedule = {};
-
-    startTime = now.toLocaleDateString() == date.toLocaleDateString() ? Math.max(now.getHours()+1, Number(openTime)) : Number(openTime);
-
-    while (startTime <= Number(closeTime) - Number(duration)) {
+    let startTime = now.toLocaleDateString() == date.toLocaleDateString() ? Math.max(now.getHours()+1, Number(slotStartTime)) : Number(slotStartTime);
+    if (startTime + Number(duration) > Number(slotEndTime)) {
+      return;
+    }
+    while (startTime <= Number(slotEndTime) - Number(duration)) {
       schedule[startTime] = 0;
       startTime += 0.5;
     }
+  }
+
+  const getAvailableTimes = async (date, duration) => {
+    // get time intervals between open and close time in 30 minnute increments that are not already booked
+    let bookings = await getBookingsOnDate(date);
+
+    const dateDayOfWeek = date.getDay();
+
+    let schedule = {};
+
+    const availableHours = therapistBusinessHours[dateDayOfWeek.toString()];
+
+    console.warn("availableHours = ", availableHours);
+
+    availableHours.forEach(([startTime, endTime]) => {
+      getAvailableTimesInTimeSlot(date, duration, startTime, endTime, schedule);
+    });
 
     bookings.forEach((booking) => {
       const bookingDate = new Date(booking.booking_time);
@@ -164,20 +176,16 @@ function BookModal({
 
   // let minDate = new Date();
 
+  useEffect(() => {
+    getAvailableTimes(selectedDateTime, appointmentDuration);
+  }, [selectedDateTime, appointmentDuration]);
+
   const getTimeFromMap = (dateTimeISOString) => {
     return timeStrDateTimeMap[dateTimeISOString];
   };
 
   const handleDateChange = (event, selectedDate) => {
-    // one second timeout to allow for the date to be set
-    // if selected date's hours are after closeTime, set time to 30 minutes before closeTime
-    if (selectedDate.getHours() >= closeTime) {
-      selectedDate.setHours(closeTime - 1, 30, 0, 0);
-    } else if (selectedDate.getHours() < openTime) {
-      selectedDate.setHours(openTime, 0, 0, 0);
-    }
     setSelectedDateTime(selectedDate);
-    getAvailableTimes(selectedDate, appointmentDuration);
   };
 
   const appointmentDurationOptions = [
