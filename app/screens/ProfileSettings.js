@@ -141,6 +141,7 @@ function ProfileSettings({ route }) {
 
   useEffect(() => {
     (async () => {
+      if (user.role === "athlete" || user.role === "admin") return;
       await getStripeAccount();
       if (!isPaymentsEnabled) {
         await getStripeOnboardLink();
