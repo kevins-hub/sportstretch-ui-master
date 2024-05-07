@@ -13,7 +13,7 @@ import colors from "../../config/colors";
 import therapists from "../../api/therapists";
 import { stateLongToShort, stateShortToLong } from "../../lib/states";
 
-function SearchTherapist({ getTherapists, currentState }) {
+function SearchTherapist({ getTherapists, currentState="", isInModal=false, setModalVisibility, setAthleteRegion }) {
   const [statesList, setStatesList] = useState([]);
   const [selectedState, setSelectedState] = useState(currentState);
   const options = [];
@@ -49,16 +49,20 @@ function SearchTherapist({ getTherapists, currentState }) {
     setSelectedState(state);
     const shortState = stateLongToShort(state);
     getTherapists(shortState);
+    if (isInModal) {
+      setAthleteRegion(shortState);
+      setModalVisibility(false);
+    }
   };
 
   return (
     <View style={styles.pickerContainer}>
       <Text style={{ fontSize: 14, fontWeight: "bold" }}>
-        Showing Recovery Specialists in:
+        Show Recovery Specialists in:
       </Text>
       <RNPickerSelect
         placeholder={{
-          label: "My Area (click to change)",
+          label: currentState ? `${stateShortToLong(currentState)} (click to change)` : "Select a State",
           value: currentState,
         }}
         value={selectedState}
@@ -77,7 +81,7 @@ function SearchTherapist({ getTherapists, currentState }) {
 
 const styles = StyleSheet.create({
   pickerContainer: {
-    padding: 5,
+    padding: 10,
   },
   statePicker: {
     backgroundColor: colors.white,
