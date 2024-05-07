@@ -6,6 +6,7 @@ import AthleteMapView from "../../components/athlete/AthleteMapView";
 import therapistsApi from "../../api/therapists";
 import SearchTherapist from "../../components/athlete/SearchTherapist";
 import TherapistSwipeList from "../../components/athlete/TherapistSwipeList";
+import SetStateModal from "../../components/athlete/SetStateModal";
 
 function AthleteBookNow(props) {
   const [therapists, setTherapists] = useState([]);
@@ -14,10 +15,14 @@ function AthleteBookNow(props) {
   const [athleteRegion, setAthleteRegion] = useState(null);
   const [athleteAddress, setAthleteAddress] = useState("");
   const [markers, setMarkers] = useState(null);
+  const [stateModalVisible, setStateModalVisible] = useState(false);
 
   const loadLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") return;
+    if (status !== "granted") {
+      setStateModalVisible(true);
+      return;
+    }
 
     let athleteLocation = await Location.getCurrentPositionAsync({});
     setLocation(athleteLocation);
@@ -25,6 +30,7 @@ function AthleteBookNow(props) {
   };
 
   const getAthleteRegion = async (athleteLocation) => {
+    if (!athleteLocation) return;
     let athleteRegion = await Location.reverseGeocodeAsync(
       athleteLocation.coords
     );
@@ -80,13 +86,33 @@ function AthleteBookNow(props) {
     })();
   }, []);
 
+  useEffect(() => {
+    async () => {
+      try {
+        let therapists = await getTherapists(athleteRegion);
+        await loadMarkers(therapists);
+      } catch (err) {
+        console.log("Error", err.message);
+      }
+    };
+  }, [setStateModalVisible]);
+
   handleMarkerPress = (event) => {
     setSelectedTherapist(therapists[event._targetInst.return.key]);
   };
 
   return (
     <View style={{ flex: 1, marginBottom: 10 }}>
-      <SearchTherapist getTherapists={getTherapists} currentState={athleteRegion}></SearchTherapist>
+      <SetStateModal
+        visible={stateModalVisible}
+        setVisibility={setStateModalVisible}
+        getTherapists={getTherapists}
+        setAthleteRegion={setAthleteRegion}
+      />
+      <SearchTherapist
+        getTherapists={getTherapists}
+        currentState={athleteRegion}
+      ></SearchTherapist>
       <AthleteMapView
         markers={markers}
         selectedTherapist={selectedTherapist}
@@ -94,12 +120,12 @@ function AthleteBookNow(props) {
         userRegion={athleteRegion}
         onMarkerPress={handleMarkerPress}
       />
-    <SafeAreaView style={{ flex: 1 }}>
-      <TherapistSwipeList
-        therapists={therapists}
-        athleteAddress={athleteAddress}
-      />
-    </SafeAreaView>
+      <SafeAreaView style={{ flex: 1 }}>
+        <TherapistSwipeList
+          therapists={therapists}
+          athleteAddress={athleteAddress}
+        />
+      </SafeAreaView>
 
       {/* <AthleteBookNowCard
         selectedTherapist={selectedTherapist}

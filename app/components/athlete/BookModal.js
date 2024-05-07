@@ -208,9 +208,20 @@ function BookModal({
   };
 
   const getClientSecret = async () => {
-    let res = await paymentApi.createPaymentIntent(paymentObj);
-    setClientSecret(res.data.clientSecret);
-    return;
+    // console.warn("getClientSecret");
+    try {
+      let res = await paymentApi.createPaymentIntent(paymentObj);
+      console.warn("get client secret success");
+      return res.data.paymentIntent.client_secret;
+    } catch (error) {
+      console.warn("Error getting client secret", error);
+
+      // console.warn("res.data = ", res.data);
+      // console.warn("res.data.paymentIntent.client_secret = ", res.data.paymentIntent.client_secret);
+      // setClientSecret(res.data.paymentIntent.client_secret);
+      // console.warn("clientSecret = ", clientSecret);
+      // console.warn("paymentIntent = ", res.data.paymentIntent);
+    }
   };
 
   const locations = therapistAcceptsHouseCalls
@@ -240,11 +251,13 @@ function BookModal({
         []
       );
 
-  // Need to call backend for payment intent
-
   const proceedToReview = async () => {
     try {
-      const response = await initPaymentSheet({
+      const clientSecret = await getClientSecret();
+      console.warn("sending clientSecret = ", clientSecret);
+      // sleep for 1 second to allow for clientSecret to be set
+      // await new Promise((r) => setTimeout(r, 1000));
+      const { error } = await initPaymentSheet({
         paymentIntentClientSecret: clientSecret,
         returnURL: "payments-example://stripe-redirect",
         customerId: "",
