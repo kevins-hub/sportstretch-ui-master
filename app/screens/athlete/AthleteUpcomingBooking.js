@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { FlatList } from "react-native";
+import { FlatList, Text, StyleSheet } from "react-native";
 
 import AthleteUpcomingCard from "../../components/athlete/AthleteUpcomingCard";
 import bookingsApi from "../../api/bookings";
@@ -35,26 +35,46 @@ function AthleteUpcomingBooking(props) {
   };
 
   return (
-    <FlatList
-      data={upcomingBookings.sort((a, b) => a.bookings_id < b.bookings_id)}
-      keyExtractor={(message) => message.bookings_id.toString()}
-      renderItem={({ item }) => (
-        <AthleteUpcomingCard
-          BookingMonth={item.booking_month}
-          BookingDay={item.booking_day}
-          BookingTime={item.booking_time}
-          fname={item.first_name}
-          bookingId={item.bookings_id}
-          confirmationStatus={(() => {
-            if (item.confirmation_status === 1) return "Approved";
-            if (item.confirmation_status === -1) return "Pending";
-            else item.confirmation_status === 0;
-            return "Declined";
-          })()}
+    <>
+      {upcomingBookings.length === 0 && (
+        <Text style={styles.defaultText}>
+          Your upcoming appointments will show up here!
+        </Text>
+      )}
+      {upcomingBookings.length > 0 && (
+        <FlatList
+          data={upcomingBookings.sort((a, b) => a.bookings_id < b.bookings_id)}
+          keyExtractor={(message) => message.bookings_id.toString()}
+          renderItem={({ item }) => (
+            <AthleteUpcomingCard
+              BookingMonth={item.booking_month}
+              BookingDay={item.booking_day}
+              BookingTime={item.booking_time}
+              fname={item.first_name}
+              bookingId={item.bookings_id}
+              confirmationStatus={(() => {
+                if (item.confirmation_status === 1) return "Approved";
+                if (item.confirmation_status === -1) return "Pending";
+                else item.confirmation_status === 0;
+                return "Declined";
+              })()}
+            />
+          )}
         />
       )}
-    />
+    </>
   );
 }
+
+const styles = StyleSheet.create({
+  defaultText: {
+    fontSize: 20,
+    textAlign: "center",
+    marginTop: "auto",
+    marginBottom: "auto",
+    marginLeft: 10,
+    marginRight: 10,
+  },
+});
 
 export default AthleteUpcomingBooking;
