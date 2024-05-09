@@ -3,7 +3,7 @@ import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import colors from "../../config/colors";
 import AuthContext from "../../auth/context";
 
-function LogOutButton() {
+function LogOutButton(isAdmin = false) {
   const authContext = useContext(AuthContext);
 
   const logOutUser = async () => {
