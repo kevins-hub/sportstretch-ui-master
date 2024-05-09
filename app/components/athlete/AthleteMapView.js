@@ -35,6 +35,8 @@ function AthleteMapView({
           longitudeDelta: 0.25,
         });
       }
+    } else {
+      setRegionToTherapistRegion(selectedTherapist);
     }
   }, [markers, selectedTherapist]);
 
