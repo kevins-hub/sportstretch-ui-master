@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { FlatList, View } from "react-native";
+import { FlatList, View, Text, StyleSheet } from "react-native";
 
 import TherapistPastCard from "../../components/therapist/TherapistPastCard";
 import bookingsApi from "../../api/bookings";
@@ -32,12 +32,32 @@ function TherapistPastBooking(props) {
 
   //console.log(pastBookings);
   return (
-    <FlatList
-      data={pastBookings.sort((a, b) => a.bookings_id < b.bookings_id)}
-      keyExtractor={(message) => message.bookings_id.toString()}
-      renderItem={({ item }) => <TherapistPastCard therapistData={item} />}
-    />
+    <>
+      {pastBookings.length === 0 && (
+        <Text style={styles.defaultText}>
+          Your completed appointments will show up here!
+        </Text>
+      )}
+      {pastBookings.length > 0 && (
+        <FlatList
+          data={pastBookings.sort((a, b) => a.bookings_id < b.bookings_id)}
+          keyExtractor={(message) => message.bookings_id.toString()}
+          renderItem={({ item }) => <TherapistPastCard therapistData={item} />}
+        />
+      )}
+    </>
   );
 }
+
+const styles = StyleSheet.create({
+  defaultText: {
+    fontSize: 20,
+    textAlign: "center",
+    marginTop: "auto",
+    marginBottom: "auto",
+    marginLeft: 10,
+    marginRight: 10,
+  },
+});
 
 export default TherapistPastBooking;
