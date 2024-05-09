@@ -42,18 +42,20 @@ function AppContainer({ user }) {
       {/* {user.role === "athlete" && <AthleteDashboard />} */}
       {/* {user.role === "therapist" && ((user.userObj.enabled === -1 && <TherapistRegistrationPending/>) || (user.userObj.enabled === 0 && <TherapistDisabled/>) || <TherapistDashboard/>)} */}
       {user.role === "admin" && <AdminDashboard />}
-      <NavigationContainer
-        linking={{
-          prefixes: ['sportstretch://', 'https://sportstretch.com'],
-          config: {
-            screens: {
-              Profile: 'profile',
-              // Add other screens and paths as needed
-            },
-          },
-        }}>
-        <AppNavigator user={user} />
-      </NavigationContainer>
+      {user.role !== "admin" && (
+              <NavigationContainer
+              linking={{
+                prefixes: ['sportstretch://', 'https://sportstretch.com'],
+                config: {
+                  screens: {
+                    Profile: 'profile',
+                    // Add other screens and paths as needed
+                  },
+                },
+              }}>
+              <AppNavigator user={user} />
+            </NavigationContainer>
+        )}
     </>
   );
 }
