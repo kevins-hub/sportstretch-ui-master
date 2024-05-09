@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { FlatList, View, SectionList } from "react-native";
+import { FlatList, View, SectionList, Text, StyleSheet } from "react-native";
 
 import TherapistUpcomingCard from "../../components/therapist/TherapistUpcomingCard";
 import TherapistUpcomingPendingCard from "../../components/therapist/TherapistUpcomingPendingCard";
@@ -55,44 +55,64 @@ function TherapistUpcomingBooking(props) {
   };
 
   return (
-    <View>
-      <SectionList
-        // renderSectionHeader={({ section: { title } }) => <Text style={{ fontWeight: 'bold' }}>{title}</Text>}
-        sections={[
-          {
-            data: upcomingBookingPending.sort(
-              (a, b) => a.bookings_id < b.bookings_id
-            ),
-            renderItem: ({ item }) => (
-              <TherapistUpcomingPendingCard
-                therapistData={item}
-                // bookingDate= {item.bookingDate}
-                // atheleteName= {item.atheleteName}
-                // bookingId= {item.bookingId}
-                // location= {item.location}
-              />
-            ),
-          },
-          {
-            data: upcomingBookingsApprove.sort(
-              (a, b) => a.bookings_id < b.bookings_id
-            ),
-            renderItem: ({ item }) => (
-              <TherapistUpcomingCard
-                therapistData={item}
-                // bookingDate= {item.bookingDate}
-                // atheleteName= {item.atheleteName}
-                // bookingId= {item.bookingId}
-                // location= {item.location}
-                // status=  {item.status === 1 ? 'Approved': 'Declined'}
-              />
-            ),
-          },
-        ]}
-        keyExtractor={(item) => item.bookings_id.toString()}
-      />
-    </View>
+    <>
+      {upcomingBookings.length === 0 && (
+        <Text style={styles.defaultText}>
+          Your upcoming appointments will show up here!
+        </Text>
+      )}
+      {upcomingBookings.length > 0 && (
+        <View>
+        <SectionList
+          // renderSectionHeader={({ section: { title } }) => <Text style={{ fontWeight: 'bold' }}>{title}</Text>}
+          sections={[
+            {
+              data: upcomingBookingPending.sort(
+                (a, b) => a.bookings_id < b.bookings_id
+              ),
+              renderItem: ({ item }) => (
+                <TherapistUpcomingPendingCard
+                  therapistData={item}
+                  // bookingDate= {item.bookingDate}
+                  // atheleteName= {item.atheleteName}
+                  // bookingId= {item.bookingId}
+                  // location= {item.location}
+                />
+              ),
+            },
+            {
+              data: upcomingBookingsApprove.sort(
+                (a, b) => a.bookings_id < b.bookings_id
+              ),
+              renderItem: ({ item }) => (
+                <TherapistUpcomingCard
+                  therapistData={item}
+                  // bookingDate= {item.bookingDate}
+                  // atheleteName= {item.atheleteName}
+                  // bookingId= {item.bookingId}
+                  // location= {item.location}
+                  // status=  {item.status === 1 ? 'Approved': 'Declined'}
+                />
+              ),
+            },
+          ]}
+          keyExtractor={(item) => item.bookings_id.toString()}
+        />
+        </View>
+      )}
+    </>
   );
 }
+
+const styles = StyleSheet.create({
+  defaultText: {
+    fontSize: 20,
+    textAlign: "center",
+    marginTop: "auto",
+    marginBottom: "auto",
+    marginLeft: 10,
+    marginRight: 10,
+  },
+});
 
 export default TherapistUpcomingBooking;
