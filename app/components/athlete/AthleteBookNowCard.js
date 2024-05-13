@@ -28,6 +28,7 @@ function AthleteBookNowCard({ selectedTherapist, athleteAddress }) {
         therapistServices={selectedTherapist.services}
         therapistAcceptsHouseCalls={selectedTherapist.accepts_house_calls}
         therapistBusinessHours={selectedTherapist.business_hours}
+        therapistStripeAccountId={selectedTherapist.stripe_account_id}
       />
       <View style={styles.OuterContainer}>
         <View style={styles.Container}>

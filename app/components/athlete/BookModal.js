@@ -21,10 +21,11 @@ import colors from "../../config/colors";
 import RadioGroup from "react-native-radio-buttons-group";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import PaymentScreen from "./Payment";
-import { useStripe, useConfirmPayment } from "@stripe/stripe-react-native";
+import { useStripe, PaymentSheet } from "@stripe/stripe-react-native";
 import paymentApi from "../../api/payment";
 import RNPickerSelect from "react-native-picker-select";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import { StripeProvider } from "@stripe/stripe-react-native";
 
 function BookModal({
   visible,
@@ -38,6 +39,7 @@ function BookModal({
   therapistServices,
   therapistAcceptsHouseCalls,
   therapistBusinessHours,
+  therapistStripeAccountId,
 }) {
   if (!visible) return null;
 
@@ -53,7 +55,10 @@ function BookModal({
   const getBookingsOnDate = async (date) => {
     try {
       // convert date to local date string YYYY-MM-DD
-      const month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
+      const month =
+        date.getMonth() + 1 < 10
+          ? "0" + (date.getMonth() + 1)
+          : date.getMonth() + 1;
       const dateStr = date.getFullYear() + "-" + month + "-" + date.getDate();
       const response = await bookingsApi.getTherapistBookingsOnDate(
         therapistId,
@@ -86,9 +91,18 @@ function BookModal({
     return dateTime.toLocaleTimeString("en-US", options);
   };
 
-  const getAvailableTimesInTimeSlot = async (date, duration, slotStartTime, slotEndTime, schedule) => {
+  const getAvailableTimesInTimeSlot = async (
+    date,
+    duration,
+    slotStartTime,
+    slotEndTime,
+    schedule
+  ) => {
     const now = new Date();
-    let startTime = now.toLocaleDateString() == date.toLocaleDateString() ? Math.max(now.getHours()+1, Number(slotStartTime)) : Number(slotStartTime);
+    let startTime =
+      now.toLocaleDateString() == date.toLocaleDateString()
+        ? Math.max(now.getHours() + 1, Number(slotStartTime))
+        : Number(slotStartTime);
     if (startTime + Number(duration) > Number(slotEndTime)) {
       return;
     }
@@ -96,7 +110,7 @@ function BookModal({
       schedule[startTime] = 0;
       startTime += 0.5;
     }
-  }
+  };
 
   const getAvailableTimes = async (date, duration) => {
     // get time intervals between open and close time in 30 minnute increments that are not already booked
@@ -107,8 +121,6 @@ function BookModal({
     let schedule = {};
 
     const availableHours = therapistBusinessHours[dateDayOfWeek.toString()];
-
-    console.warn("availableHours = ", availableHours);
 
     availableHours.forEach(([startTime, endTime]) => {
       getAvailableTimesInTimeSlot(date, duration, startTime, endTime, schedule);
@@ -171,9 +183,10 @@ function BookModal({
   // const [selectedDateTime, setSelectedDateTime] = useState(new Date());
   const [currentStep, setCurrentStep] = useState(1);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
-  const [clientSecret, setClientSecret] = useState("");
+  // const [clientSecret, setClientSecret] = useState("");
   // const [availableDateTimes, setAvailableDateTimes] = useState([]);
-
+  // const {initPaymentSheet} = useStripe();
+  // const { presentPaymentSheet } = useStripe();
   // let minDate = new Date();
 
   useEffect(() => {
@@ -205,22 +218,15 @@ function BookModal({
     payment_method_types: ["card"],
     description: "SportStretch Recovery Specialist Appointment",
     receipt_email: "kevinliu428@gmail.com",
+    stripeAccountId: therapistStripeAccountId,
   };
 
   const getClientSecret = async () => {
-    // console.warn("getClientSecret");
     try {
       let res = await paymentApi.createPaymentIntent(paymentObj);
-      console.warn("get client secret success");
       return res.data.paymentIntent.client_secret;
     } catch (error) {
       console.warn("Error getting client secret", error);
-
-      // console.warn("res.data = ", res.data);
-      // console.warn("res.data.paymentIntent.client_secret = ", res.data.paymentIntent.client_secret);
-      // setClientSecret(res.data.paymentIntent.client_secret);
-      // console.warn("clientSecret = ", clientSecret);
-      // console.warn("paymentIntent = ", res.data.paymentIntent);
     }
   };
 
@@ -253,19 +259,19 @@ function BookModal({
 
   const proceedToReview = async () => {
     try {
-      const clientSecret = await getClientSecret();
-      console.warn("sending clientSecret = ", clientSecret);
-      // sleep for 1 second to allow for clientSecret to be set
-      // await new Promise((r) => setTimeout(r, 1000));
+      const clientSecret = await getClientSecret(); // Ensure this async call is awaited properly
       const { error } = await initPaymentSheet({
         paymentIntentClientSecret: clientSecret,
-        returnURL: "payments-example://stripe-redirect",
-        customerId: "",
-        merchantDisplayName: "",
-        ephemeralKeySecret: "",
+        merchantDisplayName: "Sportstretchusa",
+        // testEnv: true,
         // Additional configuration options
       });
-      setCurrentStep(3);
+
+      if (error) {
+        console.warn("Error initializing PaymentSheet", error);
+      } else {
+        setCurrentStep(3);
+      }
     } catch (error) {
       console.warn("Error initializing PaymentSheet", error);
     }
@@ -274,6 +280,7 @@ function BookModal({
   const openPaymentSheet = async () => {
     try {
       const { error } = await presentPaymentSheet();
+
       if (error) {
         console.warn("Error opening PaymentSheet", error);
       } else {
@@ -292,12 +299,11 @@ function BookModal({
     const subTotalAmount = value * therapistHourly;
     paymentObj.amount = subTotalAmount;
     setSubTotal(subTotalAmount);
-    getClientSecret();
   };
 
-  const handleSubmit = async () => {
-    await initializePaymentSheet();
-  };
+  // const handleSubmit = async () => {
+  //   await initializePaymentSheet();
+  // };
 
   const createBooking = async () => {
     try {
@@ -434,34 +440,38 @@ function BookModal({
               minimumDate={minDate}
             />
             <View style={styles.timeSlotContainer}>
-              {availableDateTimes.length > 0 ? availableDateTimes.map((item) => {
-                return (
-                  <TouchableOpacity
-                    key={item.key}
-                    style={
-                      selectedDateTime.toLocaleString() ==
-                      new Date(item.text).toLocaleString()
-                        ? styles.timeSlotButtonSelected
-                        : styles.timeSlotButton
-                    }
-                    onPress={() => {
-                      setSelectedDateTime(new Date(item.text));
-                    }}
-                  >
-                    <Text
+              {availableDateTimes.length > 0 ? (
+                availableDateTimes.map((item) => {
+                  return (
+                    <TouchableOpacity
                       key={item.key}
                       style={
                         selectedDateTime.toLocaleString() ==
                         new Date(item.text).toLocaleString()
-                          ? styles.timeSlotButtonSelectedText
-                          : styles.timeSlotButtonText
+                          ? styles.timeSlotButtonSelected
+                          : styles.timeSlotButton
                       }
+                      onPress={() => {
+                        setSelectedDateTime(new Date(item.text));
+                      }}
                     >
-                      {getTimeFromMap(item.text)}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              }): <Text>No more availability on this date.</Text>}
+                      <Text
+                        key={item.key}
+                        style={
+                          selectedDateTime.toLocaleString() ==
+                          new Date(item.text).toLocaleString()
+                            ? styles.timeSlotButtonSelectedText
+                            : styles.timeSlotButtonText
+                        }
+                      >
+                        {getTimeFromMap(item.text)}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })
+              ) : (
+                <Text>No more availability on this date.</Text>
+              )}
             </View>
           </View>
           <View style={styles.propContainer}>
@@ -469,7 +479,9 @@ function BookModal({
             {/* Dropdown menu */}
             <View>
               <RNPickerSelect
-                onValueChange={(value) => handleDurationChange(value)}
+                onValueChange={async (value) => {
+                  await handleDurationChange(value);
+                }}
                 items={appointmentDurationOptions}
                 placeholder={{
                   label: "Select duration for appointment",
@@ -628,28 +640,33 @@ function BookModal({
   );
 
   return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={visible}
-      onRequestClose={() => {}}
+    <StripeProvider
+      publishableKey="pk_test_51OnV42DyUl485VKLZRnwkZn04TybrH3innsENQPR7WlE8MUy9Em0A5rP4TAixIG8QwoIWh031hJSPMOTtMc1cZQt00b9PAOcUb"
+      stripeAccountId={therapistStripeAccountId}
     >
-      <BlurView intensity={50} style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <BookingProgressIndicator visible={bookingProgress} />
-          <BookingDoneIndicator visible={bookingDone} />
-          {!bookingProgress && !bookingDone && currentStep === 1 && (
-            <TherapistDetailsStep />
-          )}
-          {!bookingProgress && !bookingDone && currentStep === 2 && (
-            <AppointmentDetailsStep />
-          )}
-          {!bookingProgress && !bookingDone && currentStep === 3 && (
-            <PaymentStep />
-          )}
-        </View>
-      </BlurView>
-    </Modal>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={visible}
+        onRequestClose={() => {}}
+      >
+        <BlurView intensity={50} style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <BookingProgressIndicator visible={bookingProgress} />
+            <BookingDoneIndicator visible={bookingDone} />
+            {!bookingProgress && !bookingDone && currentStep === 1 && (
+              <TherapistDetailsStep />
+            )}
+            {!bookingProgress && !bookingDone && currentStep === 2 && (
+              <AppointmentDetailsStep />
+            )}
+            {!bookingProgress && !bookingDone && currentStep === 3 && (
+              <PaymentStep />
+            )}
+          </View>
+        </BlurView>
+      </Modal>
+    </StripeProvider>
   );
 }
 
