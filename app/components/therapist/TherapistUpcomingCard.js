@@ -11,8 +11,9 @@ function TherapistUpcomingCard(item) {
     bookings_id,
     athlete_location,
     confirmation_status,
+    booking_time,
   } = item.therapistData;
-  const location = athlete_location?.split(",");
+  const location = athlete_location ? athlete_location.split(",") : "Your clinic.";
   const status_type = confirmation_status === 1 ? "Approved" : "Declined";
 
   return (
@@ -36,6 +37,14 @@ function TherapistUpcomingCard(item) {
           </View>
           <View style={styles.right}>
             <View style={styles.staticText}>
+              <Text style={styles.staticLabel}>Appointment Time</Text>
+            </View>
+            <View style={styles.dynamicText}>
+              <Text style={styles.dynamicTextFont}>{booking_time}</Text>
+            </View>
+          </View>
+          <View style={styles.right}>
+            <View style={styles.staticText}>
               <Text style={styles.staticLabel}>Booking Id</Text>
             </View>
             <View style={styles.dynamicText}>
@@ -46,11 +55,18 @@ function TherapistUpcomingCard(item) {
             <View style={styles.staticText}>
               <Text style={styles.staticLabel}>Location</Text>
             </View>
-            <View style={styles.dynamicText}>
-              <Text style={styles.dynamicTextFont}>{location[0].trim()}</Text>
-              <Text style={styles.dynamicTextFont}>{location[1].trim()}</Text>
-              <Text style={styles.dynamicTextFont}>{location[2].trim()}</Text>
-            </View>
+
+            {athlete_location ? (
+              <View style={styles.dynamicText}>
+                <Text style={styles.dynamicTextFont}>{location[0].trim()}</Text>
+                <Text style={styles.dynamicTextFont}>{location[1].trim()}</Text>
+                <Text style={styles.dynamicTextFont}>{location[2].trim()}</Text>
+              </View>
+            ) : (
+              <View style={styles.dynamicText}>
+                <Text style={styles.dynamicTextFont}>{location}</Text>
+              </View>
+            )}
           </View>
           <View style={styles.right}>
             <View style={styles.staticText}>
@@ -118,7 +134,7 @@ const styles = StyleSheet.create({
 
   staticText: {
     width: "40%",
-    margin: "2%",
+    margin: "1%",
   },
   staticLabel: {
     fontWeight: "300",

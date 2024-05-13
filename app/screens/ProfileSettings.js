@@ -67,7 +67,6 @@ function ProfileSettings({ route }) {
 
   const getStripeAccount = async () => {
     const response = await payment.getStripeAccount(userObj.therapist_id);
-    console.warn("response.data", response.data);
     setIsPaymentsEnabled(
       response.data.payouts_enabled === true ? true : false
     );
