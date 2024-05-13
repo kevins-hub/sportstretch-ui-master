@@ -19,8 +19,9 @@ function TherapistUpcomingPendingCard(item) {
     first_name,
     bookings_id,
     athlete_location,
+    booking_time,
   } = item.therapistData;
-  const location = athlete_location?.split(",");
+  const location = athlete_location ? athlete_location?.split(",") : "Your clinic.";
   const approveBooking = async () => {
     let booking_status = await bookingsApi.approveBooking(bookings_id);
     if (booking_status.data.confirmation_status === 1) {
@@ -68,6 +69,14 @@ function TherapistUpcomingPendingCard(item) {
           </View>
           <View style={styles.right}>
             <View style={styles.staticText}>
+              <Text style={styles.staticLabel}>Appointment Time</Text>
+            </View>
+            <View style={styles.dynamicText}>
+              <Text style={styles.dynamicTextFont}>{booking_time}</Text>
+            </View>
+          </View>
+          <View style={styles.right}>
+            <View style={styles.staticText}>
               <Text style={styles.staticLabel}>Booking Id</Text>
             </View>
             <View style={styles.dynamicText}>
@@ -78,11 +87,17 @@ function TherapistUpcomingPendingCard(item) {
             <View style={styles.staticText}>
               <Text style={styles.staticLabel}>Location</Text>
             </View>
-            <View style={styles.dynamicText}>
-              <Text style={styles.dynamicTextFont}>{location[0].trim()}</Text>
-              <Text style={styles.dynamicTextFont}>{location[1].trim()}</Text>
-              <Text style={styles.dynamicTextFont}>{location[2].trim()}</Text>
-            </View>
+            {athlete_location ? (
+              <View style={styles.dynamicText}>
+                <Text style={styles.dynamicTextFont}>{location[0].trim()}</Text>
+                <Text style={styles.dynamicTextFont}>{location[1].trim()}</Text>
+                <Text style={styles.dynamicTextFont}>{location[2].trim()}</Text>
+              </View>
+            ) : (
+              <View style={styles.dynamicText}>
+                <Text style={styles.dynamicTextFont}>{location}</Text>
+              </View>
+            )}
           </View>
           <View style={styles.right}>
             <TouchableOpacity
@@ -181,7 +196,7 @@ const styles = StyleSheet.create({
     color: "#5f5f5f",
   },
   right: {
-    marginTop: "1%",
+    marginTop: "0.5%",
     flexDirection: "row",
     alignItems: "center",
   },
