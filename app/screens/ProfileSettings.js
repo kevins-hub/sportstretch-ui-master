@@ -239,6 +239,63 @@ function ProfileSettings({ route }) {
                 <View style={styles.cardInnerContainer}>
                   <View style={styles.cardContent}>
                     <View style={styles.paymentStatusContainer}>
+                      {(user.role === "therapist" && user.userObj.enabled !== 1) ? (
+                        <>
+                          <MaterialCommunityIcons
+                            name="alert"
+                            style={styles.alertIcon}
+                            size={24}
+                            color="orange"
+                          />
+                          <Text style={styles.paymentStatusTitle}>
+                            Account not yet enabled
+                          </Text>
+                          <Text>
+                            Your account is not yet enabled. Please wait for
+                            admin approval.
+                          </Text>
+                        </>
+                      ) : !isPaymentsEnabled ? (
+                        <>
+                          <TouchableOpacity
+                            onPress={() => {
+                              Linking.openURL(stripeOnboardLink);
+                            }}
+                          >
+                            <View styles={styles.alertTitleContainer}>
+                              <MaterialCommunityIcons
+                                name="alert"
+                                style={styles.alertIcon}
+                                size={24}
+                                color="orange"
+                              />
+                              <Text style={styles.paymentStatusTitle}>
+                                Payment setup needed!
+                              </Text>
+                            </View>
+                            <Text>
+                              Set up payment details in order to enable bookings
+                              and payments for appointments. Click here to set
+                              up.
+                            </Text>
+                          </TouchableOpacity>
+                        </>
+                      ) : (
+                        <>
+                        <MaterialCommunityIcons
+                          name="check-circle"
+                          style={styles.alertIcon}
+                          size={24}
+                          color="green"
+                        />
+                        <Text style={styles.paymentStatusTitle}>
+                          Payment setup complete
+                        </Text>
+                        <Text>You are all set up to recieve payments.</Text>
+                      </>
+                    )}
+                      
+{/* 
                       {(!isPaymentsEnabled && (
                         <>
                           <TouchableOpacity
@@ -277,7 +334,7 @@ function ProfileSettings({ route }) {
                           </Text>
                           <Text>You are all set up to recieve payments.</Text>
                         </>
-                      )}
+                      )} */}
                     </View>
                   </View>
                 </View>

@@ -856,6 +856,7 @@ const styles = StyleSheet.create({
   logo: {
     flex: 0.3,
     resizeMode: "contain",
+    marginRight: "2%",
   },
 });
 

@@ -10,8 +10,15 @@ function AthleteUpcomingBooking(props) {
   const { user, setUser } = useContext(AuthContext);
 
   useEffect(() => {
-    loadUpcomingBookings();
+    // wait 60 seconds minute before calling the function
+    setTimeout(() => {
+      loadUpcomingBookings();
+    }, 60000);
   }, [upcomingBookings]);
+
+  useEffect(() => {
+    loadUpcomingBookings();
+  }, []);
 
   const loadUpcomingBookings = async () => {
     const response = await bookingsApi.getAthleteUpcomingBookings(
