@@ -41,7 +41,6 @@ function AthleteMapView({
   }, [markers, selectedTherapist]);
 
   const setRegionToTherapistRegion = async (therapist) => {
-    console.warn("therapist = ", therapist);
     let therapistRegion = await Location.geocodeAsync(
       therapist.street + " " + therapist.city + " " + therapist.state
     );

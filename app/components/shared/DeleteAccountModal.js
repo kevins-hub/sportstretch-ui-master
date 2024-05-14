@@ -28,9 +28,9 @@ function DeleteAccountModal({ visible, setVisibility, authId }) {
     }
 
     try {
-        await registerApi.deleteAccount(authId);
         setUser(null);
-        navigation.navigate("Welcome");
+        await registerApi.deleteAccount(authId);
+        navigation.navigate("Login");
     } catch (error) {
         console.log("Error deleting account", error);
     }
