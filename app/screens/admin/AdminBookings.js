@@ -8,7 +8,9 @@ function AdminBookings(props) {
   const [AllBookings, setAllBookings] = useState([]);
 
   useEffect(() => {
-    loadAllBookings();
+    setTimeout(() => {
+      loadAllBookings();
+    }, 30000);
   }, [AllBookings]);
 
   const loadAllBookings = async () => {

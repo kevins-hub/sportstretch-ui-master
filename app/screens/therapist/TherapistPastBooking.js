@@ -10,8 +10,15 @@ function TherapistPastBooking(props) {
   const { user, setUser } = useContext(AuthContext);
 
   useEffect(() => {
+    // wait 30 minutes bfore calling the function
+    setTimeout(() => {
+      loadPastBookings();
+    }, 1800000);
+  }, [pastBookings]);
+
+  useEffect(() => {
     loadPastBookings();
-  });
+  }, []);
 
   const loadPastBookings = async () => {
     const response = await bookingsApi.getTherapistPastBookings(

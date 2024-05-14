@@ -7,8 +7,15 @@ import AdminTherapistCard from "../../components/admin/AdminTherapistCard.js";
 function AdminTherapistsScreen(props) {
   const [allTherapists, setAllTherapists] = useState([]);
   useEffect(() => {
-    loadAllTherapists();
+    setTimeout(() => {
+      loadAllTherapists();
+    }, 10000);
   }, [allTherapists]);
+
+  useEffect(() => {
+      loadAllTherapists();
+  }, []);
+
 
   const loadAllTherapists = async () => {
     const response = await therapistsApi.getAllTherapists();

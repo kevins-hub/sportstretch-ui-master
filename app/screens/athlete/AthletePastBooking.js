@@ -11,8 +11,15 @@ function AthletePastBooking(props) {
   const { user, setUser } = useContext(AuthContext);
 
   useEffect(() => {
-    loadPastBookings();
+    // wait 10 minutes bfore calling the function
+    setTimeout(() => {
+      loadPastBookings();
+    }, 600000);
   }, [pastBookings]);
+
+  useEffect(() => {
+    loadPastBookings();
+  }, []);
 
   const loadPastBookings = async () => {
     const response = await bookingsApi.getAthletePastBookings(

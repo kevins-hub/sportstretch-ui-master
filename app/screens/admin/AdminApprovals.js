@@ -7,8 +7,14 @@ function AdminApprovals(props) {
   const [allRequests, setAllRequests] = useState([]);
 
   useEffect(() => {
-    loadAllRequests();
+    setTimeout(() => {
+      loadAllRequests();
+    }, 10000);
   }, [allRequests]);
+
+  useEffect(() => {
+      loadAllRequests();
+  }, []);
 
   const loadAllRequests = async () => {
     const response = await therapistsApi.getAllRequests();
