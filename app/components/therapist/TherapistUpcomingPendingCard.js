@@ -12,7 +12,7 @@ import colors from "../../config/colors";
 import bookingsApi from "../../api/bookings";
 import notificationsApi from "../../api/notifications";
 
-function TherapistUpcomingPendingCard(item) {
+function TherapistUpcomingPendingCard(item, loadUpcomingBookings) {
   const {
     booking_day,
     booking_month,
@@ -30,6 +30,7 @@ function TherapistUpcomingPendingCard(item) {
         booking_status.data.athlete_id,
         bookings_id
       );
+      loadUpcomingBookings();
     } else {
       Alert.alert("Error while approving. Please try again.");
     }
@@ -43,6 +44,7 @@ function TherapistUpcomingPendingCard(item) {
         booking_status.data.athlete_id,
         bookings_id
       );
+      loadUpcomingBookings();
     } else {
       Alert.alert("Error while declining. Please try again.");
     }

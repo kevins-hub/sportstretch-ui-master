@@ -12,16 +12,19 @@ export default function AdminApprovalsCard({
   LastName,
   Mobile,
   Email,
+  loadAllRequests
 }) {
   async function approveTherapist(id) {
     console.log("approve called in approve");
     let approve = await therapistsApi.approveTherapist(id);
-    console.log(approve);
+    loadAllRequests();
+    // console.log(approve);
   }
 
   async function denyTherapist(id) {
     let deny = await therapistsApi.denyTherapist(id);
-    console.log(deny);
+    loadAllRequests();
+    // console.log(deny);
   }
 
   return (
