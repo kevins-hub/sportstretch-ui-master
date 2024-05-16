@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FlatList, Text, StyleSheet } from "react-native";
-
 import AthleteUpcomingCard from "../../components/athlete/AthleteUpcomingCard";
 import bookingsApi from "../../api/bookings";
 import AuthContext from "../../auth/context";
+import { useFocusEffect } from "@react-navigation/native";
 
 function AthleteUpcomingBooking(props) {
   const [upcomingBookings, setUpcomingBookings] = useState([]);
@@ -19,6 +19,12 @@ function AthleteUpcomingBooking(props) {
   useEffect(() => {
     loadUpcomingBookings();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadUpcomingBookings();
+    }, [])
+  );
 
   const loadUpcomingBookings = async () => {
     const response = await bookingsApi.getAthleteUpcomingBookings(

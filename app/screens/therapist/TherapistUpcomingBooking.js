@@ -25,6 +25,7 @@ function TherapistUpcomingBooking(props) {
   }, []);
 
   const loadUpcomingBookings = async () => {
+    console.warn("loadUpcomingBookings");
     const response = await bookingsApi.getTherapistUpcomingBookings(
       user.userObj.therapist_id
     );
@@ -80,6 +81,7 @@ function TherapistUpcomingBooking(props) {
                 renderItem: ({ item }) => (
                   <TherapistUpcomingPendingCard
                     therapistData={item}
+                    loadUpcomingBookings={loadUpcomingBookings}
                     // bookingDate= {item.bookingDate}
                     // atheleteName= {item.atheleteName}
                     // bookingId= {item.bookingId}

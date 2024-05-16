@@ -333,7 +333,7 @@ function BookModal({
       setTimeout(function () {
         setBookingDone(false);
         setVisibility(false);
-        navigation.navigate("UpcomingBooking");
+        navigation.navigate("Upcoming Appointments");
       }, 2000);
       notificationsApi.notifyTherapist(therapistId, user.userObj.first_name);
     } catch (error) {
@@ -349,6 +349,7 @@ function BookModal({
       month: "long",
       day: "numeric",
       hour: "numeric",
+
       minute: "numeric",
     };
     return date.toLocaleDateString("en-US", options);

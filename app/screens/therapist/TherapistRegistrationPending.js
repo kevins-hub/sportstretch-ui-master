@@ -1,9 +1,19 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, View, Text } from "react-native";
 import Constants from "expo-constants";
 import colors from "../../config/colors";
+import { useNavigation } from "@react-navigation/native";
 
 function TherapistRegistrationPending(props) {
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    setTimeout(() => {
+      navigation.navigate("Login");
+    }, 3000);
+  }
+  , []);
+
   return (
     <View style={styles.container}>
       <Text style={styles.pendingText}>
