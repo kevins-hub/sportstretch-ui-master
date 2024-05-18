@@ -7,9 +7,9 @@ import BookButton from "./BookButton";
 import AuthContext from "../../auth/context";
 import BookModal from "./BookModal";
 
-function AthleteBookNowCard({ selectedTherapist, athleteAddress }) {
-  if (!selectedTherapist) return null;
-  if (!selectedTherapist.hourly_rate) return null;
+function AthleteBookNowCard({ therapist, athleteAddress, selectedTherapist }) {
+  if (!therapist) return null;
+  if (!therapist.hourly_rate) return null;
 
   const [modalVisible, setModalVisible] = useState(false);
   const { user, setUser } = useContext(AuthContext);
@@ -19,23 +19,23 @@ function AthleteBookNowCard({ selectedTherapist, athleteAddress }) {
       <BookModal
         visible={modalVisible}
         setVisibility={setModalVisible}
-        therapistId={selectedTherapist.therapist_id}
+        therapistId={therapist.therapist_id}
         athleteId={user.userObj.athlete_id}
         athleteLocation={athleteAddress}
-        therapistName={selectedTherapist.first_name}
-        therapistHourly={selectedTherapist.hourly_rate}
-        therapistSummary={selectedTherapist.summary}
-        therapistServices={selectedTherapist.services}
-        therapistAcceptsHouseCalls={selectedTherapist.accepts_house_calls}
-        therapistBusinessHours={selectedTherapist.business_hours}
-        therapistStripeAccountId={selectedTherapist.stripe_account_id}
+        therapistName={therapist.first_name}
+        therapistHourly={therapist.hourly_rate}
+        therapistSummary={therapist.summary}
+        therapistServices={therapist.services}
+        therapistAcceptsHouseCalls={therapist.accepts_house_calls}
+        therapistBusinessHours={therapist.business_hours}
+        therapistStripeAccountId={therapist.stripe_account_id}
       />
       <View style={styles.OuterContainer}>
-        <View style={styles.Container}>
+        <View style={therapist.therapist_id === selectedTherapist.therapist_id ? styles.SelectedContainer : styles.Container}>
           <View style={styles.TherapistContainer}>
             <View style={styles.TherapistDetailContainer}>
               <Text style={styles.TherapistNameText}>
-                {selectedTherapist ? selectedTherapist.first_name : ""}
+                {therapist ? therapist.first_name : ""}
               </Text>
               <Text
                 style={{
@@ -44,18 +44,18 @@ function AthleteBookNowCard({ selectedTherapist, athleteAddress }) {
                   marginBottom: 4,
                 }}
               >
-                {selectedTherapist ? selectedTherapist.profession : ""}
+                {therapist ? therapist.profession : ""}
               </Text>
               <Text style={{ fontSize: 12, color: colors.dullblack }}>
-                {selectedTherapist ? selectedTherapist.city : ""},{" "}
-                {selectedTherapist ? selectedTherapist.state : ""}
+                {therapist ? therapist.city : ""},{" "}
+                {therapist ? therapist.state : ""}
               </Text>
             </View>
             <View style={styles.PriceRatingContainer}>
               <Text style={styles.Price}>
                 $
-                {selectedTherapist
-                  ? `${Number(selectedTherapist.hourly_rate).toFixed(0)}`
+                {therapist
+                  ? `${Number(therapist.hourly_rate).toFixed(0)}`
                   : 0}
                 /hr
               </Text>
@@ -64,12 +64,12 @@ function AthleteBookNowCard({ selectedTherapist, athleteAddress }) {
                   imageSize={15}
                   readonly
                   startingValue={
-                    selectedTherapist ? selectedTherapist.average_rating : 0
+                    therapist ? therapist.average_rating : 0
                   }
                 />
                 <Text style={{ fontSize: 14, color: colors.gold }}>
-                  {selectedTherapist
-                    ? `(${Number(selectedTherapist.average_rating).toFixed(1)})`
+                  {therapist
+                    ? `(${Number(therapist.average_rating).toFixed(1)})`
                     : "(0.0)"}
                 </Text>
               </View>
@@ -79,11 +79,11 @@ function AthleteBookNowCard({ selectedTherapist, athleteAddress }) {
                 imageSize={15}
                 readonly
                 startingValue={
-                  selectedTherapist ? selectedTherapist.average_rating : 0
+                  therapist ? therapist.average_rating : 0
                 }
               />
               <Text style={{ fontSize: 14, color: colors.gold }}>
-                {selectedTherapist ? `(${selectedTherapist.average_rating})` : '(0.0)'}
+                {therapist ? `(${therapist.average_rating})` : '(0.0)'}
               </Text>
             </View> */}
           </View>
@@ -115,6 +115,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary,
     borderRadius: 15,
     shadowColor: colors.grey,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 1,
+    width: "100%",
+    height: 140,
+    padding: 10,
+  },
+
+  SelectedContainer: {
+    backgroundColor: colors.secondary,
+    borderRadius: 15,
+    shadowColor: "gold",
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 1,
     width: "100%",

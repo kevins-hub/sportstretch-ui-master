@@ -1,19 +1,22 @@
 // SwipeableList.js
 import React from "react";
-import { View, FlatList, Text, StyleSheet } from "react-native";
+import { View, FlatList, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import AthleteBookNowCard from "./AthleteBookNowCard";
 
-const TherapistSwipeList = (props) => {
-  const therapistsInRegion = props.therapists;
-  const athleteAddress = props.athleteAddress;
+const TherapistSwipeList = ({therapistsInRegion, athleteAddress, setSelectedTherapist, selectedTherapist}) => {
+
+  console.warn("therapistsInRegion = ", therapistsInRegion);
 
   const renderSwipeableItem = ({ item }) => {
     return (
-      <AthleteBookNowCard
-        selectedTherapist={item}
-        athleteAddress={athleteAddress}
-      ></AthleteBookNowCard>
+      <TouchableOpacity onPress={() => setSelectedTherapist(item)}>
+        <AthleteBookNowCard
+          therapist={item}
+          athleteAddress={athleteAddress}
+          selectedTherapist={selectedTherapist}
+        ></AthleteBookNowCard>
+      </TouchableOpacity>
     );
   };
   return (
@@ -27,6 +30,7 @@ const TherapistSwipeList = (props) => {
         data={therapistsInRegion}
         keyExtractor={(item) => item.therapist_id}
         renderItem={renderSwipeableItem}
+
       />
     </View>
   );
