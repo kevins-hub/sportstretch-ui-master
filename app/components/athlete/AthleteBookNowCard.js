@@ -31,7 +31,7 @@ function AthleteBookNowCard({ therapist, athleteAddress, selectedTherapist }) {
         therapistStripeAccountId={therapist.stripe_account_id}
       />
       <View style={styles.OuterContainer}>
-        <View style={therapist.therapist_id === selectedTherapist.therapist_id ? styles.SelectedContainer : styles.Container}>
+        <View style={(therapist && selectedTherapist && therapist.therapist_id === selectedTherapist.therapist_id) ? styles.SelectedContainer : styles.Container}>
           <View style={styles.TherapistContainer}>
             <View style={styles.TherapistDetailContainer}>
               <Text style={styles.TherapistNameText}>
