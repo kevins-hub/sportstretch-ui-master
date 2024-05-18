@@ -45,6 +45,7 @@ function AthleteMapView({
       therapist.street + " " + therapist.city + " " + therapist.state
     );
     const therapistLocation = therapistRegion[0];
+
     setRegion({
       latitude: therapistLocation.latitude,
       longitude: therapistLocation.longitude,

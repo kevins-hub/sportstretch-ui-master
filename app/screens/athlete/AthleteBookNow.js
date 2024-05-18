@@ -122,8 +122,10 @@ function AthleteBookNow(props) {
       />
       <SafeAreaView style={{ flex: 1 }}>
         <TherapistSwipeList
-          therapists={therapists}
+          therapistsInRegion={therapists}
           athleteAddress={athleteAddress}
+          setSelectedTherapist={setSelectedTherapist}
+          selectedTherapist={selectedTherapist}
         />
       </SafeAreaView>
 
