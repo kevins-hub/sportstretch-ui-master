@@ -51,10 +51,13 @@ function AthleteBookNow(props) {
     setTherapists([]);
     try {
       const response = await therapistsApi.getTherapistsByState(athleteRegion);
-      setTherapists(response.data);
-      setSelectedTherapist(response.data[0]);
-      await loadMarkers(response.data);
-      return response.data;
+      const therapistList = response.data;
+      // sort by rating
+      therapistList.sort((a, b) => b.rating - a.rating);
+      setTherapists(therapistList);
+      setSelectedTherapist(therapistList[0]);
+      await loadMarkers(therapistList);
+      return therapistList;
     } catch (error) {
       console.error("Error on book now getTherapists", error);
     }
