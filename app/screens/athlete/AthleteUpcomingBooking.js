@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { FlatList, Text, StyleSheet } from "react-native";
+import { FlatList, Text, StyleSheet, TouchableOpacity } from "react-native";
 import AthleteUpcomingCard from "../../components/athlete/AthleteUpcomingCard";
 import bookingsApi from "../../api/bookings";
 import AuthContext from "../../auth/context";
@@ -32,7 +32,9 @@ function AthleteUpcomingBooking(props) {
     );
     let upcomingBookings = response.data;
     upcomingBookings = upcomingBookings.sort((a, b) => {
-       return (new Date(a.booking_time)).getTime() - (new Date(b.booking_time)).getTime();
+      return (
+        new Date(a.booking_time).getTime() - new Date(b.booking_time).getTime()
+      );
     });
     let formattedBookings = upcomingBookings.map((booking) => {
       let date = new Date(booking.booking_time);
@@ -66,19 +68,21 @@ function AthleteUpcomingBooking(props) {
           data={upcomingBookings}
           keyExtractor={(message) => message.bookings_id.toString()}
           renderItem={({ item }) => (
-            <AthleteUpcomingCard
-              BookingMonth={item.booking_month}
-              BookingDay={item.booking_day}
-              BookingTime={item.booking_time}
-              fname={item.first_name}
-              bookingId={item.bookings_id}
-              confirmationStatus={(() => {
-                if (item.confirmation_status === 1) return "Approved";
-                if (item.confirmation_status === -1) return "Pending";
-                else item.confirmation_status === 0;
-                return "Declined";
-              })()}
-            />
+            <TouchableOpacity onPress={() => console.warn(item)}>
+              <AthleteUpcomingCard
+                BookingMonth={item.booking_month}
+                BookingDay={item.booking_day}
+                BookingTime={item.booking_time}
+                fname={item.first_name}
+                bookingId={item.bookings_id}
+                confirmationStatus={(() => {
+                  if (item.confirmation_status === 1) return "Approved";
+                  if (item.confirmation_status === -1) return "Pending";
+                  else item.confirmation_status === 0;
+                  return "Declined";
+                })()}
+              />
+            </TouchableOpacity>
           )}
         />
       )}
