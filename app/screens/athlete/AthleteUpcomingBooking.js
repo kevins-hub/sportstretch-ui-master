@@ -74,7 +74,7 @@ function AthleteUpcomingBooking(props) {
         <AppointmentModal
           booking={selectedAppointment}
           visible={appointmentModalVisible}
-          setVisible={setAppointmentModalVisible}
+          setVisibility={setAppointmentModalVisible}
         />
       )}
       {upcomingBookings.length === 0 && (

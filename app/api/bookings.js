@@ -89,4 +89,6 @@ export default {
   approveBooking,
   declineBooking,
   getAllBookings,
+  athleteCancelBooking,
+  therapistCancelBooking
 };

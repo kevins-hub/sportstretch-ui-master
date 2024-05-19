@@ -20,7 +20,7 @@ function AthleteAppointmentDetails({booking}) {
       <View style={styles.modalBodyContainer}>
         <View style={styles.propContainer}>
           <Text style={styles.propTitle}>Date:</Text>
-          <Text style={styles.propText}>{booking.booking_date}</Text>
+          <Text style={styles.propText}>{new Date(booking.booking_date).toLocaleDateString()}</Text>
         </View>
         <View style={styles.propContainer}>
           <Text style={styles.propTitle}>Time:</Text>

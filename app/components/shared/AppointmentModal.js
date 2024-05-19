@@ -16,51 +16,176 @@ import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import { StripeProvider } from "@stripe/stripe-react-native";
 import colors from "../../config/colors";
 import AthleteAppointmentDetails from "../athlete/AthleteAppointmentDetails";
+import bookings from "../../api/bookings";
 
-function AppointmentModal({booking, setVisibility, visible}) {
+function AppointmentModal({ booking, setVisibility, visible }) {
   if (!visible) return null;
   const [currentStep, setCurrentStep] = useState(1);
-  
 
-  console.warn("booking = ", booking);
+  const handleCancelAppointment = async () => {
+    try {
+      const response = await bookings.athleteCancelBooking(booking.bookings_id);
+      if (response.data.status === "CancelledRefunded") {
+        setCurrentStep(4);
+      } else {
+        setCurrentStep(5);
+      }
+
+      setTimeout(() => {
+        setVisibility(false);
+      }, 8000);
+    } catch (error) {
+      console.error("Error cancelling appointment", error);
+    }
+  };
 
   const AppointmentDetailsStep = ({}) => (
     <View style={styles.modalContent}>
-        <AthleteAppointmentDetails booking={booking}></AthleteAppointmentDetails>
+      <AthleteAppointmentDetails booking={booking}></AthleteAppointmentDetails>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={() => {
+            setVisibility(false);
+          }}
+        >
+          <Text style={styles.cancelButtonText}>{"Nevermind"}</Text>
+        </TouchableOpacity>
+        {/* <BookButton title="Request to Book" onPress={onConfirmPress} /> */}
+        <TouchableOpacity
+          style={styles.cancelAppointmentButton}
+          onPress={() => {
+            setCurrentStep(2);
+          }}
+        >
+          <Text style={styles.cancelAppointmentButtonText}>
+            {"Cancel Appointment"}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={() => {
+            setCurrentStep(3);
+          }}
+        >
+          <Text style={styles.primaryButtonText}>{"Modify Appointment"}</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
   const CancelStep = ({}) => (
     <View style={styles.modalContent}>
+      <Text style={styles.cancelAppointmentText}>
+        Are you sure you want to cancel your existing appointment? Appointments
+        cancelled within 24 hours of the appointment time will be charged a
+        cancellation equalling the full appointment cost.
+      </Text>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={() => {
+            setVisibility(false);
+          }}
+        >
+          <Text style={styles.cancelButtonText}>{"Nevermind"}</Text>
+        </TouchableOpacity>
+        {/* <BookButton title="Request to Book" onPress={onConfirmPress} /> */}
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={() => {
+            handleCancelAppointment();
+          }}
+        >
+          <Text style={styles.primaryButtonText}>{"Confirm Cancellation"}</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
   const ModifyStep = ({}) => (
     <View style={styles.modalContent}>
+      <Text style={styles.modifyText}>
+        If you would like to make modifications to your existing appointment,
+        please simply cancel your appointment and book a new one.
+      </Text>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={() => {
+            setVisibility(false);
+          }}
+        >
+          <Text style={styles.cancelButtonText}>{"Nevermind"}</Text>
+        </TouchableOpacity>
+        {/* <BookButton title="Request to Book" onPress={onConfirmPress} /> */}
+        <TouchableOpacity
+          style={styles.cancelAppointmentButton}
+          onPress={() => {
+            setCurrentStep(2);
+          }}
+        >
+          <Text style={styles.cancelAppointmentButtonText}>
+            {"Cancel Appointment"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const ConfirmationRefundStep = ({}) => (
+    <View style={styles.modalContent}>
+      <Text style={styles.cancelAppointmentText}>
+        Your appointment has been successfully cancelled. You will receive a
+        refund of the full appointment cost.
+      </Text>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={() => {
+            setVisibility(false);
+          }}
+        >
+          <Text style={styles.cancelButtonText}>{"Dismiss"}</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const ConfirmationNoRefundStep = ({}) => (
+    <View style={styles.modalContent}>
+      <Text style={styles.cancelAppointmentText}>
+        Your appointment has been successfully cancelled.
+      </Text>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={() => {
+            setVisibility(false);
+          }}
+        >
+          <Text style={styles.cancelButtonText}>{"Dismiss"}</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
   return (
-
     <Modal
-    animationType="slide"
-    transparent={true}
-    visible={visible}
-    onRequestClose={() => {}}
+      animationType="slide"
+      transparent={true}
+      visible={visible}
+      onRequestClose={() => {}}
     >
-    <BlurView intensity={50} style={styles.centeredView}>
+      <BlurView intensity={50} style={styles.centeredView}>
         <View style={styles.modalView}>
-        {currentStep === 1 && (
-            <AppointmentDetailsStep />
-        )}
-        {currentStep === 2 && (
-            <CancelStep />
-        )}
-        {currentStep === 3 && (
-            <ModifyStep />
-        )}
+          {currentStep === 1 && <AppointmentDetailsStep />}
+          {currentStep === 2 && <CancelStep />}
+          {currentStep === 3 && <ModifyStep />}
+          {currentStep === 4 && <ConfirmationRefundStep />}
+          {currentStep === 5 && <ConfirmationNoRefundStep />}
         </View>
-    </BlurView>
+      </BlurView>
     </Modal>
   );
 }
@@ -85,7 +210,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    height: "40%",
+    height: "50%",
     width: 300,
   },
   modalContent: {
@@ -227,12 +352,25 @@ const styles = StyleSheet.create({
     margin: 5,
     marginBottom: 1,
   },
+  cancelAppointmentButton: {
+    backgroundColor: colors.secondary,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+    height: 30,
+    margin: 5,
+  },
   primaryButtonText: {
     color: colors.secondary,
     fontSize: 12,
   },
   cancelButtonText: {
     color: colors.primary,
+    fontSize: 12,
+  },
+  cancelAppointmentButtonText: {
+    color: "red",
     fontSize: 12,
   },
   timeSlotButtonText: {
@@ -243,6 +381,18 @@ const styles = StyleSheet.create({
     color: colors.secondary,
     fontSize: 10,
     fontWeight: "bold",
+  },
+  modifyText: {
+    marginBottom: 8,
+    fontSize: 16,
+    fontWeight: "bold",
+    marginTop: "10%",
+  },
+  cancelAppointmentText: {
+    marginBottom: 8,
+    fontSize: 16,
+    fontWeight: "bold",
+    marginTop: "10%",
   },
 });
 
