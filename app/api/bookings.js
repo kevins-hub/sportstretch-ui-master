@@ -14,6 +14,10 @@ const getAthleteUpcomingBookings = (athleteId) => {
   );
 };
 
+const athleteCancelBooking = (bookingId) => {
+  return apiClient.put(endpoint + "/athlete/cancelBooking/" + bookingId);
+}
+
 const bookATherapist = (
   athleteId,
   athleteAddress,
@@ -59,6 +63,10 @@ const getTherapistBookingsOnDate = (therapistId, date) => {
     },
   );
 };
+
+const therapistCancelBooking = (bookingId) => {
+  return apiClient.put(endpoint + "/therapist/cancelBooking/" + bookingId);
+}
 
 const approveBooking = (bookingId) => {
   return apiClient.put(endpoint + "/therapist/approveBooking/" + bookingId);
