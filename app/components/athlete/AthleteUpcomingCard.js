@@ -36,7 +36,7 @@ function AthleteUpcomingCard({
           </View>
           <View style={styles.DetailsContainer}>
             <Text>Status : </Text>
-            <Text>{confirmationStatus}</Text>
+            <Text style={confirmationStatus === "Approved" ? styles.ApprovedText : confirmationStatus === "Pending" ? styles.PendingText : styles.DeclinedText}>{confirmationStatus}</Text>
           </View>
         </View>
       </View>
@@ -97,6 +97,21 @@ const styles = StyleSheet.create({
     height: "80%",
     marginTop: 15,
     width: 1,
+  },
+
+  ApprovedText: {
+    color: "green",
+    fontStyle: "italic",
+  },
+
+  PendingText: {
+    color: "gold",
+    fontStyle: "italic",
+  },
+
+  DeclinedText: {
+    color: colors.grey,
+    fontStyle: "italic",
   },
 });
 

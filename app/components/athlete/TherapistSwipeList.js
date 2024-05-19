@@ -16,7 +16,6 @@ const TherapistSwipeList = ({
   setSelectedTherapist,
   selectedTherapist,
 }) => {
-  console.warn("therapistsInRegion = ", therapistsInRegion);
 
   const renderSwipeableItem = ({ item }) => {
     return (

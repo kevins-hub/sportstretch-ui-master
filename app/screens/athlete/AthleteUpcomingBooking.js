@@ -31,6 +31,9 @@ function AthleteUpcomingBooking(props) {
       user.userObj.athlete_id
     );
     let upcomingBookings = response.data;
+    upcomingBookings = upcomingBookings.sort((a, b) => {
+       return (new Date(a.booking_time)).getTime() - (new Date(b.booking_time)).getTime();
+    });
     let formattedBookings = upcomingBookings.map((booking) => {
       let date = new Date(booking.booking_time);
       return {
@@ -44,6 +47,10 @@ function AthleteUpcomingBooking(props) {
         }),
       };
     });
+    // sort bookings by earliest date to latest date
+    // formattedBookings.sort((a, b) => {
+    //   return new Date(a.booking_time) - new Date(b.booking_time);
+    // });
     setUpcomingBookings(formattedBookings);
   };
 
@@ -56,7 +63,7 @@ function AthleteUpcomingBooking(props) {
       )}
       {upcomingBookings.length > 0 && (
         <FlatList
-          data={upcomingBookings.sort((a, b) => a.bookings_id < b.bookings_id)}
+          data={upcomingBookings}
           keyExtractor={(message) => message.bookings_id.toString()}
           renderItem={({ item }) => (
             <AthleteUpcomingCard
