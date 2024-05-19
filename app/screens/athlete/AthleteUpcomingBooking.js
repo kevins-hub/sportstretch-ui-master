@@ -30,7 +30,7 @@ function AthleteUpcomingBooking(props) {
     const response = await bookingsApi.getAthleteUpcomingBookings(
       user.userObj.athlete_id
     );
-    let upcomingBookings = response.data;
+    let upcomingBookings = response.data.filter(booking => booking.status !== "CancelledRefunded" && booking.status !== "CancelledNoRefund");
     upcomingBookings = upcomingBookings.sort((a, b) => {
       return (
         new Date(a.booking_time).getTime() - new Date(b.booking_time).getTime()

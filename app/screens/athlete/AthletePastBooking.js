@@ -25,7 +25,7 @@ function AthletePastBooking(props) {
     const response = await bookingsApi.getAthletePastBookings(
       user.userObj.athlete_id
     );
-    let pastBookings = response.data;
+    let pastBookings = response.data.filter(booking => booking.status !== "CancelledRefunded" && booking.status !== "CancelledNoRefund");
     let formattedBookings = pastBookings.map((booking) => {
       let date = new Date(booking.booking_time);
       return {
