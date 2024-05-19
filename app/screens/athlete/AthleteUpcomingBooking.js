@@ -4,10 +4,13 @@ import AthleteUpcomingCard from "../../components/athlete/AthleteUpcomingCard";
 import bookingsApi from "../../api/bookings";
 import AuthContext from "../../auth/context";
 import { useFocusEffect } from "@react-navigation/native";
+import AppointmentModal from "../../components/shared/AppointmentModal";
 
 function AthleteUpcomingBooking(props) {
   const [upcomingBookings, setUpcomingBookings] = useState([]);
   const { user, setUser } = useContext(AuthContext);
+  const [appointmentModalVisible, setAppointmentModalVisible] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState({});
 
   useEffect(() => {
     // wait 60 seconds minute before calling the function
@@ -30,7 +33,11 @@ function AthleteUpcomingBooking(props) {
     const response = await bookingsApi.getAthleteUpcomingBookings(
       user.userObj.athlete_id
     );
-    let upcomingBookings = response.data.filter(booking => booking.status !== "CancelledRefunded" && booking.status !== "CancelledNoRefund");
+    let upcomingBookings = response.data.filter(
+      (booking) =>
+        booking.status !== "CancelledRefunded" &&
+        booking.status !== "CancelledNoRefund"
+    );
     upcomingBookings = upcomingBookings.sort((a, b) => {
       return (
         new Date(a.booking_time).getTime() - new Date(b.booking_time).getTime()
@@ -56,8 +63,20 @@ function AthleteUpcomingBooking(props) {
     setUpcomingBookings(formattedBookings);
   };
 
+  const handleAppointmentPress = (appointment) => {
+    setSelectedAppointment(appointment);
+    setAppointmentModalVisible(true);
+  };
+
   return (
     <>
+      {appointmentModalVisible && (
+        <AppointmentModal
+          booking={selectedAppointment}
+          visible={appointmentModalVisible}
+          setVisible={setAppointmentModalVisible}
+        />
+      )}
       {upcomingBookings.length === 0 && (
         <Text style={styles.defaultText}>
           Your upcoming appointments will show up here!
@@ -68,7 +87,7 @@ function AthleteUpcomingBooking(props) {
           data={upcomingBookings}
           keyExtractor={(message) => message.bookings_id.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => console.warn(item)}>
+            <TouchableOpacity onPress={() => handleAppointmentPress(item)}>
               <AthleteUpcomingCard
                 BookingMonth={item.booking_month}
                 BookingDay={item.booking_day}
