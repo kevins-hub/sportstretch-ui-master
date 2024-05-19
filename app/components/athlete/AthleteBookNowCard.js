@@ -29,6 +29,10 @@ function AthleteBookNowCard({ therapist, athleteAddress, selectedTherapist }) {
         therapistAcceptsHouseCalls={therapist.accepts_house_calls}
         therapistBusinessHours={therapist.business_hours}
         therapistStripeAccountId={therapist.stripe_account_id}
+        therapistStreet={therapist.street}
+        therapistCity={therapist.city}
+        therapistState={therapist.state}
+        therapistZipCode={therapist.zipcode}
       />
       <View style={styles.OuterContainer}>
         <View style={(therapist && selectedTherapist && therapist.therapist_id === selectedTherapist.therapist_id) ? styles.SelectedContainer : styles.Container}>

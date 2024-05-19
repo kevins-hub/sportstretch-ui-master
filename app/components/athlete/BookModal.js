@@ -40,6 +40,10 @@ function BookModal({
   therapistAcceptsHouseCalls,
   therapistBusinessHours,
   therapistStripeAccountId,
+  therapistStreet,
+  therapistCity,
+  therapistState,
+  therapistZipCode,
 }) {
   if (!visible) return null;
 
@@ -313,6 +317,13 @@ function BookModal({
 
       const bookingDateStr = selectedDateTime.toISOString().split("T")[0];
       const bookingDate = new Date(bookingDateStr);
+
+      let athleteLocation = athleteLocation;
+
+      if (selectedLocationOption === "1") {
+        athleteLocation =`${therapistStreet}, ${therapistCity}, ${therapistState}, ${therapistZipCode}`;
+      }
+
 
       await bookingsApi.bookATherapist(
         athleteId,
