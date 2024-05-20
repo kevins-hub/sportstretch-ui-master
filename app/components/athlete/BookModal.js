@@ -120,6 +120,8 @@ function BookModal({
     // get time intervals between open and close time in 30 minnute increments that are not already booked
     let bookings = await getBookingsOnDate(date);
 
+    bookings.filter((booking) => booking.status !== "CancelledNoRefund" && booking.status !== "CancelledRefunded");
+ 
     const dateDayOfWeek = date.getDay();
 
     let schedule = {};

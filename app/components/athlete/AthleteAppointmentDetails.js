@@ -50,6 +50,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  propContainer: {
+    marginBottom: 8,
+  },
   propTitle: {
     fontSize: 14,
     fontWeight: "bold",
