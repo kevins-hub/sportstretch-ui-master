@@ -8,6 +8,8 @@ import {
   Switch,
   Image,
   Alert,
+  TouchableOpacity,
+  Linking
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Card } from "react-native-paper";
@@ -24,6 +26,7 @@ export default function AdminTherapistCard({
   Enabled,
   AverageRating,
   Email,
+  License,
 }) {
   var rating = parseFloat(AverageRating).toFixed(1);
   const [isEnabled, setIsEnabled] = useState(Enabled);
@@ -48,6 +51,27 @@ export default function AdminTherapistCard({
     !isEnabled == false
       ? Alert.alert("Therapist " + FirstName + " " + LastName + " is disabled")
       : Alert.alert("Therapist " + FirstName + " " + LastName + " is enabled");
+  };
+
+  const openURL = (url) => {
+    url = formatURL(url);
+    Linking.canOpenURL(url)
+      .then((supported) => {
+        if (supported) {
+          return Linking.openURL(url);
+        } else {
+          console.log(`Don't know how to open this URL: ${url}`);
+        }
+      })
+      .catch((err) => console.error('An error occurred', err));
+  };
+
+  // format url to add http if not present
+  const formatURL = (url) => {
+    if (!url.includes("http")) {
+      return "http://" + url;
+    }
+    return url;
   };
 
   useEffect(() => {
@@ -104,7 +128,7 @@ export default function AdminTherapistCard({
         <View style={{ flex: 1, paddingLeft: "10%", paddingTop: "1%" }}>
           <View>
             <Text style={{ fontSize: 28, fontWeight: "200", color: "#3F3F3F" }}>
-              {FirstName + " " + LastName}
+              {`${FirstName} ${LastName} (id:${therapist_id})`}
             </Text>
           </View>
 
@@ -124,6 +148,16 @@ export default function AdminTherapistCard({
             <Text style={{ fontSize: 17, fontWeight: "300", color: "#777777" }}>
               {City + ", " + State}
             </Text>
+          </View>
+          <View>
+            {/* clickable link to license */}
+            <TouchableOpacity onPress={() => openURL(License)}>
+              <Text style={{ fontSize: 17, fontWeight: "300", color: "#777777" }}>
+                View License Info
+              </Text>
+            </TouchableOpacity>
+
+
           </View>
           <View
             style={{

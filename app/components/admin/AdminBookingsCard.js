@@ -10,6 +10,8 @@ export default function AdminBookingsCard({
   Tfname,
   Tlname,
   BookingsId,
+  athlete_id,
+  therapist_id,
 }) {
   return (
     <Card
@@ -126,7 +128,7 @@ export default function AdminBookingsCard({
               paddingBottom: "3%",
             }}
           >
-            {Afname + " " + Alname}
+            {`${Afname} ${Alname} (id:${athlete_id})`}
           </Text>
           <Text
             style={{
@@ -137,7 +139,7 @@ export default function AdminBookingsCard({
               paddingBottom: "3%",
             }}
           >
-            {Tfname + " " + Tlname}
+            {`${Tfname} ${Tlname} (id:${therapist_id})`}
           </Text>
           <Text
             style={{

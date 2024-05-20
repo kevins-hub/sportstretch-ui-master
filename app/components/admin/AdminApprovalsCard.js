@@ -1,5 +1,13 @@
 import React from "react";
-import { View, Text, FlatList, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  Alert,
+  Linking,
+  TouchableOpacity,
+} from "react-native";
 import { Card } from "react-native-paper";
 import colors from "../../config/colors";
 import ApproveButton from "../../components/admin/ApproveButton";
@@ -12,7 +20,11 @@ export default function AdminApprovalsCard({
   LastName,
   Mobile,
   Email,
-  loadAllRequests
+  loadAllRequests,
+  License,
+  Address,
+  Profession,
+  Services,
 }) {
   async function approveTherapist(id) {
     console.log("approve called in approve");
@@ -26,6 +38,27 @@ export default function AdminApprovalsCard({
     loadAllRequests();
     // console.log(deny);
   }
+
+  const openURL = (url) => {
+    url = formatURL(url);
+    Linking.canOpenURL(url)
+      .then((supported) => {
+        if (supported) {
+          return Linking.openURL(url);
+        } else {
+          console.log(`Don't know how to open this URL: ${url}`);
+        }
+      })
+      .catch((err) => console.error("An error occurred", err));
+  };
+
+  // format url to add http if not present
+  const formatURL = (url) => {
+    if (!url.includes("http")) {
+      return "http://" + url;
+    }
+    return url;
+  };
 
   return (
     <Card style={styles.card}>
@@ -52,6 +85,35 @@ export default function AdminApprovalsCard({
           >
             {Mobile}
           </Text>
+        </View>
+        <View>
+          <Text
+            style={{ fontSize: 15, fontWeight: "normal", color: "#5F5F5F" }}
+          >
+            {Profession}
+          </Text>
+        </View>
+        <View>
+          <Text
+            style={{ fontSize: 15, fontWeight: "normal", color: "#5F5F5F" }}
+          >
+            {Services}
+          </Text>
+        </View>
+        <View>
+          <Text
+            style={{ fontSize: 15, fontWeight: "normal", color: "#5F5F5F" }}
+          >
+            {Address}
+          </Text>
+        </View>
+        <View>
+          {/* clickable link to license */}
+          <TouchableOpacity onPress={() => openURL(License)}>
+            <Text style={{ fontSize: 17, fontWeight: "300", color: "#777777" }}>
+              View License Info
+            </Text>
+          </TouchableOpacity>
         </View>
         <View style={{ flex: 1, flexDirection: "row" }}>
           <ApproveButton
