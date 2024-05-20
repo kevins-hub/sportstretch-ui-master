@@ -25,11 +25,15 @@ function TherapistUpcomingBooking(props) {
   }, []);
 
   const loadUpcomingBookings = async () => {
-    console.warn("loadUpcomingBookings");
     const response = await bookingsApi.getTherapistUpcomingBookings(
       user.userObj.therapist_id
     );
     let upcomingBookings = response.data;
+    upcomingBookings.sort((a, b) => {
+      return (
+        new Date(a.booking_time).getTime() - new Date(b.booking_time).getTime()
+      );
+    });
     if (!upcomingBookings) return;
     let formattedBookings = upcomingBookings.map((booking) => {
       let date = new Date(booking.booking_time);
@@ -75,9 +79,7 @@ function TherapistUpcomingBooking(props) {
             // renderSectionHeader={({ section: { title } }) => <Text style={{ fontWeight: 'bold' }}>{title}</Text>}
             sections={[
               {
-                data: upcomingBookingPending.sort(
-                  (a, b) => a.bookings_id < b.bookings_id
-                ),
+                data: upcomingBookingPending,
                 renderItem: ({ item }) => (
                   <TherapistUpcomingPendingCard
                     therapistData={item}

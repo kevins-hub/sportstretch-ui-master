@@ -25,6 +25,11 @@ function TherapistPastBooking(props) {
       user.userObj.therapist_id
     );
     let pastBookings = response.data;
+    pastBookings.sort((a, b) => {
+      return (
+        new Date(b.booking_time).getTime() - new Date(a.booking_time).getTime()
+      );
+    });
     if (!pastBookings) return;
     let formattedBookings = pastBookings.map((booking) => {
       let date = new Date(booking.booking_time);
@@ -47,7 +52,7 @@ function TherapistPastBooking(props) {
       )}
       {pastBookings.length > 0 && (
         <FlatList
-          data={pastBookings.sort((a, b) => a.bookings_id < b.bookings_id)}
+          data={pastBookings}
           keyExtractor={(message) => message.bookings_id.toString()}
           renderItem={({ item }) => <TherapistPastCard therapistData={item} />}
         />
