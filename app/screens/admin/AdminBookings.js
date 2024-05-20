@@ -3,6 +3,7 @@ import { useState, useContext, useEffect } from "react";
 import { View, FlatList } from "react-native";
 import bookingsApi from "../../api/bookings";
 import AdminBookingsCard from "../../components/admin/AdminBookingsCard";
+import { useFocusEffect } from "@react-navigation/native";
 
 function AdminBookings(props) {
   const [AllBookings, setAllBookings] = useState([]);
@@ -13,9 +14,20 @@ function AdminBookings(props) {
     }, 30000);
   }, [AllBookings]);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      loadAllBookings();
+    }, [])
+  );
+
   const loadAllBookings = async () => {
     const response = await bookingsApi.getAllBookings();
     let AllBookings = response.data;
+    AllBookings.sort((a, b) => {
+      return (
+        new Date(a.booking_time).getTime() - new Date(b.booking_time).getTime()
+      );
+    });
     let formattedBookings = AllBookings.map((booking) => {
       let date = new Date(booking.booking_time);
       return {
@@ -38,12 +50,10 @@ function AdminBookings(props) {
       }}
     >
       <FlatList
-        data={AllBookings.sort((a, b) =>
-          b.bookings_id.toString().localeCompare(a.bookings_id.toString())
-        )}
+        data={AllBookings}
         keyExtractor={(message) => message.bookings_id.toString()}
-        renderItem={({ item }) => (
-          <AdminBookingsCard
+        renderItem={({ item }) => {
+          return <AdminBookingsCard
             BookingDay={item.booking_day}
             BookingMonth={item.booking_month}
             Afname={item.afname}
@@ -51,8 +61,10 @@ function AdminBookings(props) {
             Tfname={item.tfname}
             Tlname={item.tlname}
             BookingsId={item.bookings_id}
+            athlete_id={item.fk_athlete_id}
+            therapist_id={item.fk_therapist_id}
           />
-        )}
+        }}
       />
     </View>
   );

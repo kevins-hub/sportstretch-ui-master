@@ -37,15 +37,26 @@ function AdminApprovals(props) {
           b.therapist_id.toString().localeCompare(a.therapist_id.toString())
         )}
         keyExtractor={(item) => item.therapist_id.toString()}
-        renderItem={({ item }) => (
-          <AdminApprovalsCard
+        renderItem={({ item }) => {
+
+          console.warn("item = ",)
+
+          const address = item.street + ' ' + item.apartment_no + ", " + item.city + ", " + item.state;
+
+          return <AdminApprovalsCard
             FirstName={item.first_name}
             LastName={item.last_name}
             Mobile={item.mobile}
             Email={item.email}
             TherapistId={item.therapist_id}
+            loadAllRequests={loadAllRequests}
+            License={item.license_infourl}
+            Address={address}
+            Profession={item.profession}
+            Services={item.services}
+
           />
-        )}
+        }}
       />
     </View>
   );

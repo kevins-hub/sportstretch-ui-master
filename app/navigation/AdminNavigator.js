@@ -64,7 +64,7 @@ function AdminNavigator() {
       <Tab.Screen
         name="Therapists"
         component={AdminTherapistsScreen}
-        options={{ tabBarLabel: "Therapists" }}
+        options={{ tabBarLabel: "Specialists" }}
       ></Tab.Screen>
       <Tab.Screen
         name="Bookings"

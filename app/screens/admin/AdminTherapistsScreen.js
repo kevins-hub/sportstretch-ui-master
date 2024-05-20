@@ -34,7 +34,7 @@ function AdminTherapistsScreen(props) {
     >
       <FlatList
         data={allTherapists.sort((a, b) =>
-          b.average_rating.toString().localeCompare(a.average_rating.toString())
+          Number(a.therapist_id) - Number(b.therapist_id)
         )}
         keyExtractor={(message) => message.therapist_id.toString()}
         renderItem={({ item }) => (
@@ -48,6 +48,7 @@ function AdminTherapistsScreen(props) {
             AverageRating={item.average_rating}
             Email={item.email}
             Enabled={item.enabled == 0 ? false : true}
+            License={item.license_infourl}
           />
         )}
       />
