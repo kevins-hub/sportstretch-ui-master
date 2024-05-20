@@ -96,7 +96,7 @@ export default function AdminBookingsCard({
               paddingBottom: "3%",
             }}
           >
-            Therapist
+            Specialist
           </Text>
           <Text
             style={{

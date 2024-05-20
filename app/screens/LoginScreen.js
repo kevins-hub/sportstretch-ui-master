@@ -159,20 +159,21 @@ function LoginScreen(props) {
                 style={{
                   flexDirection: "row",
                   justifyContent: "space-between",
+                  alignItems: "center",
                 }}
               >
                 <TouchableOpacity
                   onPress={() => navigation.navigate("RegisterAthlete")}
                   style={styles.reg}
                 >
-                  <Text style={styles.reg}>{"Sign Up as Athlete"}</Text>
+                  <Text style={styles.reg}>{"Athlete Sign Up"}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   onPress={() => navigation.navigate("RegisterTherapist")}
                   style={styles.reg}
                 >
-                  <Text style={styles.reg}>{"Sign Up As Therapist"}</Text>
+                  <Text style={styles.reg}>{"Recovery Specialist Sign Up"}</Text>
                 </TouchableOpacity>
               </View>
             </View>
