@@ -4,7 +4,7 @@ import AthleteUpcomingCard from "../../components/athlete/AthleteUpcomingCard";
 import bookingsApi from "../../api/bookings";
 import AuthContext from "../../auth/context";
 import { useFocusEffect } from "@react-navigation/native";
-import AppointmentModal from "../../components/shared/AppointmentModal";
+import UpcomingAppointmentModal from "../../components/shared/UpcomingAppointmentModal";
 
 function AthleteUpcomingBooking(props) {
   const [upcomingBookings, setUpcomingBookings] = useState([]);
@@ -71,7 +71,7 @@ function AthleteUpcomingBooking(props) {
   return (
     <>
       {appointmentModalVisible && (
-        <AppointmentModal
+        <UpcomingAppointmentModal
           booking={selectedAppointment}
           visible={appointmentModalVisible}
           setVisibility={setAppointmentModalVisible}

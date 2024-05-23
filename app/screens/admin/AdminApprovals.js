@@ -39,8 +39,6 @@ function AdminApprovals(props) {
         keyExtractor={(item) => item.therapist_id.toString()}
         renderItem={({ item }) => {
 
-          console.warn("item = ",)
-
           const address = item.street + ' ' + item.apartment_no + ", " + item.city + ", " + item.state;
 
           return <AdminApprovalsCard

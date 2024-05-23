@@ -18,7 +18,7 @@ import colors from "../../config/colors";
 import AthleteAppointmentDetails from "../athlete/AthleteAppointmentDetails";
 import bookings from "../../api/bookings";
 
-function AppointmentModal({ booking, setVisibility, visible }) {
+function UpcomingAppointmentModal({ booking, setVisibility, visible }) {
   if (!visible) return null;
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -396,4 +396,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AppointmentModal;
+export default UpcomingAppointmentModal;
