@@ -138,4 +138,11 @@ const stateConverter = (state) => {
   return stateLongToShort(state);
 };
 
-export { stateShortToLong, stateLongToShort, stateConverter, states };
+const stateLong = (state) => {
+  if (state.length > 2 && state.toLowerCase() in statesReverse) {
+    return state;
+  }
+  return stateShortToLong(state);
+}
+
+export { stateShortToLong, stateLongToShort, stateConverter, stateLong, states };

@@ -51,7 +51,8 @@ function AthleteBookNow(props) {
     setTherapists([]);
     try {
       const response = await therapistsApi.getTherapistsByState(athleteRegion);
-      const therapistList = response.data;
+      let therapistList = response.data;
+      therapistList = therapistList.filter((therapist) => therapist.stripe_account_id !== null);
       // sort by rating
       therapistList.sort((a, b) => Number(b.average_rating) - Number(a.average_rating));
       setTherapists(therapistList);
