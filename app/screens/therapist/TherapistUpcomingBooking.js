@@ -1,17 +1,27 @@
 import React, { useContext, useEffect, useState } from "react";
-import { FlatList, View, SectionList, Text, StyleSheet } from "react-native";
+import {
+  FlatList,
+  View,
+  SectionList,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 
 import TherapistUpcomingCard from "../../components/therapist/TherapistUpcomingCard";
 import TherapistUpcomingPendingCard from "../../components/therapist/TherapistUpcomingPendingCard";
 import bookingsApi from "../../api/bookings";
 import AuthContext from "../../auth/context";
 // import { installReactHook } from 'react-native/Libraries/Performance/Systrace';
+import UpcomingAppointmentModal from "../../components/shared/UpcomingAppointmentModal";
 
 function TherapistUpcomingBooking(props) {
   const [upcomingBookings, setUpcomingBookings] = useState([]);
   const [upcomingBookingPending, setUpcomingBookingPending] = useState([]);
   const [upcomingBookingsApprove, setUpcomingBookingsApprove] = useState([]);
   const { user, setUser } = useContext(AuthContext);
+  const [appointmentModalVisible, setAppointmentModalVisible] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState({});
 
   useEffect(() => {
     // wait 30 seconds minute before calling the function
@@ -66,8 +76,21 @@ function TherapistUpcomingBooking(props) {
     // console.log(upcomingBookingsApprove);
   };
 
+  const handleAppointmentPress = (appointment) => {
+    setSelectedAppointment(appointment);
+    setAppointmentModalVisible(true);
+  };
+
   return (
     <>
+      {appointmentModalVisible && (
+        <UpcomingAppointmentModal
+          booking={selectedAppointment}
+          visible={appointmentModalVisible}
+          setVisibility={setAppointmentModalVisible}
+          isTherapist={true}
+        />
+      )}
       {upcomingBookings.length === 0 && (
         <Text style={styles.defaultText}>
           Your upcoming appointments will show up here!
@@ -96,14 +119,18 @@ function TherapistUpcomingBooking(props) {
                   (a, b) => a.bookings_id < b.bookings_id
                 ),
                 renderItem: ({ item }) => (
-                  <TherapistUpcomingCard
-                    therapistData={item}
-                    // bookingDate= {item.bookingDate}
-                    // atheleteName= {item.atheleteName}
-                    // bookingId= {item.bookingId}
-                    // location= {item.location}
-                    // status=  {item.status === 1 ? 'Approved': 'Declined'}
-                  />
+                  <TouchableOpacity
+                    onPress={() => handleAppointmentPress(item)}
+                  >
+                    <TherapistUpcomingCard
+                      therapistData={item}
+                      // bookingDate= {item.bookingDate}
+                      // atheleteName= {item.atheleteName}
+                      // bookingId= {item.bookingId}
+                      // location= {item.location}
+                      // status=  {item.status === 1 ? 'Approved': 'Declined'}
+                    />
+                  </TouchableOpacity>
                 ),
               },
             ]}

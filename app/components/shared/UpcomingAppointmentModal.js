@@ -18,13 +18,34 @@ import colors from "../../config/colors";
 import AthleteAppointmentDetails from "../athlete/AthleteAppointmentDetails";
 import bookings from "../../api/bookings";
 
-function UpcomingAppointmentModal({ booking, setVisibility, visible }) {
+function UpcomingAppointmentModal({
+  booking,
+  setVisibility,
+  visible,
+  isTherapist = false,
+}) {
   if (!visible) return null;
   const [currentStep, setCurrentStep] = useState(1);
 
+  const cancelWarningText =
+    "Are you sure you want to cancel your existing appointment? Appointments cancelled within 24 hours of the appointment time will be charged a cancellation equalling the full appointment cost.";
+  const cancelWarningTextTherapist =
+    "Are you sure you want to cancel this appointment?";
+  const cancelConfirmationRefundText =
+    "Your appointment has been successfully cancelled. You will receive a refund of the full appointment cost.";
+  const cancelConfirmationTherapistText =
+    "Your appointment has been successfully cancelled. Your client will receive a refund of the full appointment cost.";
+  const cancelConfirmationNoRefundText =
+    "Your appointment has been successfully cancelled.";
+
   const handleCancelAppointment = async () => {
     try {
-      const response = await bookings.athleteCancelBooking(booking.bookings_id);
+      let response = {};
+      if (isTherapist) {
+        response = await bookings.therapistCancelBooking(booking.bookings_id);
+      } else {
+        response = await bookings.athleteCancelBooking(booking.bookings_id);
+      }
       if (response.data.status === "CancelledRefunded") {
         setCurrentStep(4);
       } else {
@@ -62,14 +83,16 @@ function UpcomingAppointmentModal({ booking, setVisibility, visible }) {
             {"Cancel Appointment"}
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={() => {
-            setCurrentStep(3);
-          }}
-        >
-          <Text style={styles.primaryButtonText}>{"Modify Appointment"}</Text>
-        </TouchableOpacity>
+        {!isTherapist && (
+          <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={() => {
+              setCurrentStep(3);
+            }}
+          >
+            <Text style={styles.primaryButtonText}>{"Modify Appointment"}</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -77,9 +100,7 @@ function UpcomingAppointmentModal({ booking, setVisibility, visible }) {
   const CancelStep = ({}) => (
     <View style={styles.modalContent}>
       <Text style={styles.cancelAppointmentText}>
-        Are you sure you want to cancel your existing appointment? Appointments
-        cancelled within 24 hours of the appointment time will be charged a
-        cancellation equalling the full appointment cost.
+        {isTherapist ? cancelWarningTextTherapist : cancelWarningText}
       </Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -136,8 +157,9 @@ function UpcomingAppointmentModal({ booking, setVisibility, visible }) {
   const ConfirmationRefundStep = ({}) => (
     <View style={styles.modalContent}>
       <Text style={styles.cancelAppointmentText}>
-        Your appointment has been successfully cancelled. You will receive a
-        refund of the full appointment cost.
+        {isTherapist
+          ? cancelConfirmationTherapistText
+          : cancelConfirmationRefundText}
       </Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -155,7 +177,7 @@ function UpcomingAppointmentModal({ booking, setVisibility, visible }) {
   const ConfirmationNoRefundStep = ({}) => (
     <View style={styles.modalContent}>
       <Text style={styles.cancelAppointmentText}>
-        Your appointment has been successfully cancelled.
+        {cancelConfirmationNoRefundText}
       </Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
