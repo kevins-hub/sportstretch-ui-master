@@ -1,13 +1,23 @@
 import React, { useContext, useEffect, useState } from "react";
-import { FlatList, View, Text, StyleSheet } from "react-native";
+import {
+  FlatList,
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Touchable,
+} from "react-native";
 
 import TherapistPastCard from "../../components/therapist/TherapistPastCard";
 import bookingsApi from "../../api/bookings";
 import AuthContext from "../../auth/context";
+import PastAppointmentModal from "../../components/shared/PastAppointmentModal";
 
 function TherapistPastBooking(props) {
   const [pastBookings, setPastBookings] = useState([]);
   const { user, setUser } = useContext(AuthContext);
+  const [appointmentModalVisible, setAppointmentModalVisible] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState({});
 
   useEffect(() => {
     // wait 30 minutes bfore calling the function
@@ -37,14 +47,31 @@ function TherapistPastBooking(props) {
         ...booking,
         booking_month: date.toLocaleString("default", { month: "short" }),
         booking_day: date.getDate(),
+        booking_time: date.toLocaleString("default", {
+          hour: "numeric",
+          minute: "numeric",
+          hour12: true,
+        }),
       };
     });
     setPastBookings(formattedBookings);
   };
 
+  const handleAppointmentPress = (appointment) => {
+    setSelectedAppointment(appointment);
+    setAppointmentModalVisible(true);
+  }
+
   //console.log(pastBookings);
   return (
     <>
+      {appointmentModalVisible && (
+        <PastAppointmentModal
+          booking={selectedAppointment}
+          visible={appointmentModalVisible}
+          setVisibility={setAppointmentModalVisible}
+        />
+      )}
       {pastBookings.length === 0 && (
         <Text style={styles.defaultText}>
           Your completed appointments will show up here!
@@ -54,7 +81,11 @@ function TherapistPastBooking(props) {
         <FlatList
           data={pastBookings}
           keyExtractor={(message) => message.bookings_id.toString()}
-          renderItem={({ item }) => <TherapistPastCard therapistData={item} />}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => handleAppointmentPress(item)}>
+              <TherapistPastCard therapistData={item} />
+            </TouchableOpacity>
+          )}
         />
       )}
     </>
