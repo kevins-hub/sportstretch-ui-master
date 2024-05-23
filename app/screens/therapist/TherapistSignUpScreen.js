@@ -22,7 +22,7 @@ import Constants from "expo-constants";
 import colors from "../../config/colors";
 import { useNavigation } from "@react-navigation/native";
 import registerApi from "../../api/register";
-import { stateConverter } from "../../lib/states";
+import { stateLong } from "../../lib/states";
 import RNPickerSelect from "react-native-picker-select";
 import Checkbox from "expo-checkbox";
 import TherapistBusinessHours from "../../components/therapist/TherapistBusinessHours";
@@ -619,7 +619,7 @@ function TherapistForm(props) {
         }}
         validationSchema={ReviewSchema}
         onSubmit={ async (values, actions) => {
-          values.state = stateConverter(values.state);
+          values.state = stateLong(values.state);
           values.acceptsHouseCalls = enableHouseCalls;
           values.acceptsInClinic = enableInClinic;
           values.businessHours = businessHours;
