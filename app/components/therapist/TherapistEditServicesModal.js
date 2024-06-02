@@ -30,12 +30,16 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
   const [showInvalidFieldError, setShowInvalidFieldError] = useState(false);
 
   const professionsList = [
+    { label: "Massage Therapst", value: "Massage Therapist" },
     { label: "Physical Therapist", value: "Physical Therapist" },
+    { label: "Athletic Trainer", value: "Athletic Trainer" },
+    { label: "Chiropractor", value: "Chiropractor" },
+    { label: "Acupuncturist", value: "Acupuncturist" },
     { label: "Occupational Therapist", value: "Occupational Therapist" },
-    { label: "Speech Therapist", value: "Speech Therapist" },
-    { label: "Sports Massage Therapist", value: "Sports Massage Therapist" },
+    { label: "Physical Therapy Assistant", value: "Physical Therapy Assistant" },
+    { label: "Yoga Instructor", value: "Yoga Instructor" },
+    {label: "Pilates Instructor", value: "Pilates Instructor" },
   ];
-
   const ReviewSchema = yup.object({
     addressL1: yup.string().required().label("Street Address"),
     addressL2: yup.string().label("Address Line 2"),

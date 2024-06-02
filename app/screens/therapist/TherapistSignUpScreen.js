@@ -98,11 +98,16 @@ function TherapistForm(props) {
     }
   };
 
-  // ToDo: fill out with supported professions
   const professionsList = [
+    { label: "Massage Therapst", value: "Massage Therapist" },
     { label: "Physical Therapist", value: "Physical Therapist" },
+    { label: "Athletic Trainer", value: "Athletic Trainer" },
+    { label: "Chiropractor", value: "Chiropractor" },
+    { label: "Acupuncturist", value: "Acupuncturist" },
     { label: "Occupational Therapist", value: "Occupational Therapist" },
-    { label: "Speech Therapist", value: "Speech Therapist" },
+    { label: "Physical Therapy Assistant", value: "Physical Therapy Assistant" },
+    { label: "Yoga Instructor", value: "Yoga Instructor" },
+    {label: "Pilates Instructor", value: "Pilates Instructor" },
   ];
 
   const handleNext = (values) => {
