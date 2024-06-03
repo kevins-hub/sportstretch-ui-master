@@ -29,6 +29,8 @@ import TherapistBusinessHours from "../../components/therapist/TherapistBusiness
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import payment from "../../api/payment";
 
+const bioMaxLength = 250;
+
 const ReviewSchema = yup.object({
   fname: yup.string().required().min(1).label("First Name"),
   lname: yup.string().required().min(1).label("Last Name"),
@@ -58,7 +60,7 @@ const ReviewSchema = yup.object({
   zipcode: yup.string().required().min(5).label("ZipCode"),
   profession: yup.string().required().label("Profession"),
   services: yup.string().required().max(150).label("Services"),
-  summary: yup.string().required().max(150).label("Summary"),
+  summary: yup.string().required().max(250).label("Summary"),
   hourlyRate: yup.number().required().label("Hourly Rate"),
   licenseUrl: yup.string().required().label("License URL"),
   acceptsHouseCalls: yup.boolean().required().label("Accepts House Calls"),
@@ -303,14 +305,16 @@ function TherapistForm(props) {
           />
         </View>
         <TextInput
-          style={{ flex: 1, flexWrap: "wrap" }}
-          placeholder="Summary / Why should athletes choose you?"
+          style={styles.summaryTextInput}
+          placeholder="Bio / Why should athletes choose you?"
           onChangeText={props.handleChange("summary")}
           value={props.values.summary}
           onBlur={props.handleBlur("summary")}
           multiline={true}
+          maxLength={bioMaxLength}
         />
       </View>
+      <Text style={styles.summaryCharCount}>{`${props.values.summary.length}/${bioMaxLength}`}</Text>
       {props.touched.summary && props.errors.summary && (
         <Text style={styles.errorText}>{props.errors.summary}</Text>
       )}
@@ -830,6 +834,16 @@ const styles = StyleSheet.create({
     padding: "2%",
     marginHorizontal: "10%",
     marginTop: "2%",
+  },
+  summaryTextInput: {
+    flex: 1,
+    flexWrap: "wrap",
+    height: 120,
+  },
+  summaryCharCount: {
+    textAlign: "right",
+    marginRight: "10%",
+    color: colors.grey,
   },
   checkboxContainer: {
     flexDirection: "row",

@@ -36,10 +36,16 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
     { label: "Chiropractor", value: "Chiropractor" },
     { label: "Acupuncturist", value: "Acupuncturist" },
     { label: "Occupational Therapist", value: "Occupational Therapist" },
-    { label: "Physical Therapy Assistant", value: "Physical Therapy Assistant" },
+    {
+      label: "Physical Therapy Assistant",
+      value: "Physical Therapy Assistant",
+    },
     { label: "Yoga Instructor", value: "Yoga Instructor" },
-    {label: "Pilates Instructor", value: "Pilates Instructor" },
+    { label: "Pilates Instructor", value: "Pilates Instructor" },
   ];
+
+  const bioMaxLength = 250;
+
   const ReviewSchema = yup.object({
     addressL1: yup.string().required().label("Street Address"),
     addressL2: yup.string().label("Address Line 2"),
@@ -54,7 +60,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
     zipcode: yup.string().required().min(5).label("ZipCode"),
     profession: yup.string().required().label("Profession"),
     services: yup.string().required().max(150).label("Services"),
-    summary: yup.string().required().max(150).label("Summary"),
+    summary: yup.string().required().max(250).label("Summary"),
     hourlyRate: yup.number().required().label("Hourly Rate"),
     licenseUrl: yup.string().required().label("License URL"),
     acceptsHouseCalls: yup.boolean().required().label("Accepts House Calls"),
@@ -123,14 +129,18 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
             />
           </View>
           <TextInput
-            style={{ flex: 1, flexWrap: "wrap" }}
-            placeholder="Summary / Why should athletes choose you?"
+            style={styles.summaryTextInput}
+            placeholder="Bio / Why should athletes choose you?"
             onChangeText={props.handleChange("summary")}
             value={props.values.summary}
             onBlur={props.handleBlur("summary")}
             multiline={true}
+            maxLength={bioMaxLength}
           />
         </View>
+        <Text
+          style={styles.summaryCharCount}
+        >{`${props.values.summary.length}/${bioMaxLength}`}</Text>
         {props.touched.summary && props.errors.summary && (
           <Text style={styles.errorText}>{props.errors.summary}</Text>
         )}
@@ -389,19 +399,21 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
               hourlyRate: therapist.hourly_rate,
               licenseUrl: therapist.license_infourl,
               acceptsHouseCalls: therapist.accepts_house_calls ? true : false,
-              acceptsInClinic: therapist.accepts_in_clinic ? true: false,
+              acceptsInClinic: therapist.accepts_in_clinic ? true : false,
             }}
             validationSchema={ReviewSchema}
             onSubmit={async (values, actions) => {
               values.state = stateConverter(values.state);
               try {
-                let response = await therapists.editTherapist(therapist.therapist_id, values);
+                let response = await therapists.editTherapist(
+                  therapist.therapist_id,
+                  values
+                );
                 actions.resetForm();
                 setVisibility(false);
               } catch (e) {
                 console.warn("Error updating therapist: ", e);
               }
-
             }}
           >
             {(props) => (
@@ -437,7 +449,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    height: 700,
+    height: 800,
     width: 350,
     display: "flex",
     flexDirection: "column",
@@ -566,6 +578,16 @@ const styles = StyleSheet.create({
     padding: "2%",
     marginHorizontal: "10%",
     marginTop: "2%",
+  },
+  summaryTextInput: {
+    flex: 1,
+    flexWrap: "wrap",
+    height: 120,
+  },
+  summaryCharCount: {
+    textAlign: "right",
+    marginRight: "10%",
+    color: colors.grey,
   },
   checkboxContainer: {
     flexDirection: "row",
