@@ -28,6 +28,7 @@ import Checkbox from "expo-checkbox";
 import TherapistBusinessHours from "../../components/therapist/TherapistBusinessHours";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import payment from "../../api/payment";
+import auth from "../../api/auth";
 
 const bioMaxLength = 250;
 
@@ -81,6 +82,7 @@ function TherapistForm(props) {
   const navigation = useNavigation();
   const [currentStep, setCurrentStep] = useState(1);
   const [showInvalidFieldError, setShowInvalidFieldError] = useState(false);
+  const [showEmailExistsError, setShowEmailExistsError] = useState(false);
   const [enableHouseCalls, setEnableHouseCalls] = useState(false);
   const [enableInClinic, setEnableInClinic] = useState(false);
   const [businessHours, setBusinessHours] = useState(businessHoursObj);
@@ -112,8 +114,14 @@ function TherapistForm(props) {
     {label: "Pilates Instructor", value: "Pilates Instructor" },
   ];
 
-  const handleNext = (values) => {
+  const handleNext = async (values) => {
     if (currentStep === 1) {
+      const emailAvailable = await checkEmailAvailable(values.email);
+      if (!emailAvailable) {
+        setShowInvalidFieldError(true);
+        setShowEmailExistsError(true);
+        return;
+      }
       Promise.all([
         ReviewSchema.validateAt("fname", values),
         ReviewSchema.validateAt("lname", values),
@@ -150,6 +158,16 @@ function TherapistForm(props) {
     }
     return;
   };
+
+  const checkEmailAvailable = async (email) => {
+    try {
+      const response = await auth.checkEmail(email);
+      return response.data === "Email already registered." ? false : true;
+    } catch (error) {
+      console.warn("Error checking email availability: ", error);
+      return false;
+    }
+  }
 
   const handlePrevious = () => {
     setShowInvalidFieldError(false);
@@ -662,6 +680,11 @@ function TherapistForm(props) {
               {showInvalidFieldError && (
                 <Text style={styles.errorText}>
                   Please fix errors in fields before continuing.
+                </Text>
+              )}
+              {showEmailExistsError && (
+                <Text style={styles.errorText}>
+                  An account with this email already exists.
                 </Text>
               )}
               {currentStep > 1 && (
