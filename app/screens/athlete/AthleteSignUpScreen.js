@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Formik } from "formik";
 import {
   Text,
@@ -17,6 +17,7 @@ import colors from "../../config/colors";
 import registerApi from "../../api/register";
 import { useNavigation } from "@react-navigation/core";
 import { ScrollView } from "react-native-gesture-handler";
+import auth from "../../api/auth";
 
 const ReviewSchema = yup.object({
   fname: yup.string().required().min(1).label("First Name"),
@@ -38,7 +39,14 @@ const ReviewSchema = yup.object({
 
 function AthleteForm(props) {
   const navigation = useNavigation();
-  const handleSubmit = async (values) => {
+  const [showEmailExistsError, setShowEmailExistsError] = useState(false);
+
+  const handleSubmit = async (values, actions) => {
+    const emailAvailable = await checkEmailAvailable(values.email);
+    if (!emailAvailable) {
+      setShowEmailExistsError(true);
+      return;
+    }
     try {
       const athlete = {
         email: values.email,
@@ -51,6 +59,7 @@ function AthleteForm(props) {
       let register_response = await registerApi.registerAthlete(athlete);
       if (register_response.status === 200) {
         alert("Registration successful.");
+        actions.resetForm();
         navigation.navigate("Login");
       } else {
         Alert.alert(`An error occurred during registration. Please try again.`);
@@ -63,6 +72,16 @@ function AthleteForm(props) {
   const handleBackToLogin = () => {
     navigation.goBack();
   };
+
+  const checkEmailAvailable = async (email) => {
+    try {
+      const response = await auth.checkEmail(email);
+      return response.data === "Email already registered." ? false : true;
+    } catch (error) {
+      console.warn("Error checking email availability: ", error);
+      return false;
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -87,9 +106,8 @@ function AthleteForm(props) {
             password: "",
           }}
           validationSchema={ReviewSchema}
-          onSubmit={(values, actions) => {
-            handleSubmit(values);
-            actions.resetForm();
+          onSubmit={ async (values, actions) => {
+            await handleSubmit(values, actions);
           }}
         >
           {(props) => (
@@ -163,6 +181,7 @@ function AthleteForm(props) {
               <Text style={styles.errorText}>
                 {" "}
                 {props.touched.email && props.errors.email}
+                {showEmailExistsError && "Email already registered."}
               </Text>
 
               <View style={styles.inputContainer}>
