@@ -35,7 +35,7 @@ function AdminApproveCard(item) {
         <View style={styles.rightContainer}>
           <View style={styles.right}>
             <View style={styles.staticText}>
-              <Text style={styles.staticLabel}>Therapist</Text>
+              <Text style={styles.staticLabel}>Recovery Specialist</Text>
             </View>
             <View style={styles.dynamicText}>
               <Text style={styles.dynamicTextFontName}>{first_name}</Text>
