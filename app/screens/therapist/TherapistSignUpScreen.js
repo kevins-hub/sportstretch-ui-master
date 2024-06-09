@@ -130,6 +130,7 @@ function TherapistForm(props) {
       ])
         .then(() => {
           setShowInvalidFieldError(false);
+          setShowEmailExistsError(false);
           setCurrentStep(currentStep + 1);
         })
         .catch((err) => setShowInvalidFieldError(true));
