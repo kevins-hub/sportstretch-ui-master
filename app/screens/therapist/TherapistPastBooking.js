@@ -40,6 +40,7 @@ function TherapistPastBooking(props) {
         new Date(b.booking_time).getTime() - new Date(a.booking_time).getTime()
       );
     });
+    pastBookings = pastBookings.filter(booking => booking.status !== "CancelledRefunded" && booking.status !== "CancelledNoRefund");
     if (!pastBookings) return;
     let formattedBookings = pastBookings.map((booking) => {
       let date = new Date(booking.booking_time);
