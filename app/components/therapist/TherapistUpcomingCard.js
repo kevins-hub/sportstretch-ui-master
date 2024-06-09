@@ -12,9 +12,10 @@ function TherapistUpcomingCard(item) {
     athlete_location,
     confirmation_status,
     booking_time,
+    status,
   } = item.therapistData;
   const location = athlete_location ? athlete_location.split(",") : "Your clinic.";
-  const status_type = confirmation_status === 1 ? "Approved" : "Declined";
+  const status_type = status === "CancelledRefunded" ? "Cancelled - Refunded" : status === "CancelledNoRefund" ? "Cancelled" : confirmation_status === 1 ? "Approved" : "Declined";
 
   return (
     <View style={styles.outerContainer}>

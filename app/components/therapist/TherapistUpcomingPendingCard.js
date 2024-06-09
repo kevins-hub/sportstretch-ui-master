@@ -23,16 +23,21 @@ function TherapistUpcomingPendingCard(item, loadUpcomingBookings) {
   } = item.therapistData;
   const location = athlete_location ? athlete_location?.split(",") : "Your clinic.";
   const approveBooking = async () => {
-    let booking_status = await bookingsApi.approveBooking(bookings_id);
-    if (booking_status.data.confirmation_status === 1) {
-      Alert.alert("Booking Approved");
-      notificationsApi.notifyAthlete(
-        booking_status.data.athlete_id,
-        bookings_id
-      );
-      loadUpcomingBookings();
-    } else {
-      Alert.alert("Error while approving. Please try again.");
+    try {
+      let booking_status = await bookingsApi.approveBooking(bookings_id);
+      if (booking_status.data.confirmation_status === 1) {
+        Alert.alert("Booking Approved");
+        notificationsApi.notifyAthlete(
+          booking_status.data.athlete_id,
+          bookings_id
+        );
+        loadUpcomingBookings();
+      } else {
+        Alert.alert("Error while approving. Please try again.");
+      }
+    }
+    catch (error) {
+      console.log(`Error approving booking: ${error}`);
     }
   };
 
