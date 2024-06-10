@@ -12,7 +12,6 @@
     "@expo/ngrok": "^4.1.0",
     "@expo/vector-icons": "^13.0.0",
     "@expo/webpack-config": "^18.0.1",
-    "@react-native-community/checkbox": "^0.5.17",
     "@react-native-community/datetimepicker": "6.7.3",
     "@react-navigation/bottom-tabs": "^6.5.8",
     "@react-navigation/material-top-tabs": "^6.0.6",
@@ -23,7 +22,9 @@
     "expo": "^48.0.21",
     "expo-app-loading": "~1.2.1",
     "expo-blur": "~12.2.2",
+    "expo-checkbox": "~2.3.1",
     "expo-constants": "~14.2.1",
+    "expo-dev-client": "~2.2.1",
     "expo-file-system": "~15.2.2",
     "expo-location": "~15.1.1",
     "expo-notifications": "~0.18.1",
@@ -52,9 +53,7 @@
     "react-native-vector-icons": "^9.2.0",
     "react-native-web": "~0.18.11",
     "yup": "^0.32.11",
-    "yup-phone": "^1.2.19",
-    "expo-checkbox": "~2.3.1",
-    "expo-dev-client": "~2.2.1"
+    "yup-phone": "^1.2.19"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
