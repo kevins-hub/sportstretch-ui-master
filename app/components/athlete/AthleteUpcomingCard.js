@@ -27,7 +27,7 @@ function AthleteUpcomingCard({
             <Text>{BookingTime}</Text>
           </View>
           <View style={styles.DetailsContainer}>
-            <Text>Therapist : </Text>
+            <Text>Recovery Specialist : </Text>
             <Text>{fname}</Text>
           </View>
           <View style={styles.DetailsContainer}>

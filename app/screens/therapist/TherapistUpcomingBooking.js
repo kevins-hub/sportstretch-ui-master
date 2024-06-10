@@ -64,10 +64,10 @@ function TherapistUpcomingBooking(props) {
     //         data = data.filter((item) => item.state == 'New York').map(({id, name, city}) => ({id, name, city}));
     // console.log(data);
     let upcomingBooking_Pending = formattedBookings
-      .filter((item) => item.confirmation_status == -1)
+      .filter((item) => item.confirmation_status == -1 && item.status !== "CancelledRefunded" && item.status !== "CancelledNoRefund")
       .map((item) => item);
     let upcomingBookings_Approve = formattedBookings
-      .filter((item) => item.confirmation_status != -1)
+      .filter((item) => item.confirmation_status != -1 || item.status == "CancelledRefunded" || item.status == "CancelledNoRefund")
       .map((item) => item);
 
     setUpcomingBookingPending(upcomingBooking_Pending);
