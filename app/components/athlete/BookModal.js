@@ -6,7 +6,10 @@ import {
   View,
   TouchableOpacity,
   FlatList,
+  Button,
+  Alert,
 } from "react-native";
+import Checkbox from "expo-checkbox";
 import { useNavigation } from "@react-navigation/native";
 import { TextInput, ScrollView } from "react-native-gesture-handler";
 import { BlurView } from "expo-blur";
@@ -26,6 +29,7 @@ import paymentApi from "../../api/payment";
 import RNPickerSelect from "react-native-picker-select";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import { StripeProvider } from "@stripe/stripe-react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function BookModal({
   visible,
@@ -120,8 +124,12 @@ function BookModal({
     // get time intervals between open and close time in 30 minnute increments that are not already booked
     let bookings = await getBookingsOnDate(date);
 
-    bookings.filter((booking) => booking.status !== "CancelledNoRefund" && booking.status !== "CancelledRefunded");
- 
+    bookings.filter(
+      (booking) =>
+        booking.status !== "CancelledNoRefund" &&
+        booking.status !== "CancelledRefunded"
+    );
+
     const dateDayOfWeek = date.getDay();
 
     let schedule = {};
@@ -189,6 +197,8 @@ function BookModal({
   // const [selectedDateTime, setSelectedDateTime] = useState(new Date());
   const [currentStep, setCurrentStep] = useState(1);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const [termsAndConditionModal, setTermsAndConditionModal] = useState(false);
+  const [termsAndCondition, setTermsAndCondition] = useState(false);
   // const [clientSecret, setClientSecret] = useState("");
   // const [availableDateTimes, setAvailableDateTimes] = useState([]);
   // const {initPaymentSheet} = useStripe();
@@ -284,18 +294,32 @@ function BookModal({
   };
 
   const openPaymentSheet = async () => {
-    try {
-      const { error } = await presentPaymentSheet();
+    if (!termsAndCondition) {
+      Alert.alert(
+        "Error",
+        "To continue, please review and accept our Terms and Conditions",
+        [
+          {
+            text: "OK",
+            onPress: () => console.log("OK Pressed"),
+          },
+        ],
+        { cancelable: false }
+      );
+    } else {
+      try {
+        const { error } = await presentPaymentSheet();
 
-      if (error) {
+        if (error) {
+          console.warn("Error opening PaymentSheet", error);
+        } else {
+          // post payment operations
+          console.log("Payment successful");
+          createBooking();
+        }
+      } catch (error) {
         console.warn("Error opening PaymentSheet", error);
-      } else {
-        // post payment operations
-        console.log("Payment successful");
-        createBooking();
       }
-    } catch (error) {
-      console.warn("Error opening PaymentSheet", error);
     }
   };
 
@@ -323,9 +347,8 @@ function BookModal({
       let athleteLocation = athleteLocation;
 
       if (selectedLocationOption === "1") {
-        athleteLocation =`${therapistStreet}, ${therapistCity}, ${therapistState}, ${therapistZipCode}`;
+        athleteLocation = `${therapistStreet}, ${therapistCity}, ${therapistState}, ${therapistZipCode}`;
       }
-
 
       await bookingsApi.bookATherapist(
         athleteId,
@@ -618,11 +641,62 @@ function BookModal({
           <Text style={styles.propText}>${subTotal}</Text>
         </View>
       </View>
-      <View style={styles.termasAndConditionsContainer}>
-        <Text style={styles.propText}>
-          By clicking "Request to Book", you agree to our Terms and Conditions.
-        </Text>
+      <View style={styles.termsAndConditionsContainer}>
+        <View style={{ flex: 1, flexDirection: "row" }}>
+          <Checkbox
+            disabled={false}
+            value={termsAndCondition}
+            onValueChange={(newValue) => setTermsAndCondition(newValue)}
+            style={{
+              marginRight: 5,
+              height: 14,
+              width: 14,
+              justifyContent: "center",
+            }}
+          />
+          <Text
+            style={styles.propText}
+            // onPress={() => setTermsAndConditionModal(true)}
+          >
+            I have read and agree to the{" "}
+            <Text
+              style={styles.termsAndConditionText}
+              onPress={() => setTermsAndConditionModal(true)}
+            >
+              Terms and Conditions.
+            </Text>
+          </Text>
+        </View>
       </View>
+      <View stlye={styles.termsAndConditionModal}>
+        <Modal animationType="slide" visible={!!termsAndConditionModal}>
+          <View style={styles.termAndConditionModalBackground}>
+            <Text style={styles.modalText}>Terms and Condition</Text>
+            <ScrollView>
+              <Text style={{ padding: 20 }}>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
+                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
+                nulla pariatur. Excepteur sint occaecat cupidatat non proident,
+                sunt in culpa qui officia deserunt mollit anim id est laborum.
+              </Text>
+            </ScrollView>
+            <View
+            // style={{
+            //   flexDirection: "row",
+            // }}
+            >
+              <Button
+                onPress={() => setTermsAndConditionModal(false)}
+                title="Dismiss"
+              ></Button>
+            </View>
+          </View>
+        </Modal>
+      </View>
+
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.secondaryButton}
@@ -868,6 +942,27 @@ const styles = StyleSheet.create({
     color: colors.secondary,
     fontSize: 10,
     fontWeight: "bold",
+  },
+  termsAndConditionsContainer: {
+    flex: 1,
+    //justifyContent: "space-between",
+  },
+  termsAndConditionModal: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  termsAndConditionText: {
+    textDecorationLine: "underline",
+    color: "blue",
+  },
+  termAndConditionModalBackground: {
+    marginTop: Constants.statusBarHeight,
+    flex: 1,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "90%",
+    paddingBottom: 30,
   },
 });
 
