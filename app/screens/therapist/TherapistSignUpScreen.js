@@ -474,19 +474,12 @@ function TherapistForm(props) {
 
         <View style={{ marginHorizontal: "10%", width: "45%" }}>
           <View style={styles.inputContainerState}>
-            {/* <TextInput
-              placeholder="State"
-              onChangeText={props.handleChange("state")}
-              value={props.values.state}
-              onBlur={props.handleBlur("state")}
-              textContentType="addressState"
-            /> */}
             <RNPickerSelect
               placeholder={{ label: "Select A State", value: "" }}
               value={props.values.state}
               onValueChange={props.handleChange("state")}
               items={Object.entries(states).map(([abbr, name]) => {
-                return { label: name, value: abbr };
+                return { label: abbr, value: name };
               })}
             ></RNPickerSelect>
           </View>
