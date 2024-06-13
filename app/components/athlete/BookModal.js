@@ -953,7 +953,7 @@ const styles = StyleSheet.create({
   },
   termsAndConditionText: {
     textDecorationLine: "underline",
-    color: "blue",
+    // color: "blue",
   },
   termAndConditionModalBackground: {
     marginTop: Constants.statusBarHeight,

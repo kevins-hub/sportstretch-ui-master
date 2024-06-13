@@ -22,7 +22,7 @@ import Constants from "expo-constants";
 import colors from "../../config/colors";
 import { useNavigation } from "@react-navigation/native";
 import registerApi from "../../api/register";
-import { stateLong } from "../../lib/states";
+import { stateLong, states } from "../../lib/states";
 import RNPickerSelect from "react-native-picker-select";
 import Checkbox from "expo-checkbox";
 import TherapistBusinessHours from "../../components/therapist/TherapistBusinessHours";
@@ -31,6 +31,8 @@ import payment from "../../api/payment";
 import auth from "../../api/auth";
 
 const bioMaxLength = 250;
+const phoneRegExp =
+  /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
 
 const ReviewSchema = yup.object({
   fname: yup.string().required().min(1).label("First Name"),
@@ -47,7 +49,11 @@ const ReviewSchema = yup.object({
     .required()
     .min(8)
     .label("Confirm Password"),
-  phone: yup.string().phone().required().label("Phone"),
+  phone: yup
+    .string()
+    .matches(phoneRegExp, "Phone number is not valid")
+    .required()
+    .label("Phone"),
   addressL1: yup.string().required().label("Street Address"),
   addressL2: yup.string().label("Address Line 2"),
   city: yup
@@ -109,9 +115,12 @@ function TherapistForm(props) {
     { label: "Chiropractor", value: "Chiropractor" },
     { label: "Acupuncturist", value: "Acupuncturist" },
     { label: "Occupational Therapist", value: "Occupational Therapist" },
-    { label: "Physical Therapy Assistant", value: "Physical Therapy Assistant" },
+    {
+      label: "Physical Therapy Assistant",
+      value: "Physical Therapy Assistant",
+    },
     { label: "Yoga Instructor", value: "Yoga Instructor" },
-    {label: "Pilates Instructor", value: "Pilates Instructor" },
+    { label: "Pilates Instructor", value: "Pilates Instructor" },
   ];
 
   const handleNext = async (values) => {
@@ -133,9 +142,13 @@ function TherapistForm(props) {
           setShowEmailExistsError(false);
           setCurrentStep(currentStep + 1);
         })
-        .catch((err) => setShowInvalidFieldError(true));
+        .catch((err) => {
+          setShowInvalidFieldError(true);
+          console.warn(err);
+        });
     } else if (currentStep === 2) {
       Promise.all([
+        ReviewSchema.validateAt("profession", values),
         ReviewSchema.validateAt("addressL1", values),
         ReviewSchema.validateAt("city", values),
         ReviewSchema.validateAt("state", values),
@@ -145,7 +158,10 @@ function TherapistForm(props) {
           setShowInvalidFieldError(false);
           setCurrentStep(currentStep + 1);
         })
-        .catch((err) => setShowInvalidFieldError(true));
+        .catch((err) => {
+          setShowInvalidFieldError(true);
+          console.warn(err);
+        });
     } else if (currentStep === 3) {
       setShowInvalidFieldError(false);
       setCurrentStep(currentStep + 1);
@@ -168,7 +184,7 @@ function TherapistForm(props) {
       console.warn("Error checking email availability: ", error);
       return false;
     }
-  }
+  };
 
   const handlePrevious = () => {
     setShowInvalidFieldError(false);
@@ -285,7 +301,7 @@ function TherapistForm(props) {
         <RNPickerSelect
           onValueChange={props.handleChange("profession")}
           items={professionsList}
-          placeholder={{ label: "Choose your Discipline", value: null }}
+          placeholder={{ label: "Choose your Discipline", value: "" }}
           value={props.values.profession}
         />
       </View>
@@ -333,7 +349,9 @@ function TherapistForm(props) {
           maxLength={bioMaxLength}
         />
       </View>
-      <Text style={styles.summaryCharCount}>{`${props.values.summary.length}/${bioMaxLength}`}</Text>
+      <Text
+        style={styles.summaryCharCount}
+      >{`${props.values.summary.length}/${bioMaxLength}`}</Text>
       {props.touched.summary && props.errors.summary && (
         <Text style={styles.errorText}>{props.errors.summary}</Text>
       )}
@@ -456,13 +474,14 @@ function TherapistForm(props) {
 
         <View style={{ marginHorizontal: "10%", width: "45%" }}>
           <View style={styles.inputContainerState}>
-            <TextInput
-              placeholder="State"
-              onChangeText={props.handleChange("state")}
+            <RNPickerSelect
+              placeholder={{ label: "Select A State", value: "" }}
               value={props.values.state}
-              onBlur={props.handleBlur("state")}
-              textContentType="addressState"
-            />
+              onValueChange={props.handleChange("state")}
+              items={Object.entries(states).map(([abbr, name]) => {
+                return { label: abbr, value: name };
+              })}
+            ></RNPickerSelect>
           </View>
           {props.touched.state && props.errors.state && (
             <Text style={styles.errorTextCityState}>{props.errors.state}</Text>
@@ -646,13 +665,15 @@ function TherapistForm(props) {
           acceptsHouseCalls: false,
         }}
         validationSchema={ReviewSchema}
-        onSubmit={ async (values, actions) => {
-          values.state = stateLong(values.state);
+        onSubmit={async (values, actions) => {
+          values.state = values.state;
           values.acceptsHouseCalls = enableHouseCalls;
           values.acceptsInClinic = enableInClinic;
           values.businessHours = businessHours;
           try {
-            const registerStripeResponse = await payment.registerStripeAccount({ email: values.email})
+            const registerStripeResponse = await payment.registerStripeAccount({
+              email: values.email,
+            });
             if (registerStripeResponse.status === 200) {
               const stripeAccountId = registerStripeResponse.data.account.id;
               values.stripeAccountId = stripeAccountId;
