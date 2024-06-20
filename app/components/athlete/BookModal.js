@@ -274,22 +274,36 @@ function BookModal({
       );
 
   const proceedToReview = async () => {
-    try {
-      const clientSecret = await getClientSecret(); // Ensure this async call is awaited properly
-      const { error } = await initPaymentSheet({
-        paymentIntentClientSecret: clientSecret,
-        merchantDisplayName: "Sportstretchusa",
-        // testEnv: true,
-        // Additional configuration options
-      });
+    if (availableDateTimes.length <= 0) {
+      Alert.alert(
+        "Error",
+        "Please select an available time",
+        [
+          {
+            text: "OK",
+            onPress: () => console.log("OK Pressed"),
+          },
+        ],
+        { cancelable: false }
+      );
+    } else {
+      try {
+        const clientSecret = await getClientSecret(); // Ensure this async call is awaited properly
+        const { error } = await initPaymentSheet({
+          paymentIntentClientSecret: clientSecret,
+          merchantDisplayName: "Sportstretchusa",
+          // testEnv: true,
+          // Additional configuration options
+        });
 
-      if (error) {
+        if (error) {
+          console.warn("Error initializing PaymentSheet", error);
+        } else {
+          setCurrentStep(3);
+        }
+      } catch (error) {
         console.warn("Error initializing PaymentSheet", error);
-      } else {
-        setCurrentStep(3);
       }
-    } catch (error) {
-      console.warn("Error initializing PaymentSheet", error);
     }
   };
 
