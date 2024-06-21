@@ -274,7 +274,23 @@ function BookModal({
       );
 
   const proceedToReview = async () => {
+    const timeMatch = availableDateTimes.some(
+      (time) => time.text === selectedDateTime.toISOString()
+    );
+
     if (availableDateTimes.length <= 0) {
+      Alert.alert(
+        "Error",
+        "Please select an available time",
+        [
+          {
+            text: "OK",
+            onPress: () => console.log("OK Pressed"),
+          },
+        ],
+        { cancelable: false }
+      );
+    } else if (!timeMatch) {
       Alert.alert(
         "Error",
         "Please select an available time",
