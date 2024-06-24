@@ -45,6 +45,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
   ];
 
   const bioMaxLength = 250;
+  const feesAndTaxesPercentage = 0.15;
 
   const ReviewSchema = yup.object({
     addressL1: yup.string().required().label("Street Address"),
@@ -162,6 +163,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
             onBlur={props.handleBlur("hourlyRate")}
           />
         </View>
+        {props.values.hourlyRate > 0 ? <Text style={styles.actualRateText}>You will recieve : ${parseFloat(props.values.hourlyRate * (1-feesAndTaxesPercentage)).toFixed(2)} per hour.</Text> : <></>}
         {props.touched.hourlyRate && props.errors.hourlyRate && (
           <Text style={styles.errorText}>{props.errors.hourlyRate}</Text>
         )}
@@ -578,6 +580,11 @@ const styles = StyleSheet.create({
     padding: "2%",
     marginHorizontal: "10%",
     marginTop: "2%",
+  },
+  actualRateText: {
+    marginHorizontal: "10%",
+    marginTop: "2%",
+    fontWeight: "bold",
   },
   summaryTextInput: {
     flex: 1,
