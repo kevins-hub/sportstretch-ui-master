@@ -54,17 +54,7 @@ function AthleteBookNow(props) {
       let therapistList = response.data;
       therapistList = therapistList.filter((therapist) => therapist.stripe_account_id !== null);
       // sort by rating
-      therapistList.sort((a, b) => {
-        // First, compare by average_rating
-        const ratingDifference = Number(b.average_rating) - Number(a.average_rating);
-        
-        // If the average ratings are the same, compare by accepted_booking_count
-        if (ratingDifference !== 0) {
-          return ratingDifference;
-        } else {
-          return b.accepted_booking_count - a.accepted_booking_count;
-        }
-      });
+      therapistList.sort((a, b) => Number(b.average_rating) - Number(a.average_rating));
       setTherapists(therapistList);
       setSelectedTherapist(therapistList[0]);
       await loadMarkers(therapistList);

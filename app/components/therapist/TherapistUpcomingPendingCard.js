@@ -12,7 +12,7 @@ import colors from "../../config/colors";
 import bookingsApi from "../../api/bookings";
 import notificationsApi from "../../api/notifications";
 
-function TherapistUpcomingPendingCard({ therapistData, loadUpcomingBookings }) {
+function TherapistUpcomingPendingCard(item, loadUpcomingBookings) {
   const {
     booking_day,
     booking_month,
@@ -20,11 +20,8 @@ function TherapistUpcomingPendingCard({ therapistData, loadUpcomingBookings }) {
     bookings_id,
     athlete_location,
     booking_time,
-  } = therapistData;
-  const location = athlete_location
-    ? athlete_location?.split(",")
-    : "Your clinic.";
-
+  } = item.therapistData;
+  const location = athlete_location ? athlete_location?.split(",") : "Your clinic.";
   const approveBooking = async () => {
     try {
       let booking_status = await bookingsApi.approveBooking(bookings_id);
@@ -38,7 +35,8 @@ function TherapistUpcomingPendingCard({ therapistData, loadUpcomingBookings }) {
       } else {
         Alert.alert("Error while approving. Please try again.");
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.log(`Error approving booking: ${error}`);
     }
   };
