@@ -10,9 +10,9 @@ import {
   Modal,
 } from "react-native";
 import colors from "../../config/colors";
-import bookingsApi from "../../api/bookings";
 import notificationsApi from "../../api/notifications";
 import TherapistAppointmentDeclineModal from "./TherapistAppointmentDeclineModal";
+import bookingsApi from "../../api/bookings";
 
 function TherapistUpcomingPendingCard(item, loadUpcomingBookings) {
   const {
@@ -27,6 +27,7 @@ function TherapistUpcomingPendingCard(item, loadUpcomingBookings) {
     ? athlete_location?.split(",")
     : "Your clinic.";
   const [declineModal, setDeclineModal] = useState(false);
+
   const approveBooking = async () => {
     try {
       let booking_status = await bookingsApi.approveBooking(bookings_id);
@@ -51,17 +52,6 @@ function TherapistUpcomingPendingCard(item, loadUpcomingBookings) {
 
   const declineBooking = async () => {
     setDeclineModal(true);
-    // let booking_status = await bookingsApi.declineBooking(bookings_id);
-    // if (booking_status.data.confirmation_status === 0) {
-    //   Alert.alert("Booking Declined");
-    //   notificationsApi.notifyAthlete(
-    //     booking_status.data.athlete_id,
-    //     bookings_id
-    //   );
-    //   loadUpcomingBookings();
-    // } else {
-    //   Alert.alert("Error while declining. Please try again.");
-    // }
   };
 
   return (

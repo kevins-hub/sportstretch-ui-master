@@ -14,6 +14,8 @@ import Constants from "expo-constants";
 import { Formik } from "formik";
 import RNPickerSelect from "react-native-picker-select";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import notificationsApi from "../../api/notifications";
+import bookingsApi from "../../api/bookings";
 
 const TherapistAppointmentDeclineModal = ({
   item,
@@ -26,7 +28,7 @@ const TherapistAppointmentDeclineModal = ({
     "Other",
   ];
 
-  const handleSubmit = (values) => {
+  const handleSubmit = async (values) => {
     let convertDate = values.date.toLocaleDateString();
     let convertTime = convertDateTimeToLocalTimeStr(values.time);
     console.warn("convertTime", convertTime);
@@ -42,7 +44,19 @@ const TherapistAppointmentDeclineModal = ({
         ];
     } else {
       // add some logic for sending athletes new appointment
-      handleDeclineModal(false);
+      let booking_status = await bookingsApi.declineBooking(
+        item.therapistData.bookings_id
+      );
+      if (booking_status.data.confirmation_status === 0) {
+        handleDeclineModal(false);
+        notificationsApi.notifyAthlete(
+          booking_status.data.athlete_id,
+          item.therapistData.bookings_id
+        );
+        Alert.alert("Booking Declined");
+      } else {
+        Alert.alert("Error while declining. Please try again.");
+      }
     }
   };
 
