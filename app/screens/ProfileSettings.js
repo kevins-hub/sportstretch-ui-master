@@ -24,6 +24,7 @@ import Stars from "react-native-stars";
 import { FontAwesome } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import payment from "../api/payment";
+import ProfilePictureUploadModal from "../components/shared/ProfilePIctureUploadModal";
 
 function ProfileSettings({ route }) {
   const [editContactInfoModalVisible, setEditContactInfoModalVisible] =
@@ -39,6 +40,8 @@ function ProfileSettings({ route }) {
   const [deleteAccountModalVisible, setDeleteAccountModalVisible] =
     useState(false);
   const [editBusinessHoursModalVisible, setEditBusinessHoursModalVisible] =
+    useState(false);
+  const [profilePictureModalVisible, setProfilePictureModalVisible] =
     useState(false);
   const [contactObj, setContactObj] = useState({});
   const [athleteCity, setAthleteCity] = useState("");
@@ -156,6 +159,11 @@ function ProfileSettings({ route }) {
 
   return (
     <>
+      <ProfilePictureUploadModal
+        user={user}
+        visible={profilePictureModalVisible}
+        setVisibility={setProfilePictureModalVisible}
+      />
       <EditContactInfoModal
         user={user}
         contactInfo={contactObj}
@@ -193,12 +201,15 @@ function ProfileSettings({ route }) {
                 <Text>{user.userObj.first_name} {user.userObj.last_name}</Text>
               </View> */}
           <View style={styles.keyPropsContainer}>
-            <MaterialCommunityIcons
-              style={styles.accountIcon}
-              name="account-circle"
-              size={73}
-              color={colors.primary}
-            />
+            <TouchableOpacity onPress={() => setProfilePictureModalVisible(true)}>
+              <MaterialCommunityIcons
+                style={styles.accountIcon}
+                name="account-circle"
+                size={73}
+                color={colors.primary}
+              />
+            </TouchableOpacity>
+
             <View style={styles.keyProps}>
               <Text style={styles.nameProp}>
                 {user.userObj.first_name} {user.userObj.last_name}
