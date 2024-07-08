@@ -27,7 +27,11 @@ const TherapistAppointmentDeclineModal = ({
   ];
 
   const handleSubmit = (values) => {
-    console.warn("values", values);
+    let convertDate = values.date.toLocaleDateString();
+    let convertTime = convertDateTimeToLocalTimeStr(values.time);
+    console.warn("convertTime", convertTime);
+    console.warn("convertDate", convertDate);
+
     if (!values.reason) {
       Alert.alert("Please select a reason"),
         [
@@ -37,9 +41,19 @@ const TherapistAppointmentDeclineModal = ({
           },
         ];
     } else {
-      // add some logic
+      // add some logic for sending athletes new appointment
       handleDeclineModal(false);
     }
+  };
+
+  convertDateTimeToLocalTimeStr = (dateTime) => {
+    // convert date time to local time str with format H:MM with AM/PM
+    const options = {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    };
+    return dateTime.toLocaleTimeString("en-US", options);
   };
 
   return (
