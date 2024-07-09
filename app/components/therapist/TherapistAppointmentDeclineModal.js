@@ -31,9 +31,8 @@ const TherapistAppointmentDeclineModal = ({
   const handleSubmit = async (values) => {
     let convertDate = values.date.toLocaleDateString();
     let convertTime = convertDateTimeToLocalTimeStr(values.time);
-    console.warn("convertTime", convertTime);
-    console.warn("convertDate", convertDate);
 
+    let newBookingDate = `${convertDate} ${convertTime}`;
     if (!values.reason) {
       Alert.alert("Please select a reason"),
         [
@@ -43,9 +42,12 @@ const TherapistAppointmentDeclineModal = ({
           },
         ];
     } else {
-      // add some logic for sending athletes new appointment
+      if (values.reason !== "Not available at that time") {
+        newBookingDate = "";
+      }
       let booking_status = await bookingsApi.declineBooking(
-        item.therapistData.bookings_id
+        item.therapistData.bookings_id,
+        { reason: values.reason, suggestedBookingDateTime: newBookingDate }
       );
       if (booking_status.data.confirmation_status === 0) {
         handleDeclineModal(false);
@@ -122,7 +124,7 @@ const TherapistAppointmentDeclineModal = ({
                   {values.reason === "Not available at that time" ? (
                     <View>
                       <Text style={{ textAlign: "center", marginBottom: 8 }}>
-                        Select Another Date
+                        Suggest another date and time
                       </Text>
                       <View style={{ display: "flex", flexDirection: "row" }}>
                         <DateTimePicker
