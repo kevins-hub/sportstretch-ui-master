@@ -7,10 +7,12 @@ import {
   Button,
   TouchableOpacity,
   Alert,
+  Modal,
 } from "react-native";
 import colors from "../../config/colors";
-import bookingsApi from "../../api/bookings";
 import notificationsApi from "../../api/notifications";
+import TherapistAppointmentDeclineModal from "./TherapistAppointmentDeclineModal";
+import bookingsApi from "../../api/bookings";
 
 function TherapistUpcomingPendingCard(item, loadUpcomingBookings) {
   const {
@@ -21,7 +23,11 @@ function TherapistUpcomingPendingCard(item, loadUpcomingBookings) {
     athlete_location,
     booking_time,
   } = item.therapistData;
-  const location = athlete_location ? athlete_location?.split(",") : "Your clinic.";
+  const location = athlete_location
+    ? athlete_location?.split(",")
+    : "Your clinic.";
+  const [declineModal, setDeclineModal] = useState(false);
+
   const approveBooking = async () => {
     try {
       let booking_status = await bookingsApi.approveBooking(bookings_id);
@@ -35,24 +41,17 @@ function TherapistUpcomingPendingCard(item, loadUpcomingBookings) {
       } else {
         Alert.alert("Error while approving. Please try again.");
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.log(`Error approving booking: ${error}`);
     }
   };
 
+  const handleDeclineModal = (val) => {
+    setDeclineModal(val);
+  };
+
   const declineBooking = async () => {
-    let booking_status = await bookingsApi.declineBooking(bookings_id);
-    if (booking_status.data.confirmation_status === 0) {
-      Alert.alert("Booking Declined");
-      notificationsApi.notifyAthlete(
-        booking_status.data.athlete_id,
-        bookings_id
-      );
-      loadUpcomingBookings();
-    } else {
-      Alert.alert("Error while declining. Please try again.");
-    }
+    setDeclineModal(true);
   };
 
   return (
@@ -123,6 +122,11 @@ function TherapistUpcomingPendingCard(item, loadUpcomingBookings) {
           </View>
         </View>
       </View>
+      <TherapistAppointmentDeclineModal
+        item={item}
+        visible={declineModal}
+        handleDeclineModal={handleDeclineModal}
+      ></TherapistAppointmentDeclineModal>
     </View>
   );
 }
