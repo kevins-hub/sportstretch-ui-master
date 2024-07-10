@@ -162,7 +162,7 @@ const TherapistAppointmentDeclineModal = ({
                     style={styles.declineButton}
                     onPress={() => handleDeclineModal(false)}
                   >
-                    <Text style={styles.declineModalButton}>Decline</Text>
+                    <Text style={styles.declineModalButton}>Cancel</Text>
                   </TouchableOpacity>
                 </View>
               </View>
