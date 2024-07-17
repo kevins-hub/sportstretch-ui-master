@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Linking,
+  Image,
 } from "react-native";
 import LogOutButton from "../components/shared/LogOutButton";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -24,6 +25,8 @@ import Stars from "react-native-stars";
 import { FontAwesome } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import payment from "../api/payment";
+import ProfilePictureUploadModal from "../components/shared/ProfilePictureUploadModal";
+import profilePicture from "../api/profilePicture";
 
 function ProfileSettings({ route }) {
   const [editContactInfoModalVisible, setEditContactInfoModalVisible] =
@@ -40,16 +43,20 @@ function ProfileSettings({ route }) {
     useState(false);
   const [editBusinessHoursModalVisible, setEditBusinessHoursModalVisible] =
     useState(false);
+  const [profilePictureModalVisible, setProfilePictureModalVisible] =
+    useState(false);
   const [contactObj, setContactObj] = useState({});
   const [athleteCity, setAthleteCity] = useState("");
   const [athleteState, setAthleteState] = useState("");
   const [isPaymentsEnabled, setIsPaymentsEnabled] = useState(true);
+  const [profilePictureUrl, setProfilePictureUrl] = useState("");
 
   let athleteLocation;
 
   const { user } = route.params;
 
   let userObj = user.userObj;
+
   const [therapist, setTherapist] = useState(
     user.role === "therapist" ? userObj : {}
   );
@@ -67,9 +74,7 @@ function ProfileSettings({ route }) {
 
   const getStripeAccount = async () => {
     const response = await payment.getStripeAccount(userObj.therapist_id);
-    setIsPaymentsEnabled(
-      response.data.payouts_enabled === true ? true : false
-    );
+    setIsPaymentsEnabled(response.data.payouts_enabled === true ? true : false);
     return response.data;
   };
 
@@ -106,6 +111,16 @@ function ProfileSettings({ route }) {
       console.error("Error fetching contact info", error);
     }
   };
+
+  const fetchProfilePicture = async () => {
+    const authId = user.authorization_id;
+    await profilePicture.getProfilePicutre(authId).then((res) => {
+      if (res.data) {
+        setProfilePictureUrl(res.data["profile_picture_url"]);
+      }
+    });
+    return;
+  }
 
   const hoursTupleToTimeString = (hours) => {
     // convert [9, 17] to "9:00 AM - 5:00 PM"
@@ -149,6 +164,12 @@ function ProfileSettings({ route }) {
     })();
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      await fetchProfilePicture();
+    })();
+  }, [profilePictureModalVisible]);
+
   const handleModalClose = () => {
     setEditContactInfoModalVisible(false);
     fetchContactInfo();
@@ -156,6 +177,12 @@ function ProfileSettings({ route }) {
 
   return (
     <>
+      <ProfilePictureUploadModal
+        user={user}
+        visible={profilePictureModalVisible}
+        setVisibility={setProfilePictureModalVisible}
+        currentProfilePictureUrl={profilePictureUrl}
+      />
       <EditContactInfoModal
         user={user}
         contactInfo={contactObj}
@@ -193,12 +220,32 @@ function ProfileSettings({ route }) {
                 <Text>{user.userObj.first_name} {user.userObj.last_name}</Text>
               </View> */}
           <View style={styles.keyPropsContainer}>
-            <MaterialCommunityIcons
-              style={styles.accountIcon}
-              name="account-circle"
-              size={73}
-              color={colors.primary}
-            />
+            <TouchableOpacity
+              onPress={() => setProfilePictureModalVisible(true)}
+            >
+                {/* <MaterialCommunityIcons
+                  style={styles.accountIcon}
+                  name="account-circle"
+                  size={73}
+                  color={colors.primary}
+                /> */}
+              {profilePictureUrl ? (
+                <View>
+                  <Image
+                    source={{ uri: profilePictureUrl }}
+                    style={styles.profilePicture}
+                  />
+                </View>
+              ) : (
+                <MaterialCommunityIcons
+                  style={styles.accountIcon}
+                  name="account-circle"
+                  size={73}
+                  color={colors.primary}
+                />
+              )}
+            </TouchableOpacity>
+
             <View style={styles.keyProps}>
               <Text style={styles.nameProp}>
                 {user.userObj.first_name} {user.userObj.last_name}
@@ -239,7 +286,8 @@ function ProfileSettings({ route }) {
                 <View style={styles.cardInnerContainer}>
                   <View style={styles.cardContent}>
                     <View style={styles.paymentStatusContainer}>
-                      {(user.role === "therapist" && user.userObj.enabled !== 1) ? (
+                      {user.role === "therapist" &&
+                      user.userObj.enabled !== 1 ? (
                         <>
                           <MaterialCommunityIcons
                             name="alert"
@@ -282,20 +330,20 @@ function ProfileSettings({ route }) {
                         </>
                       ) : (
                         <>
-                        <MaterialCommunityIcons
-                          name="check-circle"
-                          style={styles.alertIcon}
-                          size={24}
-                          color="green"
-                        />
-                        <Text style={styles.paymentStatusTitle}>
-                          Payment setup complete
-                        </Text>
-                        <Text>You are all set up to recieve payments.</Text>
-                      </>
-                    )}
-                      
-{/* 
+                          <MaterialCommunityIcons
+                            name="check-circle"
+                            style={styles.alertIcon}
+                            size={24}
+                            color="green"
+                          />
+                          <Text style={styles.paymentStatusTitle}>
+                            Payment setup complete
+                          </Text>
+                          <Text>You are all set up to recieve payments.</Text>
+                        </>
+                      )}
+
+                      {/* 
                       {(!isPaymentsEnabled && (
                         <>
                           <TouchableOpacity
@@ -353,7 +401,7 @@ function ProfileSettings({ route }) {
                         color="red"
                       />
 
-                      {athleteLocation && (
+                      {(athleteLocation && (
                         <>
                           <Text style={styles.locationPropLabel}>
                             Location:
@@ -362,7 +410,7 @@ function ProfileSettings({ route }) {
                             {athleteCity}, {athleteState}
                           </Text>
                         </>
-                      ) || (
+                      )) || (
                         <>
                           <Text style={styles.locationPropLabel}>
                             Location:
@@ -981,6 +1029,11 @@ const styles = StyleSheet.create({
   buttonText: {
     color: colors.secondary,
     fontSize: 14,
+  },
+  profilePicture: {
+    width: 73,
+    height: 73,
+    borderRadius: 100,
   },
 
   // accountIcon: {
