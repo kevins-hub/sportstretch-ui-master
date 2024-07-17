@@ -2,13 +2,21 @@ import apiClient from "./client";
 
 const endpoint = "/upload";
 
-const uploadProfilePicture = (authId, imageFile) => {
+const uploadProfilePicture = (authId, image, imageFile) => {
   const formData = new FormData();
-  formData.append('file', imageFile);
+  formData.append("file", {
+    uri: image,
+    type: imageFile["_data"]["type"],
+    name: imageFile["_data"]["name"],
+  });
+
+  console.warn("uploading file: ", imageFile);
+//   console.warn("formData: ", formData.get("file"));
+  console.warn("formData = ", formData);
 
   return apiClient.post(endpoint + "/profile-picture/" + authId, formData, {
     headers: {
-      'Content-Type': 'multipart/form-data',
+      "Content-Type": "multipart/form-data",
     },
   });
 };

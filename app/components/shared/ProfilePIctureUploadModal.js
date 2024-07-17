@@ -19,8 +19,7 @@ import report from "../../api/report";
 import ProfilePictureUpload from "./ProfilePictureUpload";
 import upload from "../../api/upload";
 
-
-function ProfilePictureUploadModal({ user, setVisibility, visible }) {
+function ProfilePictureUploadModal({ user, setVisibility, visible, currentProfilePictureUrl }) {
   if (!visible) return null;
   const [image, setImage] = useState(null);
   // const { user, setUser } = useContext(AuthContext);
@@ -29,12 +28,14 @@ function ProfilePictureUploadModal({ user, setVisibility, visible }) {
 
   const handleSubmit = async () => {
     if (!image) return;
+    console.warn("image = ", image);
     const response = await fetch(image);
     const blob = await response.blob();
-    const file = new File([blob], `${userAuthId}.jpg`, { type: "image/jpeg" });
+    const file = new File([blob], `file.jpg`, { type: blob.type });
+    console.warn("file = ", file);
     try {
-      const result = await upload.uploadProfilePicture(userAuthId, file);
-      if (result.status === 200) {
+      const result = await upload.uploadProfilePicture(userAuthId, image, file);
+      if (result.status === 201) {
         setVisibility(false);
       } else {
         Alert.alert("Error uploading profile picture.");
@@ -54,7 +55,7 @@ function ProfilePictureUploadModal({ user, setVisibility, visible }) {
       <BlurView intensity={50} style={styles.centeredView}>
         <View style={styles.modalView}>
           <View style={styles.modalContent}>
-            <ProfilePictureUpload image={image} setImage={setImage} />
+            <ProfilePictureUpload image={image} setImage={setImage} currentProfilePictureUrl={currentProfilePictureUrl} />
           </View>
           <View style={styles.buttonContainer}>
             <TouchableOpacity

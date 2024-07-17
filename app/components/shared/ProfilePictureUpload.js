@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import colors from "../../config/colors";
 
-function ProfilePictureUpload({ image, setImage }) {
+
+function ProfilePictureUpload({ image, setImage, currentProfilePictureUrl }) {
   // const [image, setImage] = useState(null);
 
   const pickImage = async () => {
@@ -36,7 +37,21 @@ function ProfilePictureUpload({ image, setImage }) {
       </View>
       <Button title="Select from camera roll" onPress={pickImage} />
       <View style={styles.imagePreviewContainer}>
-        {image && (
+        { image ? (
+           <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />
+        ) : currentProfilePictureUrl ? (
+          <Image source={{ uri: currentProfilePictureUrl }} style={{ width: 200, height: 200 }} />
+        ) : (
+          <MaterialCommunityIcons
+            style={styles.accountIcon}
+            name="account-circle"
+            size={200}
+            color={colors.primary}
+          />
+        )}
+
+
+        {/* {image && (
           <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />
         )}
         {!image && (
@@ -46,7 +61,7 @@ function ProfilePictureUpload({ image, setImage }) {
             size={200}
             color={colors.primary}
           />
-        )}
+        )} */}
       </View>
     </View>
   );
