@@ -2,7 +2,7 @@ import React from "react";
 import LottieView from "lottie-react-native";
 import { View, StyleSheet } from "react-native";
 
-function BookingDoneIndicator({ visible }) {
+function DoneIndicator({ visible }) {
   if (!visible) return null;
 
   return (
@@ -27,4 +27,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BookingDoneIndicator;
+export default DoneIndicator;

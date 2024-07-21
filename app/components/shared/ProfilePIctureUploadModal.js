@@ -18,10 +18,19 @@ import { Formik } from "formik";
 import report from "../../api/report";
 import ProfilePictureUpload from "./ProfilePictureUpload";
 import upload from "../../api/upload";
+import ProgressIndicator from "../athlete/ProgressIndicator";
+import DoneIndicator from "../athlete/DoneIndicator";
 
-function ProfilePictureUploadModal({ user, setVisibility, visible, currentProfilePictureUrl }) {
+function ProfilePictureUploadModal({
+  user,
+  setVisibility,
+  visible,
+  currentProfilePictureUrl,
+}) {
   if (!visible) return null;
   const [image, setImage] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(false);
+  const [uploadDone, setUploadDone] = useState(false);
   // const { user, setUser } = useContext(AuthContext);
 
   const userAuthId = user.authorization_id;
@@ -32,8 +41,15 @@ function ProfilePictureUploadModal({ user, setVisibility, visible, currentProfil
     const blob = await response.blob();
     const file = new File([blob], `file.jpg`, { type: blob.type });
     try {
+      setUploadProgress(true);
       const result = await upload.uploadProfilePicture(userAuthId, image, file);
+      setUploadProgress(false);
+
       if (result.status === 201) {
+        setUploadDone(true);
+        setTimeout(() => {
+          setUploadDone(false)
+        }, 2000);
         setVisibility(false);
       } else {
         Alert.alert("Error uploading profile picture.");
@@ -52,31 +68,35 @@ function ProfilePictureUploadModal({ user, setVisibility, visible, currentProfil
     >
       <BlurView intensity={50} style={styles.centeredView}>
         <View style={styles.modalView}>
-          <View style={styles.modalContent}>
-            <ProfilePictureUpload image={image} setImage={setImage} currentProfilePictureUrl={currentProfilePictureUrl} />
-          </View>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.secondaryButton}
-              onPress={() => setVisibility(false)}
-            >
-              <Text style={styles.cancelButtonText}>Close</Text>
-            </TouchableOpacity>
-            {image && (
-              <TouchableOpacity
-                style={styles.primaryButton}
-                onPress={() => handleSubmit()}
-              >
-                <Text style={styles.primaryButtonText}>Submit</Text>
-              </TouchableOpacity>
-            )}
-            {/* <TouchableOpacity
-              style={styles.primaryButton}
-              onPress={() => handleSubmit()}
-            >
-              <Text style={styles.primaryButtonText}>Submit</Text>
-            </TouchableOpacity> */}
-          </View>
+          <ProgressIndicator visible={uploadProgress} />
+          <DoneIndicator visible={uploadDone} />
+          {!uploadProgress && !uploadDone && (
+            <>
+              <View style={styles.modalContent}>
+                <ProfilePictureUpload
+                  image={image}
+                  setImage={setImage}
+                  currentProfilePictureUrl={currentProfilePictureUrl}
+                />
+              </View>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.secondaryButton}
+                  onPress={() => setVisibility(false)}
+                >
+                  <Text style={styles.cancelButtonText}>Close</Text>
+                </TouchableOpacity>
+                {image && (
+                  <TouchableOpacity
+                    style={styles.primaryButton}
+                    onPress={() => handleSubmit()}
+                  >
+                    <Text style={styles.primaryButtonText}>Submit</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </>
+          )}
         </View>
       </BlurView>
     </Modal>

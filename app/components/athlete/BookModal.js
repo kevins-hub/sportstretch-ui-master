@@ -16,8 +16,8 @@ import { BlurView } from "expo-blur";
 import Constants from "expo-constants";
 import bookingsApi from "../../api/bookings";
 import BookButton from "./BookButton";
-import BookingProgressIndicator from "./BookingProgressIndicator";
-import BookingDoneIndicator from "./BookingDoneIndicator";
+import ProgressIndicator from "./ProgressIndicator";
+import DoneIndicator from "./DoneIndicator";
 import notificationsApi from "../../api/notifications";
 import AuthContext from "../../auth/context";
 import colors from "../../config/colors";
@@ -770,8 +770,8 @@ function BookModal({
       >
         <BlurView intensity={50} style={styles.centeredView}>
           <View style={styles.modalView}>
-            <BookingProgressIndicator visible={bookingProgress} />
-            <BookingDoneIndicator visible={bookingDone} />
+            <ProgressIndicator visible={bookingProgress} />
+            <DoneIndicator visible={bookingDone} />
             {!bookingProgress && !bookingDone && currentStep === 1 && (
               <TherapistDetailsStep />
             )}
