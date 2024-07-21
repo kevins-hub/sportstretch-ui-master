@@ -28,11 +28,9 @@ function ProfilePictureUploadModal({ user, setVisibility, visible, currentProfil
 
   const handleSubmit = async () => {
     if (!image) return;
-    console.warn("image = ", image);
     const response = await fetch(image);
     const blob = await response.blob();
     const file = new File([blob], `file.jpg`, { type: blob.type });
-    console.warn("file = ", file);
     try {
       const result = await upload.uploadProfilePicture(userAuthId, image, file);
       if (result.status === 201) {
