@@ -10,10 +10,6 @@ const uploadProfilePicture = (authId, image, imageFile) => {
     name: imageFile["_data"]["name"],
   });
 
-  console.warn("uploading file: ", imageFile);
-//   console.warn("formData: ", formData.get("file"));
-  console.warn("formData = ", formData);
-
   return apiClient.post(endpoint + "/profile-picture/" + authId, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
