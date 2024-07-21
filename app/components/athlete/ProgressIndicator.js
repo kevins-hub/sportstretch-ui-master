@@ -2,7 +2,7 @@ import React from "react";
 import LottieView from "lottie-react-native";
 import { View, StyleSheet } from "react-native";
 
-function BookingProgressIndicator({ visible }) {
+function ProgressIndicator({ visible }) {
   if (!visible) return null;
 
   return (
@@ -27,4 +27,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BookingProgressIndicator;
+export default ProgressIndicator;
