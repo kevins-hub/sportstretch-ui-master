@@ -48,7 +48,7 @@ function ProfileSettings({ route }) {
   const [contactObj, setContactObj] = useState({});
   const [athleteCity, setAthleteCity] = useState("");
   const [athleteState, setAthleteState] = useState("");
-  const [isPaymentsEnabled, setIsPaymentsEnabled] = useState(true);
+  const [isPaymentsEnabled, setIsPaymentsEnabled] = useState(false);
   const [profilePictureUrl, setProfilePictureUrl] = useState("");
 
   let athleteLocation;
@@ -67,15 +67,18 @@ function ProfileSettings({ route }) {
   const [stripeOnboardLink, setStripeOnboardLink] = useState("");
 
   const getStripeOnboardLink = async () => {
+    console.warn("getStripeOnboardLink called");
     const response = await payment.getStripeOnboardLink(userObj.therapist_id);
-    setStripeOnboardLink(response.data.url);
+    console.warn("response.data.url = ", response.data.url);
+    await setStripeOnboardLink(response.data.url.toString());
+    console.warn("stripeOnboardLink = ", stripeOnboardLink);
     return response.data.url;
   };
 
-  const getStripeAccount = async () => {
+  const getStripePaymentsEnabled = async () => {
     const response = await payment.getStripeAccount(userObj.therapist_id);
     setIsPaymentsEnabled(response.data.payouts_enabled === true ? true : false);
-    return response.data;
+    return response.data.payouts_enabled === true ? true : false;
   };
 
   const getTherapist = async () => {
@@ -157,10 +160,16 @@ function ProfileSettings({ route }) {
   useEffect(() => {
     (async () => {
       if (user.role === "athlete" || user.role === "admin") return;
-      await getStripeAccount();
-      if (isPaymentsEnabled === false) {
+      console.warn("useEffect Trigger");
+      const paymentsEnabled = await getStripePaymentsEnabled();
+      if (!paymentsEnabled) {
         await getStripeOnboardLink();
       }
+
+      // await getStripeOnboardLink();
+      // if (isPaymentsEnabled === false) {
+      //   await getStripeOnboardLink();
+      // }
     })();
   }, []);
 
