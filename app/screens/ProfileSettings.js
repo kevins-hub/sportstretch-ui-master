@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Linking,
   Image,
+  AppState,
 } from "react-native";
 import LogOutButton from "../components/shared/LogOutButton";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -48,8 +49,10 @@ function ProfileSettings({ route }) {
   const [contactObj, setContactObj] = useState({});
   const [athleteCity, setAthleteCity] = useState("");
   const [athleteState, setAthleteState] = useState("");
-  const [isPaymentsEnabled, setIsPaymentsEnabled] = useState(true);
+  const [isPaymentsEnabled, setIsPaymentsEnabled] = useState(false);
   const [profilePictureUrl, setProfilePictureUrl] = useState("");
+  const [appState, setAppState] = useState(AppState.currentState);
+  const [stripeSetupStarted, setStripeSetupStarted] = useState(false);
 
   let athleteLocation;
 
@@ -68,14 +71,32 @@ function ProfileSettings({ route }) {
 
   const getStripeOnboardLink = async () => {
     const response = await payment.getStripeOnboardLink(userObj.therapist_id);
-    setStripeOnboardLink(response.data.url);
+    await setStripeOnboardLink(response.data.url.toString());
     return response.data.url;
   };
 
-  const getStripeAccount = async () => {
+  const getStripePaymentsEnabled = async () => {
     const response = await payment.getStripeAccount(userObj.therapist_id);
+    getStripeSetupStarted(response);
     setIsPaymentsEnabled(response.data.payouts_enabled === true ? true : false);
-    return response.data;
+    return response.data.payouts_enabled === true ? true : false;
+  };
+
+  const getStripePaymentsStatus = async () => {
+    if (user.role === "athlete" || user.role === "admin") return;
+    const paymentsEnabled = await getStripePaymentsEnabled();
+    if (!paymentsEnabled) {
+      await getStripeOnboardLink();
+    }
+  };
+
+  const getStripeSetupStarted = async (stripeResponse) => {
+    if (!stripeResponse.data) return;
+    if (stripeResponse.data.details_submitted === false) {
+      setStripeSetupStarted(false);
+    } else {
+      setStripeSetupStarted(true);
+    }
   };
 
   const getTherapist = async () => {
@@ -120,7 +141,7 @@ function ProfileSettings({ route }) {
       }
     });
     return;
-  }
+  };
 
   const hoursTupleToTimeString = (hours) => {
     // convert [9, 17] to "9:00 AM - 5:00 PM"
@@ -156,13 +177,28 @@ function ProfileSettings({ route }) {
 
   useEffect(() => {
     (async () => {
-      if (user.role === "athlete" || user.role === "admin") return;
-      await getStripeAccount();
-      if (isPaymentsEnabled === false) {
-        await getStripeOnboardLink();
-      }
+      await getStripePaymentsStatus();
     })();
   }, []);
+
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState) => {
+      if (appState.match(/inactive|background/) && nextAppState === "active") {
+        // Call your function here
+        getStripePaymentsStatus();
+      }
+      setAppState(nextAppState);
+    };
+
+    const subscription = AppState.addEventListener(
+      "change",
+      handleAppStateChange
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, [appState]);
 
   useEffect(() => {
     (async () => {
@@ -223,7 +259,7 @@ function ProfileSettings({ route }) {
             <TouchableOpacity
               onPress={() => setProfilePictureModalVisible(true)}
             >
-                {/* <MaterialCommunityIcons
+              {/* <MaterialCommunityIcons
                   style={styles.accountIcon}
                   name="account-circle"
                   size={73}
@@ -321,11 +357,18 @@ function ProfileSettings({ route }) {
                                 Payment setup needed!
                               </Text>
                             </View>
-                            <Text>
-                              Set up payment details in order to enable bookings
-                              and payments for appointments. Click here to set
-                              up.
-                            </Text>
+                            {!stripeSetupStarted ? (
+                              <Text>
+                                Set up payment details in order to enable
+                                bookings and payments for appointments. Click
+                                here to set up.
+                              </Text>
+                            ) : (
+                              <Text>
+                                Almost there! Additional information is needed
+                                to enable payments. Click here to finish setup.
+                              </Text>
+                            )}
                           </TouchableOpacity>
                         </>
                       ) : (
