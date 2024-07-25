@@ -59,6 +59,7 @@ function BookModal({
 
   const [availableDateTimes, setAvailableDateTimes] = useState([]);
   const [timeStrDateTimeMap, setTimeStrDateTimeMap] = useState({});
+  const [paymentIntentId, setPaymentIntentId]  = useState("");
 
   const getBookingsOnDate = async (date) => {
     try {
@@ -240,6 +241,7 @@ function BookModal({
   const getClientSecret = async () => {
     try {
       let res = await paymentApi.createPaymentIntent(paymentObj);
+      setPaymentIntentId(res.data.paymentIntent.id);
       return res.data.paymentIntent.client_secret;
     } catch (error) {
       console.warn("Error getting client secret", error);
@@ -390,7 +392,8 @@ function BookModal({
         appointmentDuration,
         subTotal,
         "Yes",
-        "Paid"
+        "Paid",
+        paymentIntentId,
       );
       //hideProgress & showDone
       setBookingProgress(false);
