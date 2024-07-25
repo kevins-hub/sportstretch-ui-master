@@ -16,7 +16,7 @@ const getAthleteUpcomingBookings = (athleteId) => {
 
 const athleteCancelBooking = (bookingId) => {
   return apiClient.put(endpoint + "/athlete/cancelBooking/" + bookingId);
-};
+}
 
 const bookATherapist = (
   athleteId,
@@ -28,7 +28,8 @@ const bookATherapist = (
   duration,
   total_cost,
   paid,
-  status
+  status,
+  payment_intent_id
 ) => {
   return apiClient.post(endpoint, {
     athlete_id: athleteId,
@@ -41,6 +42,7 @@ const bookATherapist = (
     total_cost: total_cost,
     paid: paid,
     status: status,
+    payment_intent_id: payment_intent_id,
   });
 };
 
@@ -58,24 +60,22 @@ const getTherapistUpcomingBookings = (therapistId) => {
 
 const getTherapistBookingsOnDate = (therapistId, date) => {
   return apiClient.get(endpoint + "/therapist/currentBookings", {
-    therapistId: therapistId,
-    date: date,
-  });
+      therapistId: therapistId,
+      date: date,
+    },
+  );
 };
 
 const therapistCancelBooking = (bookingId) => {
   return apiClient.put(endpoint + "/therapist/cancelBooking/" + bookingId);
-};
+}
 
 const approveBooking = (bookingId) => {
   return apiClient.put(endpoint + "/therapist/approveBooking/" + bookingId);
 };
 
-const declineBooking = (bookingId, newBookingObj) => {
-  return apiClient.put(
-    endpoint + "/therapist/declineBooking/" + bookingId,
-    newBookingObj
-  );
+const declineBooking = (bookingId) => {
+  return apiClient.put(endpoint + "/therapist/declineBooking/" + bookingId);
 };
 
 const getAllBookings = () => {
