@@ -133,9 +133,15 @@ function BookModal({
 
     const dateDayOfWeek = date.getDay();
 
+    // console.warn("date = ", date);
+
+    // console.warn("dateDayOfWeek = ", dateDayOfWeek);
+
     let schedule = {};
 
     const availableHours = therapistBusinessHours[dateDayOfWeek.toString()];
+
+    // console.warn("availableHours = ", availableHours);
 
     availableHours.forEach(([startTime, endTime]) => {
       getAvailableTimesInTimeSlot(date, duration, startTime, endTime, schedule);
@@ -234,7 +240,7 @@ function BookModal({
     currency: "usd",
     payment_method_types: ["card"],
     description: "SportStretch Recovery Specialist Appointment",
-    receipt_email: "kevinliu428@gmail.com",
+    receipt_email: user.userObj.email,
     stripeAccountId: therapistStripeAccountId,
   };
 
