@@ -42,14 +42,14 @@ function AthleteForm(props) {
   const [showEmailExistsError, setShowEmailExistsError] = useState(false);
 
   const handleSubmit = async (values, actions) => {
-    const emailAvailable = await checkEmailAvailable(values.email);
+    const emailAvailable = await checkEmailAvailable(values.email.toLowerCase());
     if (!emailAvailable) {
       setShowEmailExistsError(true);
       return;
     }
     try {
       const athlete = {
-        email: values.email,
+        email: values.email.toLowerCase(),
         firstName: values.fname,
         lastName: values.lname,
         password: values.password,
