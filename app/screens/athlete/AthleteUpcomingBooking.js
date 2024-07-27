@@ -75,6 +75,7 @@ function AthleteUpcomingBooking(props) {
           booking={selectedAppointment}
           visible={appointmentModalVisible}
           setVisibility={setAppointmentModalVisible}
+          profilePictureUrl={selectedAppointment.profile_picture_url}
         />
       )}
       {upcomingBookings.length === 0 && (
