@@ -6,6 +6,7 @@ import {
   View,
   TouchableOpacity,
   FlatList,
+  Image,
 } from "react-native";
 import { BlurView } from "expo-blur";
 import Constants from "expo-constants";
@@ -17,11 +18,13 @@ import { StripeProvider } from "@stripe/stripe-react-native";
 import colors from "../../config/colors";
 import AthleteAppointmentDetails from "../athlete/AthleteAppointmentDetails";
 import bookings from "../../api/bookings";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 function UpcomingAppointmentModal({
   booking,
   setVisibility,
   visible,
+  profilePictureUrl,
   isTherapist = false,
 }) {
   if (!visible) return null;
@@ -62,6 +65,21 @@ function UpcomingAppointmentModal({
 
   const AppointmentDetailsStep = ({}) => (
     <View style={styles.modalContent}>
+      <View style={styles.profilePictureContainer}>
+        {profilePictureUrl ? (
+          <Image
+            source={{ uri: profilePictureUrl }}
+            style={styles.profilePicture}
+          />
+        ) : (
+          <MaterialCommunityIcons
+            style={styles.accountIcon}
+            name="account-circle"
+            size={80}
+            color={colors.primary}
+          />
+        )}
+      </View>
       <AthleteAppointmentDetails booking={booking}></AthleteAppointmentDetails>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -416,6 +434,23 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginTop: "10%",
   },
+  profilePictureContainer: {
+    position: "absolute",
+    top: "10%",
+    right: 10,
+  },
+  profilePicture: {
+    width: 80,
+    height: 80,
+    borderRadius: 80 / 2,
+    marginRight: 14,
+  },
+  accountIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 80 / 2,
+    marginRight: 14,
+  }
 });
 
 export default UpcomingAppointmentModal;
