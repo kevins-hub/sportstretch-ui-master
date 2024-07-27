@@ -674,7 +674,7 @@ function TherapistForm(props) {
           values.businessHours = businessHours;
           try {
             const registerStripeResponse = await payment.registerStripeAccount({
-              email: values.email,
+              email: values.email.toLowerCase(),
             });
             if (registerStripeResponse.status === 200) {
               const stripeAccountId = registerStripeResponse.data.account.id;
