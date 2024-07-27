@@ -30,7 +30,7 @@ function TherapistUpcomingCard(item) {
         <View style={styles.rightContainer}>
           <View style={styles.right}>
             <View style={styles.staticText}>
-              <Text style={styles.staticLabel}>Athelete</Text>
+              <Text style={styles.staticLabel}>Athlete</Text>
             </View>
             <View style={styles.dynamicText}>
               <Text style={styles.dynamicTextFontName}>{first_name}</Text>
