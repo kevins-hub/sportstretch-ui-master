@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Formik } from "formik";
 import {
+  Modal,
   Text,
   TextInput,
   View,
@@ -8,6 +9,7 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  Button,
   Alert,
 } from "react-native";
 import {
@@ -29,6 +31,7 @@ import TherapistBusinessHours from "../../components/therapist/TherapistBusiness
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import payment from "../../api/payment";
 import auth from "../../api/auth";
+import TermsAndConditions from "../../components/shared/TermsAndConditions";
 
 const bioMaxLength = 250;
 const feesAndTaxesPercentage = 0.15;
@@ -92,7 +95,8 @@ function TherapistForm(props) {
   const [showEmailExistsError, setShowEmailExistsError] = useState(false);
   const [enableHouseCalls, setEnableHouseCalls] = useState(false);
   const [enableInClinic, setEnableInClinic] = useState(false);
-  const [businessHours, setBusinessHours] = useState(businessHoursObj);
+  const [businessHours, setBusinessHours] = useState(businessHoursObj);  
+  const [termsAndConditionModal, setTermsAndConditionModal] = useState(false);
 
   const register_therapist = async (values) => {
     try {
@@ -374,7 +378,17 @@ function TherapistForm(props) {
           onBlur={props.handleBlur("hourlyRate")}
         />
       </View>
-      {props.values.hourlyRate > 0 ? <Text style={styles.actualRateText}>You will recieve : ${parseFloat(props.values.hourlyRate * (1-feesAndTaxesPercentage)).toFixed(2)} per hour</Text> : <></>}
+      {props.values.hourlyRate > 0 ? (
+        <Text style={styles.actualRateText}>
+          You will recieve : $
+          {parseFloat(
+            props.values.hourlyRate * (1 - feesAndTaxesPercentage)
+          ).toFixed(2)}{" "}
+          per hour
+        </Text>
+      ) : (
+        <></>
+      )}
       {props.touched.hourlyRate && props.errors.hourlyRate && (
         <Text style={styles.errorText}>{props.errors.hourlyRate}</Text>
       )}
@@ -609,6 +623,40 @@ function TherapistForm(props) {
         {" "}
         {props.touched.confirmPassword && props.errors.confirmPassword}
       </Text>
+
+      <View style={styles.termsAndConditionsContainer}>
+        <Text
+          style={styles.propText}
+          // onPress={() => setTermsAndConditionModal(true)}
+        >
+          By clicking sign up, you agree to our{" "}
+          <Text
+            style={styles.termsAndConditionText}
+            onPress={() => setTermsAndConditionModal(true)}
+          >
+            Terms and Conditions.
+          </Text>
+        </Text>
+      </View>
+
+      <View stlye={styles.termsAndConditionModal}>
+        <Modal animationType="slide" visible={!!termsAndConditionModal}>
+          <View style={styles.termAndConditionModalBackground}>
+            <Text style={styles.modalText}>Terms and Conditions</Text>
+              <TermsAndConditions />
+            <View
+            // style={{
+            //   flexDirection: "row",
+            // }}
+            >
+              <Button
+                onPress={() => setTermsAndConditionModal(false)}
+                title="Dismiss"
+              ></Button>
+            </View>
+          </View>
+        </Modal>
+      </View>
     </>
   );
 
@@ -928,6 +976,27 @@ const styles = StyleSheet.create({
     flex: 0.3,
     resizeMode: "contain",
     marginRight: "2%",
+  },
+  termsAndConditionsContainer: {
+    marginHorizontal: "10%",
+    marginTop: "5%",
+  },  
+  termsAndConditionModal: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  termsAndConditionText: {
+    textDecorationLine: "underline",
+    // color: "blue",
+  },
+  termAndConditionModalBackground: {
+    marginTop: Constants.statusBarHeight,
+    flex: 1,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "90%",
+    paddingBottom: 30,
   },
 });
 
