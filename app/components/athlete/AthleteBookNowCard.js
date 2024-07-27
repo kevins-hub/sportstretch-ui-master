@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
-import { View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text, Image } from "react-native";
 import { Rating } from "react-native-ratings";
-
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import colors from "../../config/colors";
 import BookButton from "./BookButton";
 import AuthContext from "../../auth/context";
@@ -35,8 +35,31 @@ function AthleteBookNowCard({ therapist, athleteAddress, selectedTherapist }) {
         therapistZipCode={therapist.zipcode}
       />
       <View style={styles.OuterContainer}>
-        <View style={(therapist && selectedTherapist && therapist.therapist_id === selectedTherapist.therapist_id) ? styles.SelectedContainer : styles.Container}>
+        <View
+          style={
+            therapist &&
+            selectedTherapist &&
+            therapist.therapist_id === selectedTherapist.therapist_id
+              ? styles.SelectedContainer
+              : styles.Container
+          }
+        >
           <View style={styles.TherapistContainer}>
+            <View>
+              {therapist.profile_picture_url ? (
+                <Image
+                  source={{ uri: therapist.profile_picture_url }}
+                  style={styles.profilePicture}
+                />
+              ) : (
+                <MaterialCommunityIcons
+                  style={styles.accountIcon}
+                  name="account-circle"
+                  size={60}
+                  color={colors.primary}
+                />
+              )}
+            </View>
             <View style={styles.TherapistDetailContainer}>
               <Text style={styles.TherapistNameText}>
                 {therapist ? therapist.first_name : ""}
@@ -57,19 +80,14 @@ function AthleteBookNowCard({ therapist, athleteAddress, selectedTherapist }) {
             </View>
             <View style={styles.PriceRatingContainer}>
               <Text style={styles.Price}>
-                $
-                {therapist
-                  ? `${Number(therapist.hourly_rate).toFixed(0)}`
-                  : 0}
+                ${therapist ? `${Number(therapist.hourly_rate).toFixed(0)}` : 0}
                 /hr
               </Text>
               <View style={styles.RatingContainer}>
                 <Rating
                   imageSize={15}
                   readonly
-                  startingValue={
-                    therapist ? therapist.average_rating : 0
-                  }
+                  startingValue={therapist ? therapist.average_rating : 0}
                 />
                 <Text style={{ fontSize: 14, color: colors.gold }}>
                   {therapist
@@ -185,6 +203,18 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     color: colors.dullblack,
   },
+  profilePicture: {
+    width: 60,
+    height: 60,
+    borderRadius: 60 / 2,
+    marginRight: 14,
+  },
+  accountIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 60 / 2,
+    marginRight: 14,
+  }
 });
 
 export default AthleteBookNowCard;
