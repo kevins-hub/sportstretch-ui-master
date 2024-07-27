@@ -30,6 +30,7 @@ import RNPickerSelect from "react-native-picker-select";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import { StripeProvider } from "@stripe/stripe-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import TermsAndConditions from "../shared/TermsAndConditions";
 
 function BookModal({
   visible,
@@ -710,18 +711,8 @@ function BookModal({
       <View stlye={styles.termsAndConditionModal}>
         <Modal animationType="slide" visible={!!termsAndConditionModal}>
           <View style={styles.termAndConditionModalBackground}>
-            <Text style={styles.modalText}>Terms and Condition</Text>
-            <ScrollView>
-              <Text style={{ padding: 20 }}>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-                nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-                sunt in culpa qui officia deserunt mollit anim id est laborum.
-              </Text>
-            </ScrollView>
+            <Text style={styles.modalText}>Terms and Conditions</Text>
+              <TermsAndConditions />
             <View
             // style={{
             //   flexDirection: "row",

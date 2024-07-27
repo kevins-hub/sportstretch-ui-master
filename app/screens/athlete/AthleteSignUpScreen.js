@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Formik } from "formik";
 import {
+  Modal,
   Text,
   TextInput,
   View,
@@ -8,6 +9,7 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  Button,
 } from "react-native";
 import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as yup from "yup";
@@ -18,6 +20,7 @@ import registerApi from "../../api/register";
 import { useNavigation } from "@react-navigation/core";
 import { ScrollView } from "react-native-gesture-handler";
 import auth from "../../api/auth";
+import TermsAndConditions from "../../components/shared/TermsAndConditions";
 
 const ReviewSchema = yup.object({
   fname: yup.string().required().min(1).label("First Name"),
@@ -40,9 +43,12 @@ const ReviewSchema = yup.object({
 function AthleteForm(props) {
   const navigation = useNavigation();
   const [showEmailExistsError, setShowEmailExistsError] = useState(false);
+  const [termsAndConditionModal, setTermsAndConditionModal] = useState(false);
 
   const handleSubmit = async (values, actions) => {
-    const emailAvailable = await checkEmailAvailable(values.email.toLowerCase());
+    const emailAvailable = await checkEmailAvailable(
+      values.email.toLowerCase()
+    );
     if (!emailAvailable) {
       setShowEmailExistsError(true);
       return;
@@ -81,7 +87,7 @@ function AthleteForm(props) {
       console.warn("Error checking email availability: ", error);
       return false;
     }
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -106,7 +112,7 @@ function AthleteForm(props) {
             password: "",
           }}
           validationSchema={ReviewSchema}
-          onSubmit={ async (values, actions) => {
+          onSubmit={async (values, actions) => {
             await handleSubmit(values, actions);
           }}
         >
@@ -268,6 +274,41 @@ function AthleteForm(props) {
             </View>
           )}
         </Formik>
+
+        <View style={styles.termsAndConditionsContainer}>
+          <Text
+            style={styles.propText}
+            // onPress={() => setTermsAndConditionModal(true)}
+          >
+            By clicking sign up, you agree to our{" "}
+            <Text
+              style={styles.termsAndConditionText}
+              onPress={() => setTermsAndConditionModal(true)}
+            >
+              Terms and Conditions.
+            </Text>
+          </Text>
+        </View>
+
+        <View stlye={styles.termsAndConditionModal}>
+          <Modal animationType="slide" visible={!!termsAndConditionModal}>
+            <View style={styles.termAndConditionModalBackground}>
+              <Text style={styles.modalText}>Terms and Conditions</Text>
+              <TermsAndConditions />
+              <View
+              // style={{
+              //   flexDirection: "row",
+              // }}
+              >
+                <Button
+                  onPress={() => setTermsAndConditionModal(false)}
+                  title="Dismiss"
+                ></Button>
+              </View>
+            </View>
+          </Modal>
+        </View>
+
         <View style={styles.backToLoginContainer}>
           <Text>Already have an account?</Text>
           <TouchableOpacity
@@ -357,6 +398,28 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     margin: 10,
+  },
+  termsAndConditionsContainer: {
+    marginHorizontal: "10%",
+    marginTop: "5%",
+    marginBottom: "5%",
+  },
+  termsAndConditionModal: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  termsAndConditionText: {
+    textDecorationLine: "underline",
+    // color: "blue",
+  },
+  termAndConditionModalBackground: {
+    marginTop: Constants.statusBarHeight,
+    flex: 1,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "90%",
+    paddingBottom: 30,
   },
 });
 
