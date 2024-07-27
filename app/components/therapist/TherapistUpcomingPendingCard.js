@@ -75,7 +75,7 @@ function TherapistUpcomingPendingCard(item, loadUpcomingBookings) {
           </View>
           <View style={styles.right}>
             <View style={styles.staticText}>
-              <Text style={styles.staticLabel}>Appointment Time</Text>
+              <Text style={styles.staticLabel}>Appointment Time (local time)</Text>
             </View>
             <View style={styles.dynamicText}>
               <Text style={styles.dynamicTextFont}>{booking_time}</Text>
