@@ -8,8 +8,10 @@ import {
   FlatList,
   Button,
   Alert,
+  Image,
 } from "react-native";
 import Checkbox from "expo-checkbox";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import { TextInput, ScrollView } from "react-native-gesture-handler";
 import { BlurView } from "expo-blur";
@@ -49,6 +51,7 @@ function BookModal({
   therapistCity,
   therapistState,
   therapistZipCode,
+  therapistProfilePictureUrl,
 }) {
   if (!visible) return null;
 
@@ -436,6 +439,21 @@ function BookModal({
       <Text style={styles.modalText}>
         Book your appointment with {therapistName}!
       </Text>
+        <View style={styles.profilePictureContainer}>
+              {therapistProfilePictureUrl ? (
+                <Image
+                  source={{ uri: therapistProfilePictureUrl }}
+                  style={styles.profilePicture}
+                />
+              ) : (
+                <MaterialCommunityIcons
+                  style={styles.accountIcon}
+                  name="account-circle"
+                  size={80}
+                  color={colors.primary}
+                />
+              )}
+      </View>
       <View style={styles.modalBodyContainer}>
         <View style={styles.propContainer}>
           <Text style={styles.propTitle}>Your Recovery Specialist:</Text>
@@ -994,6 +1012,21 @@ const styles = StyleSheet.create({
     height: "90%",
     paddingBottom: 30,
   },
+  profilePictureContainer: {
+    alignItems: "center",
+    marginTop: "5%",
+    marginBottom: "8%",
+  },
+  profilePicture: {
+    width: 80,
+    height: 80,
+    borderRadius: 80 / 2,
+  },
+  accountIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 80 / 2,
+  }
 });
 
 export default BookModal;
