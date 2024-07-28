@@ -33,6 +33,7 @@ function AthleteBookNowCard({ therapist, athleteAddress, selectedTherapist }) {
         therapistCity={therapist.city}
         therapistState={therapist.state}
         therapistZipCode={therapist.zipcode}
+        therapistProfilePictureUrl={therapist.profile_picture_url}
       />
       <View style={styles.OuterContainer}>
         <View
