@@ -32,7 +32,7 @@ function AppNavigator({ user }) {
       <GeneralHeader />
       {user.role === "therapist" && <TherapistAvailability />}
       <appTabs.Navigator
-        initialRouteName="profile"
+        initialRouteName={user.role === "athlete" ? "Make an Appointment" : "Upcoming Appointments"}
         screenOptions={({ route }) => ({
           // tabBarActiveTintColor: colors.secondary,
           tabBarInactiveTintColor: colors.primary,
