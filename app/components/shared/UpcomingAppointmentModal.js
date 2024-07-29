@@ -91,7 +91,21 @@ function UpcomingAppointmentModal({
           <Text style={styles.cancelButtonText}>{"Nevermind"}</Text>
         </TouchableOpacity>
         {/* <BookButton title="Request to Book" onPress={onConfirmPress} /> */}
-        <TouchableOpacity
+        {booking.confirmation_status === 1  || booking.confirmation_status === -1 ? (
+          <TouchableOpacity
+            style={styles.cancelAppointmentButton}
+            onPress={() => {
+              setCurrentStep(2);
+            }}
+          >
+            <Text style={styles.cancelAppointmentButtonText}>
+              {"Cancel Appointment"}
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <></>
+        )}
+        {/* <TouchableOpacity
           style={styles.cancelAppointmentButton}
           onPress={() => {
             setCurrentStep(2);
@@ -100,7 +114,7 @@ function UpcomingAppointmentModal({
           <Text style={styles.cancelAppointmentButtonText}>
             {"Cancel Appointment"}
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         {!isTherapist && (
           <TouchableOpacity
             style={styles.primaryButton}
@@ -450,7 +464,7 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 80 / 2,
     marginRight: 14,
-  }
+  },
 });
 
 export default UpcomingAppointmentModal;

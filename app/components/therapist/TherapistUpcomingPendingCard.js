@@ -8,7 +8,9 @@ import {
   TouchableOpacity,
   Alert,
   Modal,
+  Image,
 } from "react-native";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import colors from "../../config/colors";
 import notificationsApi from "../../api/notifications";
 import TherapistAppointmentDeclineModal from "./TherapistAppointmentDeclineModal";
@@ -18,10 +20,12 @@ function TherapistUpcomingPendingCard(item, loadUpcomingBookings) {
   const {
     booking_day,
     booking_month,
+    booking_day_of_week,
     first_name,
     bookings_id,
     athlete_location,
     booking_time,
+    profile_picture_url,
   } = item.therapistData;
   const location = athlete_location
     ? athlete_location?.split(",")
@@ -57,25 +61,55 @@ function TherapistUpcomingPendingCard(item, loadUpcomingBookings) {
   return (
     <View style={styles.outerContainer}>
       <View style={styles.card}>
-        <View style={styles.date}>
+        <View style={styles.profilePictureContainer}>
+          <View>
+            {profile_picture_url ? (
+              <Image
+                source={{ uri: profile_picture_url }}
+                style={styles.profilePicture}
+              />
+            ) : (
+              <MaterialCommunityIcons
+                style={styles.accountIcon}
+                name="account-circle"
+                size={60}
+                color={colors.primary}
+              />
+            )}
+          </View>
+          <Text style={styles.profilePictureName}>{first_name}</Text>
+        </View>
+
+        {/* <View style={styles.date}>
           <Text style={styles.dateTextMonth}>{booking_month}</Text>
           <Text style={styles.dateTextNumber}>{booking_day}</Text>
-        </View>
+        </View> */}
 
         <View style={styles.verticalLine}></View>
 
         <View style={styles.rightContainer}>
           <View style={styles.right}>
             <View style={styles.staticText}>
+              <Text style={styles.staticLabel}>Date</Text>
+            </View>
+            <View style={styles.dynamicText}>
+              <Text
+                style={styles.dynamicTextFontName}
+              >{`${booking_day_of_week}, ${booking_month} ${booking_day}`}</Text>
+            </View>
+
+            {/* <View style={styles.staticText}>
               <Text style={styles.staticLabel}>Athlete</Text>
             </View>
             <View style={styles.dynamicText}>
               <Text style={styles.dynamicTextFontName}>{first_name}</Text>
-            </View>
+            </View> */}
           </View>
           <View style={styles.right}>
             <View style={styles.staticText}>
-              <Text style={styles.staticLabel}>Appointment Time (local time)</Text>
+              <Text style={styles.staticLabel}>
+                Time (local)
+              </Text>
             </View>
             <View style={styles.dynamicText}>
               <Text style={styles.dynamicTextFont}>{booking_time}</Text>
@@ -166,6 +200,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  profilePictureContainer: {
+    width: "25%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  profilePictureName: {
+    fontWeight: "400",
+    fontSize: 20,
+  },
   date: {
     width: "25%",
     alignItems: "center",
@@ -240,6 +283,13 @@ const styles = StyleSheet.create({
     height: "90%",
     marginTop: 15,
     width: 1,
+    marginRight: "5%",
+  },
+  profilePicture: {
+    width: 60,
+    height: 60,
+    borderRadius: 60 / 2,
+    marginBottom: "5%",
   },
 });
 

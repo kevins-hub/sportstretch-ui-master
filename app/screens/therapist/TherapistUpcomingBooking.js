@@ -23,9 +23,11 @@ function TherapistUpcomingBooking(props) {
   const [appointmentModalVisible, setAppointmentModalVisible] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
 
+  const daysOfWeek= ["Sun, Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
+
   useEffect(() => {
     // wait 30 seconds minute before calling the function
-    setTimeout(() => {
+    setTimeout(() => {+
       loadUpcomingBookings();
     }, 30000);
   }, [upcomingBookings]);
@@ -49,8 +51,10 @@ function TherapistUpcomingBooking(props) {
       let date = new Date(booking.booking_time);
       return {
         ...booking,
-        booking_month: date.toLocaleString("default", { month: "short" }),
+        booking_month: date.toLocaleString("default", { month: "long" }),
         booking_day: date.getDate(),
+        // booking_day_of_week should be "Monday" , "Tuesday", etc.
+        booking_day_of_week: daysOfWeek[date.getDay()],
         booking_time: date.toLocaleString("default", {
           hour: "numeric",
           minute: "numeric",
