@@ -49,6 +49,10 @@ function UpcomingAppointmentModal({
       } else {
         response = await bookings.athleteCancelBooking(booking.bookings_id);
       }
+      if (response.status !== 200) {
+        console.error("Error cancelling appointment", response);
+        return;
+      }
       if (response.data.status === "CancelledRefunded") {
         setCurrentStep(4);
       } else {
@@ -91,7 +95,8 @@ function UpcomingAppointmentModal({
           <Text style={styles.cancelButtonText}>{"Nevermind"}</Text>
         </TouchableOpacity>
         {/* <BookButton title="Request to Book" onPress={onConfirmPress} /> */}
-        {booking.confirmation_status === 1  || booking.confirmation_status === -1 ? (
+        {booking.confirmation_status === 1 ||
+        booking.confirmation_status === -1 ? (
           <TouchableOpacity
             style={styles.cancelAppointmentButton}
             onPress={() => {
