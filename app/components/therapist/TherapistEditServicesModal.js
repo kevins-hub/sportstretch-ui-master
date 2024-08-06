@@ -131,7 +131,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
           </View>
           <TextInput
             style={styles.summaryTextInput}
-            placeholder="Bio / Why should athletes choose you?"
+            placeholder="Professional Bio"
             onChangeText={props.handleChange("summary")}
             value={props.values.summary}
             onBlur={props.handleBlur("summary")}
