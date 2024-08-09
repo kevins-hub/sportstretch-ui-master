@@ -45,15 +45,15 @@ const TherapistAppointmentDeclineModal = ({
       if (values.reason !== "Not available at that time") {
         newBookingDate = "";
       }
-      let booking_status = await bookingsApi.declineBooking(
-        item.therapistData.bookings_id,
-        { reason: values.reason, suggestedBookingDateTime: newBookingDate }
-      );
+      let booking_status = await bookingsApi.declineBooking(item.bookings_id, {
+        reason: values.reason,
+        suggestedBookingDateTime: newBookingDate,
+      });
       if (booking_status.data.confirmation_status === 0) {
         handleDeclineModal(false);
         notificationsApi.notifyAthlete(
           booking_status.data.athlete_id,
-          item.therapistData.bookings_id
+          item.bookings_id
         );
         Alert.alert("Booking Declined");
       } else {

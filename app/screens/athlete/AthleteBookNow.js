@@ -19,12 +19,14 @@ function AthleteBookNow(props) {
 
   const loadLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
+    console.warn("status", status);
     if (status !== "granted") {
       setStateModalVisible(true);
       return;
     }
 
     let athleteLocation = await Location.getCurrentPositionAsync({});
+    console.warn("athleteLocation", athleteLocation);
     setLocation(athleteLocation);
     return athleteLocation;
   };
@@ -52,9 +54,15 @@ function AthleteBookNow(props) {
     try {
       const response = await therapistsApi.getTherapistsByState(athleteRegion);
       let therapistList = response.data;
-      therapistList = therapistList.filter((therapist) => therapist.stripe_account_id !== null && therapist.accepts_payments === true);
+      therapistList = therapistList.filter(
+        (therapist) =>
+          therapist.stripe_account_id !== null &&
+          therapist.accepts_payments === true
+      );
       // sort by rating
-      therapistList.sort((a, b) => Number(b.average_rating) - Number(a.average_rating));
+      therapistList.sort(
+        (a, b) => Number(b.average_rating) - Number(a.average_rating)
+      );
       setTherapists(therapistList);
       setSelectedTherapist(therapistList[0]);
       await loadMarkers(therapistList);

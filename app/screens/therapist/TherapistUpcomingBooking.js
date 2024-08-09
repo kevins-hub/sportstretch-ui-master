@@ -23,11 +23,11 @@ function TherapistUpcomingBooking(props) {
   const [appointmentModalVisible, setAppointmentModalVisible] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
 
-  const daysOfWeek= ["Sun, Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
+  const daysOfWeek = ["Sun, Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
 
   useEffect(() => {
     // wait 30 seconds minute before calling the function
-    setTimeout(() => {+
+    setTimeout(() => {
       loadUpcomingBookings();
     }, 30000);
   }, [upcomingBookings]);
@@ -68,10 +68,20 @@ function TherapistUpcomingBooking(props) {
     //         data = data.filter((item) => item.state == 'New York').map(({id, name, city}) => ({id, name, city}));
     // console.log(data);
     let upcomingBooking_Pending = formattedBookings
-      .filter((item) => item.confirmation_status == -1 && item.status !== "CancelledRefunded" && item.status !== "CancelledNoRefund")
+      .filter(
+        (item) =>
+          item.confirmation_status == -1 &&
+          item.status !== "CancelledRefunded" &&
+          item.status !== "CancelledNoRefund"
+      )
       .map((item) => item);
     let upcomingBookings_Approve = formattedBookings
-      .filter((item) => item.confirmation_status != -1 || item.status == "CancelledRefunded" || item.status == "CancelledNoRefund")
+      .filter(
+        (item) =>
+          item.confirmation_status != -1 ||
+          item.status == "CancelledRefunded" ||
+          item.status == "CancelledNoRefund"
+      )
       .map((item) => item);
 
     setUpcomingBookingPending(upcomingBooking_Pending);
