@@ -31,7 +31,7 @@ function UpcomingAppointmentModal({
   const [currentStep, setCurrentStep] = useState(1);
 
   const cancelWarningText =
-    "Are you sure you want to cancel your existing appointment? Appointments cancelled within 24 hours of the appointment time will be charged a cancellation equalling the full appointment cost.";
+    "Are you sure you want to cancel your existing appointment? Appointments cancelled within 24 hours of the appointment time will be charged a cancellation fee of 20$.";
   const cancelWarningTextTherapist =
     "Are you sure you want to cancel this appointment?";
   const cancelConfirmationRefundText =
