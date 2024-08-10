@@ -16,7 +16,7 @@ import notificationsApi from "../../api/notifications";
 import TherapistAppointmentDeclineModal from "./TherapistAppointmentDeclineModal";
 import bookingsApi from "../../api/bookings";
 
-function TherapistUpcomingPendingCard(item, loadUpcomingBookings) {
+function TherapistUpcomingPendingCard({ therapistData, loadUpcomingBookings }) {
   const {
     booking_day,
     booking_month,
@@ -26,7 +26,7 @@ function TherapistUpcomingPendingCard(item, loadUpcomingBookings) {
     athlete_location,
     booking_time,
     profile_picture_url,
-  } = item.therapistData;
+  } = therapistData;
   const location = athlete_location
     ? athlete_location?.split(",")
     : "Your clinic.";
@@ -52,6 +52,7 @@ function TherapistUpcomingPendingCard(item, loadUpcomingBookings) {
 
   const handleDeclineModal = (val) => {
     setDeclineModal(val);
+    loadUpcomingBookings();
   };
 
   const declineBooking = async () => {
@@ -107,9 +108,7 @@ function TherapistUpcomingPendingCard(item, loadUpcomingBookings) {
           </View>
           <View style={styles.right}>
             <View style={styles.staticText}>
-              <Text style={styles.staticLabel}>
-                Time (local)
-              </Text>
+              <Text style={styles.staticLabel}>Time (local)</Text>
             </View>
             <View style={styles.dynamicText}>
               <Text style={styles.dynamicTextFont}>{booking_time}</Text>
@@ -157,7 +156,7 @@ function TherapistUpcomingPendingCard(item, loadUpcomingBookings) {
         </View>
       </View>
       <TherapistAppointmentDeclineModal
-        item={item}
+        item={therapistData}
         visible={declineModal}
         handleDeclineModal={handleDeclineModal}
       ></TherapistAppointmentDeclineModal>
