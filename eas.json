@@ -26,6 +26,12 @@
         "appleTeamId": "NLY6C5D66U"
       }
     },
-    "production": {}
+    "production": {
+      "ios": {
+        "appleId": "sportstretchapp@gmail.com",
+        "ascAppId": "6624313855",
+        "appleTeamId": "NLY6C5D66U"
+      }
+    }
   }
 }
