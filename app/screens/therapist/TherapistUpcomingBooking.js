@@ -23,7 +23,7 @@ function TherapistUpcomingBooking(props) {
   const [appointmentModalVisible, setAppointmentModalVisible] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
 
-  const daysOfWeek = ["Sun, Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
+  const daysOfWeek = ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
 
   useEffect(() => {
     // wait 30 seconds minute before calling the function

@@ -33,7 +33,6 @@ function TherapistUpcomingPendingCard({ therapistData, loadUpcomingBookings }) {
   const [declineModal, setDeclineModal] = useState(false);
 
   const approveBooking = async () => {
-    console.warn("loadUpcomingBookings --->", loadUpcomingBookings);
     try {
       let booking_status = await bookingsApi.approveBooking(bookings_id);
       if (booking_status.data.confirmation_status === 1) {
