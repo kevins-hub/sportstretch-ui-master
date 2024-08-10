@@ -3,6 +3,12 @@
     "version": ">= 9.0.3"
   },
   "build": {
+    "testflight": {
+      "distribution": "internal",
+      "ios": {
+        "simulator": false
+      }
+    },
     "development": {
       "developmentClient": true,
       "distribution": "internal"
@@ -13,6 +19,13 @@
     "production": {}
   },
   "submit": {
+    "testflight": {
+      "ios": {
+        "appleId": "sportstretchapp@gmail.com",
+        "ascAppId": "6624313855",
+        "appleTeamId": "NLY6C5D66U"
+      }
+    },
     "production": {}
   }
 }
