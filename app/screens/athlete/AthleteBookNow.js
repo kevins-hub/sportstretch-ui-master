@@ -19,14 +19,12 @@ function AthleteBookNow(props) {
 
   const loadLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
-    console.warn("status", status);
     if (status !== "granted") {
       setStateModalVisible(true);
       return;
     }
 
     let athleteLocation = await Location.getCurrentPositionAsync({});
-    console.warn("athleteLocation", athleteLocation);
     setLocation(athleteLocation);
     return athleteLocation;
   };
