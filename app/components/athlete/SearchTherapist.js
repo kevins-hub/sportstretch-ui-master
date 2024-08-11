@@ -62,7 +62,7 @@ function SearchTherapist({ getTherapists, currentState="", isInModal=false, setM
       </Text>
       <RNPickerSelect
         placeholder={{
-          label: currentState ? `${stateShortToLong(currentState)} (click to change)` : "Select a State",
+          label: currentState ? `My state (touch to change)` : "Select a State",
           value: currentState,
         }}
         value={selectedState}
