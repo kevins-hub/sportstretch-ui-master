@@ -7,7 +7,7 @@ import Constants from "expo-constants";
 import colors from "../../config/colors";
 import SearchTherapist from "./SearchTherapist";
 
-function SetStateModal({ user, visible, setVisibility, getTherapists, setAthleteRegion }) {
+function SetStateModal({ user, visible, setVisibility, getTherapists, setAthleteRegion, athleteRegion }) {
   if (!visible) return null;
 
   const navigation = useNavigation();
@@ -27,7 +27,7 @@ function SetStateModal({ user, visible, setVisibility, getTherapists, setAthlete
           <Text style={styles.labelText}>
             We have detected that you currently have location services disabled. Please enable and restart app for the best experience or choose the state you are looking for treatment in.
           </Text>
-          <SearchTherapist getTherapists={getTherapists} isInModal={true} setModalVisibility={setVisibility} setAthleteRegion={setAthleteRegion}></SearchTherapist>
+          <SearchTherapist getTherapists={getTherapists} isInModal={true} setModalVisibility={setVisibility} setAthleteRegion={setAthleteRegion} currentState={athleteRegion}></SearchTherapist>
         </View>
       </BlurView>
     </Modal>

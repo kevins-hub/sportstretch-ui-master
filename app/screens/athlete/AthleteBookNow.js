@@ -118,6 +118,7 @@ function AthleteBookNow(props) {
         setVisibility={setStateModalVisible}
         getTherapists={getTherapists}
         setAthleteRegion={setAthleteRegion}
+        athleteRegion={athleteRegion}
       />
       <SearchTherapist
         getTherapists={getTherapists}
