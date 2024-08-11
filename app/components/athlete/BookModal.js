@@ -5,7 +5,6 @@ import {
   Text,
   View,
   TouchableOpacity,
-  FlatList,
   Button,
   Alert,
   Image,
@@ -17,7 +16,6 @@ import { TextInput, ScrollView } from "react-native-gesture-handler";
 import { BlurView } from "expo-blur";
 import Constants from "expo-constants";
 import bookingsApi from "../../api/bookings";
-import BookButton from "./BookButton";
 import ProgressIndicator from "./ProgressIndicator";
 import DoneIndicator from "./DoneIndicator";
 import notificationsApi from "../../api/notifications";
@@ -25,13 +23,10 @@ import AuthContext from "../../auth/context";
 import colors from "../../config/colors";
 import RadioGroup from "react-native-radio-buttons-group";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import PaymentScreen from "./Payment";
-import { useStripe, PaymentSheet } from "@stripe/stripe-react-native";
+import { useStripe } from "@stripe/stripe-react-native";
 import paymentApi from "../../api/payment";
 import RNPickerSelect from "react-native-picker-select";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import { StripeProvider } from "@stripe/stripe-react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import TermsAndConditions from "../shared/TermsAndConditions";
 
 function BookModal({
@@ -63,7 +58,7 @@ function BookModal({
 
   const [availableDateTimes, setAvailableDateTimes] = useState([]);
   const [timeStrDateTimeMap, setTimeStrDateTimeMap] = useState({});
-  const [paymentIntentId, setPaymentIntentId]  = useState("");
+  const [paymentIntentId, setPaymentIntentId] = useState("");
 
   const getBookingsOnDate = async (date) => {
     try {
@@ -403,7 +398,7 @@ function BookModal({
         subTotal,
         "Yes",
         "Paid",
-        paymentIntentId,
+        paymentIntentId
       );
       //hideProgress & showDone
       setBookingProgress(false);
@@ -439,20 +434,20 @@ function BookModal({
       <Text style={styles.modalText}>
         Book your appointment with {therapistName}!
       </Text>
-        <View style={styles.profilePictureContainer}>
-              {therapistProfilePictureUrl ? (
-                <Image
-                  source={{ uri: therapistProfilePictureUrl }}
-                  style={styles.profilePicture}
-                />
-              ) : (
-                <MaterialCommunityIcons
-                  style={styles.accountIcon}
-                  name="account-circle"
-                  size={80}
-                  color={colors.primary}
-                />
-              )}
+      <View style={styles.profilePictureContainer}>
+        {therapistProfilePictureUrl ? (
+          <Image
+            source={{ uri: therapistProfilePictureUrl }}
+            style={styles.profilePicture}
+          />
+        ) : (
+          <MaterialCommunityIcons
+            style={styles.accountIcon}
+            name="account-circle"
+            size={80}
+            color={colors.primary}
+          />
+        )}
       </View>
       <View style={styles.modalBodyContainer}>
         <View style={styles.propContainer}>
@@ -577,7 +572,20 @@ function BookModal({
                 onValueChange={async (value) => {
                   await handleDurationChange(value);
                 }}
-                items={appointmentDurationOptions}
+                items={
+                  appointmentDurationOptions
+                    ? appointmentDurationOptions
+                    : [
+                        { label: "1 Hour", value: 1 },
+                        { label: "2 Hours", value: 2 },
+                        { label: "3 Hours", value: 3 },
+                        { label: "4 Hours", value: 4 },
+                        { label: "5 Hours", value: 5 },
+                        { label: "6 Hours", value: 6 },
+                        { label: "7 Hours", value: 7 },
+                        { label: "8 Hours", value: 8 },
+                      ]
+                }
                 placeholder={{
                   label: "Select duration for appointment",
                   value: 0,
@@ -730,7 +738,7 @@ function BookModal({
         <Modal animationType="slide" visible={!!termsAndConditionModal}>
           <View style={styles.termAndConditionModalBackground}>
             <Text style={styles.modalText}>Terms and Conditions</Text>
-              <TermsAndConditions />
+            <TermsAndConditions />
             <View
             // style={{
             //   flexDirection: "row",
@@ -1026,7 +1034,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 80 / 2,
-  }
+  },
 });
 
 export default BookModal;

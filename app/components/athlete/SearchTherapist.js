@@ -14,7 +14,7 @@ import therapists from "../../api/therapists";
 import { stateLongToShort, stateShortToLong } from "../../lib/states";
 
 function SearchTherapist({ getTherapists, currentState="", isInModal=false, setModalVisibility, setAthleteRegion }) {
-  const [statesList, setStatesList] = useState([]);
+  const [statesList, setStatesList] = useState(["California"]);
   const [selectedState, setSelectedState] = useState(currentState);
   const options = [];
 
@@ -66,7 +66,7 @@ function SearchTherapist({ getTherapists, currentState="", isInModal=false, setM
           value: currentState,
         }}
         value={selectedState}
-        items={statesList}
+        items={statesList ? statesList : ["California"]}
         onValueChange={(value) => handleSelect(value)}
         style={styles.statePicker}
       />

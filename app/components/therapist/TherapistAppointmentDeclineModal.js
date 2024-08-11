@@ -28,6 +28,10 @@ const TherapistAppointmentDeclineModal = ({
     "Other",
   ];
 
+  const reasonOptionsObj = reasonOptions.map((item) => {
+    return { label: item, value: item };
+  });
+
   const handleSubmit = async (values) => {
     let convertDate = values.date.toLocaleDateString();
     let convertTime = convertDateTimeToLocalTimeStr(values.time);
@@ -115,9 +119,7 @@ const TherapistAppointmentDeclineModal = ({
                       placeholder={{ label: "Select a Reason", value: "" }}
                       onValueChange={handleChange("reason")}
                       onBlur={handleBlur("reason")}
-                      items={reasonOptions.map((item) => {
-                        return { label: item, value: item };
-                      })}
+                      items={reasonOptionsObj ? reasonOptionsObj : [{ label: "Other", value: "Other" }]}
                       value={values.reason}
                     />
                   </View>

@@ -24,11 +24,10 @@ import Constants from "expo-constants";
 import colors from "../../config/colors";
 import { useNavigation } from "@react-navigation/native";
 import registerApi from "../../api/register";
-import { stateLong, states } from "../../lib/states";
+import { states } from "../../lib/states";
 import RNPickerSelect from "react-native-picker-select";
 import Checkbox from "expo-checkbox";
 import TherapistBusinessHours from "../../components/therapist/TherapistBusinessHours";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import payment from "../../api/payment";
 import auth from "../../api/auth";
 import TermsAndConditions from "../../components/shared/TermsAndConditions";
@@ -37,6 +36,10 @@ const bioMaxLength = 250;
 const feesAndTaxesPercentage = 0.15;
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+
+const statesItemsObj = Object.entries(states).map(([abbr, name]) => {
+  return { label: abbr, value: name };
+});
 
 const ReviewSchema = yup.object({
   fname: yup.string().required().min(1).label("First Name"),
@@ -305,7 +308,7 @@ function TherapistForm(props) {
         </View>
         <RNPickerSelect
           onValueChange={props.handleChange("profession")}
-          items={professionsList}
+          items={professionsList ? professionsList : ["Massage Therapist"]}
           placeholder={{ label: "Choose your Discipline", value: "" }}
           value={props.values.profession}
         />
@@ -494,9 +497,7 @@ function TherapistForm(props) {
               placeholder={{ label: "Select A State", value: "" }}
               value={props.values.state}
               onValueChange={props.handleChange("state")}
-              items={Object.entries(states).map(([abbr, name]) => {
-                return { label: abbr, value: name };
-              })}
+              items={statesItemsObj ? statesItemsObj : [{ label: "CA", value: "California" }]}
             ></RNPickerSelect>
           </View>
           {props.touched.state && props.errors.state && (
