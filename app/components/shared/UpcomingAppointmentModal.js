@@ -1,20 +1,14 @@
-import React, { useState, useEffect, useMemo, useContext } from "react";
+import React, { useState } from "react";
 import {
   Modal,
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
-  FlatList,
   Image,
 } from "react-native";
 import { BlurView } from "expo-blur";
 import Constants from "expo-constants";
-
-import { useStripe, PaymentSheet } from "@stripe/stripe-react-native";
-import RNPickerSelect from "react-native-picker-select";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
-import { StripeProvider } from "@stripe/stripe-react-native";
 import colors from "../../config/colors";
 import AthleteAppointmentDetails from "../athlete/AthleteAppointmentDetails";
 import bookings from "../../api/bookings";

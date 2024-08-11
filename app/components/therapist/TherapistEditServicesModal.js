@@ -87,7 +87,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
           </View>
           <RNPickerSelect
             onValueChange={props.handleChange("profession")}
-            items={professionsList}
+            items={professionsList ? professionsList : [{ label: "Massage Therapst", value: "Massage Therapist" }]}
             placeholder={{
               label: "Choose your Discipline",
               value: null,
