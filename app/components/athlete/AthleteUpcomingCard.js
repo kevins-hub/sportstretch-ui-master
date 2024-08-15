@@ -23,7 +23,7 @@ function AthleteUpcomingCard({
 
         <View style={styles.BookingDetailsContainer}>
           <View style={styles.DetailsContainer}>
-            <Text>Appointment Time (local time) : </Text>
+            <Text>Appointment Time (local) : </Text>
             <Text>{BookingTime}</Text>
           </View>
           <View style={styles.DetailsContainer}>
@@ -36,7 +36,17 @@ function AthleteUpcomingCard({
           </View>
           <View style={styles.DetailsContainer}>
             <Text>Status : </Text>
-            <Text style={confirmationStatus === "Approved" ? styles.ApprovedText : confirmationStatus === "Pending" ? styles.PendingText : styles.DeclinedText}>{confirmationStatus}</Text>
+            <Text
+              style={
+                confirmationStatus === "Approved"
+                  ? styles.ApprovedText
+                  : confirmationStatus === "Pending"
+                  ? styles.PendingText
+                  : styles.DeclinedText
+              }
+            >
+              {confirmationStatus}
+            </Text>
           </View>
         </View>
       </View>

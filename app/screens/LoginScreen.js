@@ -173,7 +173,9 @@ function LoginScreen(props) {
                   onPress={() => navigation.navigate("RegisterTherapist")}
                   style={styles.reg}
                 >
-                  <Text style={styles.reg}>{"Recovery Specialist Sign Up"}</Text>
+                  <Text style={styles.reg}>
+                    {"Recovery Specialist Sign Up"}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -252,6 +254,7 @@ const styles = StyleSheet.create({
     marginTop: "20%",
   },
   reg: {
+    flex: 1,
     textDecorationLine: "underline",
     backgroundColor: "#FEFEFE",
     color: "#3F3F3F",
@@ -259,6 +262,7 @@ const styles = StyleSheet.create({
     padding: "2.5%",
     marginTop: "2.5%",
     marginLeft: "0%",
+    textAlign: "center",
   },
   forgotPasswordLink: {
     textDecorationLine: "underline",

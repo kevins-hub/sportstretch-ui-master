@@ -90,7 +90,9 @@ function AthleteBookNowCard({ therapist, athleteAddress, selectedTherapist }) {
                   readonly
                   startingValue={therapist ? therapist.average_rating : 0}
                 />
-                <Text style={{ fontSize: 14, color: colors.gold }}>
+                <Text
+                  style={{ fontSize: 14, color: colors.gold, marginRight: 3 }}
+                >
                   {therapist
                     ? `(${Number(therapist.average_rating).toFixed(1)})`
                     : "(0.0)"}
@@ -173,6 +175,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     alignItems: "right",
     width: "10%",
+    marginRight: 20,
   },
 
   Price: {
@@ -215,7 +218,7 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 60 / 2,
     marginRight: 14,
-  }
+  },
 });
 
 export default AthleteBookNowCard;
