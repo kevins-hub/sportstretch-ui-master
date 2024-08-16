@@ -87,7 +87,11 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
           </View>
           <RNPickerSelect
             onValueChange={props.handleChange("profession")}
-            items={professionsList ? professionsList : [{ label: "Massage Therapst", value: "Massage Therapist" }]}
+            items={
+              professionsList
+                ? professionsList
+                : [{ label: "Massage Therapst", value: "Massage Therapist" }]
+            }
             placeholder={{
               label: "Choose your Discipline",
               value: null,
@@ -163,7 +167,17 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
             onBlur={props.handleBlur("hourlyRate")}
           />
         </View>
-        {props.values.hourlyRate > 0 ? <Text style={styles.actualRateText}>You will recieve : ${parseFloat(props.values.hourlyRate * (1-feesAndTaxesPercentage)).toFixed(2)} per hour.</Text> : <></>}
+        {props.values.hourlyRate > 0 ? (
+          <Text style={styles.actualRateText}>
+            You will recieve : $
+            {parseFloat(
+              props.values.hourlyRate * (1 - feesAndTaxesPercentage)
+            ).toFixed(2)}{" "}
+            per hour.
+          </Text>
+        ) : (
+          <></>
+        )}
         {props.touched.hourlyRate && props.errors.hourlyRate && (
           <Text style={styles.errorText}>{props.errors.hourlyRate}</Text>
         )}
@@ -386,47 +400,49 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
       visible={visible}
       onRequestClose={() => {}}
     >
-      <BlurView intensity={50} style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <Formik
-            initialValues={{
-              addressL1: therapist.street,
-              addressL2: therapist.apartment_no,
-              city: therapist.city,
-              state: therapist.state,
-              zipcode: therapist.zipcode,
-              profession: therapist.profession,
-              services: therapist.services,
-              summary: therapist.summary,
-              hourlyRate: therapist.hourly_rate,
-              licenseUrl: therapist.license_infourl,
-              acceptsHouseCalls: therapist.accepts_house_calls ? true : false,
-              acceptsInClinic: therapist.accepts_in_clinic ? true : false,
-            }}
-            validationSchema={ReviewSchema}
-            onSubmit={async (values, actions) => {
-              values.state = stateConverter(values.state);
-              try {
-                let response = await therapists.editTherapist(
-                  therapist.therapist_id,
-                  values
-                );
-                actions.resetForm();
-                setVisibility(false);
-              } catch (e) {
-                console.warn("Error updating therapist: ", e);
-              }
-            }}
-          >
-            {(props) => (
-              <>
-                {currentStep === 1 && <ServicesStep {...props} />}
-                {currentStep === 2 && <LicenseStep {...props} />}
-              </>
-            )}
-          </Formik>
-        </View>
-      </BlurView>
+      <ScrollView>
+        <BlurView intensity={50} style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Formik
+              initialValues={{
+                addressL1: therapist.street,
+                addressL2: therapist.apartment_no,
+                city: therapist.city,
+                state: therapist.state,
+                zipcode: therapist.zipcode,
+                profession: therapist.profession,
+                services: therapist.services,
+                summary: therapist.summary,
+                hourlyRate: therapist.hourly_rate,
+                licenseUrl: therapist.license_infourl,
+                acceptsHouseCalls: therapist.accepts_house_calls ? true : false,
+                acceptsInClinic: therapist.accepts_in_clinic ? true : false,
+              }}
+              validationSchema={ReviewSchema}
+              onSubmit={async (values, actions) => {
+                values.state = stateConverter(values.state);
+                try {
+                  let response = await therapists.editTherapist(
+                    therapist.therapist_id,
+                    values
+                  );
+                  actions.resetForm();
+                  setVisibility(false);
+                } catch (e) {
+                  console.warn("Error updating therapist: ", e);
+                }
+              }}
+            >
+              {(props) => (
+                <>
+                  {currentStep === 1 && <ServicesStep {...props} />}
+                  {currentStep === 2 && <LicenseStep {...props} />}
+                </>
+              )}
+            </Formik>
+          </View>
+        </BlurView>
+      </ScrollView>
     </Modal>
   );
 }
@@ -451,7 +467,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    height: 800,
+    height: 750,
     width: 350,
     display: "flex",
     flexDirection: "column",

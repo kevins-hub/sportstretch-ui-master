@@ -48,7 +48,7 @@ function ProfilePictureUploadModal({
       if (result.status === 201) {
         setUploadDone(true);
         setTimeout(() => {
-          setUploadDone(false)
+          setUploadDone(false);
         }, 2000);
         setVisibility(false);
       } else {
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    height: "50%",
+    height: "60%",
     width: 300,
   },
   modalContent: {
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     alignItems: "left",
   },
   buttonContainer: {
-    position: "absolute",
+    position: "relative",
     bottom: 0,
     justifyContent: "center",
     alignItems: "center",
