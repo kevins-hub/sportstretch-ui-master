@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    height: "50%",
+    height: "55%",
     width: 300,
   },
   modalContent: {

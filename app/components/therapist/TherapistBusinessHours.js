@@ -52,9 +52,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
 
   const initBusinessHours = () => {
     // take businessHours object and set state for each day of the week
-
-  }
- 
+  };
 
   const updateBusinessHours = (numDayOfWeek) => {
     newBusinessHours[numDayOfWeek] = [];
@@ -430,7 +428,6 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
     return newDate;
   };
 
-
   const handleSubmit = async ({ businessHours }) => {
     try {
       // const result = await therapistApi.setBusinessHours(user.userObj.therapist_id, businessHours);
@@ -508,9 +505,21 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={monday[index][0]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "monday", index, 0)}
+                        onChange={(event, selectedDate) =>
+                          handleTimeChange(
+                            event,
+                            selectedDate,
+                            "monday",
+                            index,
+                            0
+                          )
+                        }
                         style={styles.datePicker}
-                        minimumDate={index > 0 ? addHalfHourToDate(monday[index - 1][1]) : null}
+                        minimumDate={
+                          index > 0
+                            ? addHalfHourToDate(monday[index - 1][1])
+                            : null
+                        }
                       />
                       <Text style={styles.timeSlotText}>to</Text>
                       <DateTimePicker
@@ -518,7 +527,15 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={monday[index][1]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "monday", index, 1)}
+                        onChange={(event, selectedDate) =>
+                          handleTimeChange(
+                            event,
+                            selectedDate,
+                            "monday",
+                            index,
+                            1
+                          )
+                        }
                         style={styles.datePicker}
                         minimumDate={addHalfHourToDate(monday[index][0])}
                       />
@@ -577,9 +594,21 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={tuesday[index][0]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "tuesday", index, 0)}
+                        onChange={(event, selectedDate) =>
+                          handleTimeChange(
+                            event,
+                            selectedDate,
+                            "tuesday",
+                            index,
+                            0
+                          )
+                        }
                         style={styles.datePicker}
-                        minimumDate={index > 0 ? addHalfHourToDate(tuesday[index - 1][1]) : null}
+                        minimumDate={
+                          index > 0
+                            ? addHalfHourToDate(tuesday[index - 1][1])
+                            : null
+                        }
                       />
                       <Text style={styles.timeSlotText}>to</Text>
                       <DateTimePicker
@@ -587,7 +616,15 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={tuesday[index][1]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "tuesday", index, 1)}
+                        onChange={(event, selectedDate) =>
+                          handleTimeChange(
+                            event,
+                            selectedDate,
+                            "tuesday",
+                            index,
+                            1
+                          )
+                        }
                         style={styles.datePicker}
                         minimumDate={addHalfHourToDate(tuesday[index][0])}
                       />
@@ -645,9 +682,21 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={wednesday[index][0]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "wednesday", index, 0)}
+                        onChange={(event, selectedDate) =>
+                          handleTimeChange(
+                            event,
+                            selectedDate,
+                            "wednesday",
+                            index,
+                            0
+                          )
+                        }
                         style={styles.datePicker}
-                        minimumDate={index > 0 ? addHalfHourToDate(wednesday[index - 1][1]) : null}
+                        minimumDate={
+                          index > 0
+                            ? addHalfHourToDate(wednesday[index - 1][1])
+                            : null
+                        }
                       />
                       <Text style={styles.timeSlotText}>to</Text>
                       <DateTimePicker
@@ -655,7 +704,15 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={wednesday[index][1]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "wednesday", index, 1)}
+                        onChange={(event, selectedDate) =>
+                          handleTimeChange(
+                            event,
+                            selectedDate,
+                            "wednesday",
+                            index,
+                            1
+                          )
+                        }
                         style={styles.datePicker}
                         minimumDate={addHalfHourToDate(wednesday[index][0])}
                       />
@@ -714,9 +771,21 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={thursday[index][0]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "thursday", index, 0)}
+                        onChange={(event, selectedDate) =>
+                          handleTimeChange(
+                            event,
+                            selectedDate,
+                            "thursday",
+                            index,
+                            0
+                          )
+                        }
                         style={styles.datePicker}
-                        minimumDate={index > 0 ? addHalfHourToDate(thursday[index - 1][1]) : null}
+                        minimumDate={
+                          index > 0
+                            ? addHalfHourToDate(thursday[index - 1][1])
+                            : null
+                        }
                       />
                       <Text style={styles.timeSlotText}>to</Text>
                       <DateTimePicker
@@ -724,7 +793,15 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={thursday[index][1]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "thursday", index, 1)}
+                        onChange={(event, selectedDate) =>
+                          handleTimeChange(
+                            event,
+                            selectedDate,
+                            "thursday",
+                            index,
+                            1
+                          )
+                        }
                         style={styles.datePicker}
                         minimumDate={addHalfHourToDate(thursday[index][0])}
                       />
@@ -781,9 +858,21 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={friday[index][0]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "friday", index, 0)}
+                        onChange={(event, selectedDate) =>
+                          handleTimeChange(
+                            event,
+                            selectedDate,
+                            "friday",
+                            index,
+                            0
+                          )
+                        }
                         style={styles.datePicker}
-                        minimumDate={index > 0 ? addHalfHourToDate(friday[index - 1][1]) : null}
+                        minimumDate={
+                          index > 0
+                            ? addHalfHourToDate(friday[index - 1][1])
+                            : null
+                        }
                       />
                       <Text style={styles.timeSlotText}>to</Text>
                       <DateTimePicker
@@ -791,7 +880,15 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={friday[index][1]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "friday", index, 1)}
+                        onChange={(event, selectedDate) =>
+                          handleTimeChange(
+                            event,
+                            selectedDate,
+                            "friday",
+                            index,
+                            1
+                          )
+                        }
                         style={styles.datePicker}
                         minimumDate={addHalfHourToDate(friday[index][0])}
                       />
@@ -849,9 +946,21 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={saturday[index][0]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "saturday", index, 0)}
+                        onChange={(event, selectedDate) =>
+                          handleTimeChange(
+                            event,
+                            selectedDate,
+                            "saturday",
+                            index,
+                            0
+                          )
+                        }
                         style={styles.datePicker}
-                        minimumDate={index > 0 ? addHalfHourToDate(saturday[index - 1][1]) : null}
+                        minimumDate={
+                          index > 0
+                            ? addHalfHourToDate(saturday[index - 1][1])
+                            : null
+                        }
                       />
                       <Text style={styles.timeSlotText}>to</Text>
                       <DateTimePicker
@@ -859,7 +968,15 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={saturday[index][1]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "saturday", index, 1)}
+                        onChange={(event, selectedDate) =>
+                          handleTimeChange(
+                            event,
+                            selectedDate,
+                            "saturday",
+                            index,
+                            1
+                          )
+                        }
                         style={styles.datePicker}
                         minimumDate={addHalfHourToDate(saturday[index][0])}
                       />
@@ -917,9 +1034,21 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={sunday[index][0]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "sunday", index, 0)}
+                        onChange={(event, selectedDate) =>
+                          handleTimeChange(
+                            event,
+                            selectedDate,
+                            "sunday",
+                            index,
+                            0
+                          )
+                        }
                         style={styles.datePicker}
-                        minimumDate={index > 0 ? addHalfHourToDate(sunday[index - 1][1]) : null}
+                        minimumDate={
+                          index > 0
+                            ? addHalfHourToDate(sunday[index - 1][1])
+                            : null
+                        }
                       />
                       <Text style={styles.timeSlotText}>to</Text>
                       <DateTimePicker
@@ -927,7 +1056,15 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
                         value={sunday[index][1]}
                         mode="time"
                         display="default"
-                        onChange={(event, selectedDate) => handleTimeChange(event, selectedDate, "sunday", index, 1)}
+                        onChange={(event, selectedDate) =>
+                          handleTimeChange(
+                            event,
+                            selectedDate,
+                            "sunday",
+                            index,
+                            1
+                          )
+                        }
                         style={styles.datePicker}
                         minimumDate={addHalfHourToDate(sunday[index][0])}
                       />
