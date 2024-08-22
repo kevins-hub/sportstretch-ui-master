@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useContext } from "react";
+import React, { useState, useEffect, useMemo, useContext, useRef } from "react";
 import {
   Modal,
   StyleSheet,
@@ -181,6 +181,7 @@ function BookModal({
         convertDateTimeToLocalTimeStr(dateTime);
       return { key: id, text: dateTime.toISOString() };
     });
+
     setAvailableDateTimes(availableDateTimeStrs);
     setTimeStrDateTimeMap(timeStrMap);
     return;
@@ -200,11 +201,14 @@ function BookModal({
     therapistHourly * appointmentDuration
   );
   const [selectedDateTime, setSelectedDateTime] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date());
   // const [selectedDateTime, setSelectedDateTime] = useState(new Date());
   const [currentStep, setCurrentStep] = useState(1);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [termsAndConditionModal, setTermsAndConditionModal] = useState(false);
   const [termsAndCondition, setTermsAndCondition] = useState(false);
+  const refDateTime = useRef();
+  const refDate = useRef();
   // const [clientSecret, setClientSecret] = useState("");
   // const [availableDateTimes, setAvailableDateTimes] = useState([]);
   // const {initPaymentSheet} = useStripe();
@@ -212,7 +216,14 @@ function BookModal({
   // let minDate = new Date();
 
   useEffect(() => {
-    getAvailableTimes(selectedDateTime, appointmentDuration);
+    refDateTime.current = selectedDateTime;
+    refDate.current = selectedDate;
+  });
+
+  useEffect(() => {
+    if (refDateTime.current.toLocaleDateString() !== refDate.current) {
+      getAvailableTimes(selectedDateTime, appointmentDuration);
+    }
   }, [selectedDateTime, appointmentDuration]);
 
   const getTimeFromMap = (dateTimeISOString) => {
@@ -221,6 +232,11 @@ function BookModal({
 
   const handleDateChange = (event, selectedDate) => {
     setSelectedDateTime(selectedDate);
+  };
+
+  const handleNewTimeSlot = (time) => {
+    setSelectedDate(time.toLocaleDateString());
+    setSelectedDateTime(time);
   };
 
   const appointmentDurationOptions = [
@@ -285,6 +301,11 @@ function BookModal({
       (time) => time.text === selectedDateTime.toISOString()
     );
 
+    const test = availableDateTimes.filter(
+      (item) =>
+        selectedDateTime.toLocaleString() ==
+        new Date(item.text).toLocaleString()
+    );
     if (availableDateTimes.length <= 0) {
       Alert.alert(
         "Error",
@@ -542,7 +563,8 @@ function BookModal({
                           : styles.timeSlotButton
                       }
                       onPress={() => {
-                        setSelectedDateTime(new Date(item.text));
+                        handleNewTimeSlot(new Date(item.text));
+                        // setSelectedDateTime(new Date(item.text));
                       }}
                     >
                       <Text
