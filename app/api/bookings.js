@@ -31,6 +31,10 @@ const bookATherapist = (
   status,
   payment_intent_id
 ) => {
+
+  // convert booking date into YYYY-MM-DD format
+  booking_date = booking_date.toISOString().split("T")[0];
+  
   return apiClient.post(endpoint, {
     athlete_id: athleteId,
     athlete_location: athleteAddress,

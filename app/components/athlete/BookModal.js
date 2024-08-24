@@ -396,7 +396,7 @@ function BookModal({
         therapistHourly,
         appointmentDuration,
         subTotal,
-        "Yes",
+        true,
         "Paid",
         paymentIntentId
       );
