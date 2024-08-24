@@ -50,6 +50,23 @@ function TherapistUpcomingPendingCard({ therapistData, loadUpcomingBookings }) {
     }
   };
 
+  const confirmBooking = async () => {
+    Alert.alert(
+      "Confirm Booking?",
+      "By accepting this appointment, all other pending appointment requests for this time slot will be declined.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Accept",
+          onPress: () => approveBooking(),
+        },
+      ]
+    );
+  };
+
   const handleDeclineModal = (val) => {
     setDeclineModal(val);
     loadUpcomingBookings();
@@ -141,7 +158,7 @@ function TherapistUpcomingPendingCard({ therapistData, loadUpcomingBookings }) {
           <View style={styles.right}>
             <TouchableOpacity
               style={styles.acceptButton}
-              onPress={approveBooking}
+              onPress={confirmBooking}
             >
               <Text style={styles.acceptButtonText}>Accept</Text>
             </TouchableOpacity>
