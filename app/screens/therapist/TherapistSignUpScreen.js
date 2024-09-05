@@ -117,7 +117,7 @@ function TherapistForm(props) {
   };
 
   const professionsList = [
-    { label: "Massage Therapst", value: "Massage Therapist" },
+    { label: "Massage Therapist", value: "Massage Therapist" },
     { label: "Physical Therapist", value: "Physical Therapist" },
     { label: "Athletic Trainer", value: "Athletic Trainer" },
     { label: "Chiropractor", value: "Chiropractor" },
