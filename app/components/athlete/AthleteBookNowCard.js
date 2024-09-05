@@ -11,7 +11,6 @@ function AthleteBookNowCard({ therapist, athleteAddress, selectedTherapist }) {
   if (!therapist) return null;
   if (!therapist.hourly_rate) return null;
 
-  console.warn("therapist.profession = ", therapist.profession);
 
   const [modalVisible, setModalVisible] = useState(false);
   const { user, setUser } = useContext(AuthContext);
