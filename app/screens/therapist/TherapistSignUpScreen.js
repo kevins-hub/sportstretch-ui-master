@@ -309,7 +309,7 @@ function TherapistForm(props) {
         <RNPickerSelect
           onValueChange={props.handleChange("profession")}
           items={professionsList ? professionsList : ["Massage Therapist"]}
-          placeholder={{ label: "Choose your Discipline", value: "" }}
+          placeholder={{ label: "Choose your Primary Discipline", value: "" }}
           value={props.values.profession}
         />
       </View>
@@ -328,7 +328,7 @@ function TherapistForm(props) {
         </View>
         <TextInput
           style={{ flex: 1, flexWrap: "wrap" }}
-          placeholder="Services Offered"
+          placeholder="Additional Services Offered"
           onChangeText={props.handleChange("services")}
           value={props.values.services}
           onBlur={props.handleBlur("services")}
