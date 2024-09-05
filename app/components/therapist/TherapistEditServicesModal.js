@@ -93,7 +93,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
                 : [{ label: "Massage Therapst", value: "Massage Therapist" }]
             }
             placeholder={{
-              label: "Choose your Discipline",
+              label: "Choose your Primary Discipline",
               value: null,
             }}
             value={props.values.profession}
@@ -114,7 +114,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
           </View>
           <TextInput
             style={{ flex: 1, flexWrap: "wrap" }}
-            placeholder="Services Offered"
+            placeholder="Additional Services Offered"
             onChangeText={props.handleChange("services")}
             value={props.values.services}
             onBlur={props.handleBlur("services")}

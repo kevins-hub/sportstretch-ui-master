@@ -518,7 +518,7 @@ function ProfileSettings({ route }) {
             {user.role === "therapist" && (
               <View style={styles.cardOutterContainer}>
                 <View style={styles.cardInnerContainer}>
-                  <Text style={styles.cardTitle}>Specialist Profile</Text>
+                  <Text style={styles.cardTitle}>Recovery Specialist Profile</Text>
                   <TouchableOpacity
                     style={styles.button}
                     onPress={() => setEditTherapistServicesModalVisible(true)}
@@ -528,12 +528,16 @@ function ProfileSettings({ route }) {
                     </View>
                   </TouchableOpacity>
                   <View style={styles.cardContent}>
+                     <View style={styles.propContainer}>
+                      <Text style={styles.propLabel}>Primary Discipline:</Text>
+                      <Text>{therapist.profession}</Text>
+                    </View>
                     <View style={styles.propContainer}>
-                      <Text style={styles.propLabel}>Services Offered:</Text>
+                      <Text style={styles.propLabel}>Additional Services Offered:</Text>
                       <Text>{therapist.services}</Text>
                     </View>
                     <View style={styles.propContainer}>
-                      <Text style={styles.propLabel}>Summary: </Text>
+                      <Text style={styles.propLabel}>Professional Bio: </Text>
                       <Text>{therapist.summary}</Text>
                     </View>
                     <View style={styles.propContainer}>

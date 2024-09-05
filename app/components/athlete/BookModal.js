@@ -47,6 +47,7 @@ function BookModal({
   therapistState,
   therapistZipCode,
   therapistProfilePictureUrl,
+  therapistProfession,
 }) {
   if (!visible) return null;
 
@@ -476,11 +477,15 @@ function BookModal({
           <Text style={styles.propText}>{therapistName}</Text>
         </View>
         <View style={styles.propContainer}>
-          <Text style={styles.propTitle}>Summary:</Text>
+          <Text style={styles.propTitle}>Primary Discipline:</Text>
+          <Text style={styles.propText}>{therapistProfession}</Text>
+        </View>
+        <View style={styles.propContainer}>
+          <Text style={styles.propTitle}>Professional Bio:</Text>
           <Text style={styles.propText}>{therapistSummary}</Text>
         </View>
         <View style={styles.propContainer}>
-          <Text style={styles.propTitle}>Services:</Text>
+          <Text style={styles.propTitle}>Additional Services Offered:</Text>
           <Text style={styles.propText}>{therapistServices}</Text>
         </View>
         <View style={styles.propContainer}>
