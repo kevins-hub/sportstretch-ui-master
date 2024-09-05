@@ -207,6 +207,11 @@ function ProfileSettings({ route }) {
     })();
   }, [profilePictureModalVisible]);
 
+  useEffect(() => {
+    getTherapist();
+  }, [editTherapistServicesModalVisible]);
+
+
   const handleModalClose = () => {
     setEditContactInfoModalVisible(false);
     fetchContactInfo();
@@ -289,7 +294,7 @@ function ProfileSettings({ route }) {
               </Text>
               <Text>
                 {user.role === "therapist"
-                  ? userObj.profession
+                  ? therapist.profession
                   : user.role.charAt(0).toUpperCase() + user.role.slice(1)}
               </Text>
             </View>
@@ -324,7 +329,7 @@ function ProfileSettings({ route }) {
                   <View style={styles.cardContent}>
                     <View style={styles.paymentStatusContainer}>
                       {user.role === "therapist" &&
-                      user.userObj.enabled !== 1 ? (
+                      therapist.enabled !== 1 ? (
                         <>
                           <MaterialCommunityIcons
                             name="alert"
@@ -333,11 +338,10 @@ function ProfileSettings({ route }) {
                             color="orange"
                           />
                           <Text style={styles.paymentStatusTitle}>
-                            Account not yet enabled
+                            Account pending approval
                           </Text>
                           <Text>
-                            Your account is not yet enabled. Please wait for
-                            admin approval.
+                            Please wait while our team reviews your profile.
                           </Text>
                         </>
                       ) : !isPaymentsEnabled ? (
