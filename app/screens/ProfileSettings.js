@@ -8,6 +8,7 @@ import {
   Linking,
   Image,
   AppState,
+  Alert,
 } from "react-native";
 import LogOutButton from "../components/shared/LogOutButton";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -521,7 +522,24 @@ function ProfileSettings({ route }) {
                   <Text style={styles.cardTitle}>Recovery Specialist Profile</Text>
                   <TouchableOpacity
                     style={styles.button}
-                    onPress={() => setEditTherapistServicesModalVisible(true)}
+                    onPress={() => {
+                      Alert.alert(
+                        "Edits in this section will require approval from our team. Are you sure you want to edit?",
+                        "",
+                        [
+                          {
+                            text: "Cancel",
+                            style: "cancel",
+                          },
+                          {
+                            text: "Edit",
+                            onPress: () => {
+                              setEditTherapistServicesModalVisible(true);
+                            },
+                          },
+                        ]
+                      )
+                    }}
                   >
                     <View>
                       <Text style={styles.buttonText}>Edit</Text>

@@ -1,5 +1,12 @@
 import React, { useState, useContext } from "react";
-import { Modal, StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import {
+  Modal,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { TextInput, ScrollView } from "react-native-gesture-handler";
 import { BlurView } from "expo-blur";
@@ -400,9 +407,9 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
       visible={visible}
       onRequestClose={() => {}}
     >
-      <ScrollView>
-        <BlurView intensity={50} style={styles.centeredView}>
-          <View style={styles.modalView}>
+      <BlurView intensity={50} style={styles.centeredView}>
+        <View style={styles.modalView}>
+          <ScrollView>
             <Formik
               initialValues={{
                 addressL1: therapist.street,
@@ -420,17 +427,32 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
               }}
               validationSchema={ReviewSchema}
               onSubmit={async (values, actions) => {
-                values.state = stateConverter(values.state);
-                try {
-                  let response = await therapists.editTherapist(
-                    therapist.therapist_id,
-                    values
-                  );
-                  actions.resetForm();
-                  setVisibility(false);
-                } catch (e) {
-                  console.warn("Error updating therapist: ", e);
-                }
+                Alert.alert(
+                  "Are you sure you want to submit these changes?",
+                  "By submitting changes to your recovery profile, your profile will need to be reviewed by our team and re-approved. This process may take up to 2-3 business days. You will not be able to accept bookigns at this time. (existing bookings will be unaffected)",
+                  [
+                    {
+                      text: "Cancel",
+                      style: "cancel",
+                    },
+                    {
+                      text: "Submit",
+                      onPress: async () => {
+                        values.state = stateConverter(values.state);
+                        try {
+                          let response = await therapists.editTherapist(
+                            therapist.therapist_id,
+                            values
+                          );
+                          actions.resetForm();
+                          setVisibility(false);
+                        } catch (e) {
+                          console.warn("Error updating therapist: ", e);
+                        }
+                      },
+                    },
+                  ]
+                );
               }}
             >
               {(props) => (
@@ -440,9 +462,9 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
                 </>
               )}
             </Formik>
-          </View>
-        </BlurView>
-      </ScrollView>
+          </ScrollView>
+        </View>
+      </BlurView>
     </Modal>
   );
 }
