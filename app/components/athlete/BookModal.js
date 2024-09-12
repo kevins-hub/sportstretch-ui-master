@@ -239,17 +239,20 @@ function BookModal({
   // console.warn("render");
 
   useEffect(() => {
-    console.log("selectedDateTime", selectedDateTime);
     refDateTime.current = selectedDateTime;
     refDate.current = selectedDate;
-  }, [refDateTime.current, refDate.current]);
+  });
 
   useEffect(() => {
-    console.log(refDateTime.current.toLocaleDateString(), refDate.current);
     if (refDateTime.current.toLocaleDateString() !== refDate.current) {
       getAvailableTimes(selectedDateTime, appointmentDuration);
     }
-  }, [selectedDateTime, appointmentDuration]);
+  }, [
+    selectedDateTime,
+    appointmentDuration,
+    refDateTime.current,
+    refDate.current,
+  ]);
 
   const getTimeFromMap = (dateTimeISOString) => {
     return timeStrDateTimeMap[dateTimeISOString];
@@ -260,7 +263,6 @@ function BookModal({
   };
 
   const handleNewTimeSlot = (time) => {
-    console.log("time", time);
     setSelectedDate(time.toLocaleDateString());
     setSelectedDateTime(time);
   };
@@ -323,9 +325,7 @@ function BookModal({
       );
 
   const proceedToReview = async (values) => {
-    console.warn("values", values);
     let formattedAddress = "";
-
     for (let key in values) {
       if (values[key]) {
         if (formattedAddress) {
@@ -334,7 +334,6 @@ function BookModal({
         formattedAddress += values[key];
       }
     }
-    console.warn(formattedAddress);
     if (!!formattedAddress) {
       setAthleteAddress(formattedAddress);
     }
