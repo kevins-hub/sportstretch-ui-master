@@ -8,6 +8,7 @@ import {
   Linking,
   Image,
   AppState,
+  Alert,
 } from "react-native";
 import LogOutButton from "../components/shared/LogOutButton";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -206,6 +207,11 @@ function ProfileSettings({ route }) {
     })();
   }, [profilePictureModalVisible]);
 
+  useEffect(() => {
+    getTherapist();
+  }, [editTherapistServicesModalVisible]);
+
+
   const handleModalClose = () => {
     setEditContactInfoModalVisible(false);
     fetchContactInfo();
@@ -288,7 +294,7 @@ function ProfileSettings({ route }) {
               </Text>
               <Text>
                 {user.role === "therapist"
-                  ? userObj.profession
+                  ? therapist.profession
                   : user.role.charAt(0).toUpperCase() + user.role.slice(1)}
               </Text>
             </View>
@@ -323,7 +329,7 @@ function ProfileSettings({ route }) {
                   <View style={styles.cardContent}>
                     <View style={styles.paymentStatusContainer}>
                       {user.role === "therapist" &&
-                      user.userObj.enabled !== 1 ? (
+                      therapist.enabled !== 1 ? (
                         <>
                           <MaterialCommunityIcons
                             name="alert"
@@ -332,11 +338,10 @@ function ProfileSettings({ route }) {
                             color="orange"
                           />
                           <Text style={styles.paymentStatusTitle}>
-                            Account not yet enabled
+                            Account pending approval
                           </Text>
                           <Text>
-                            Your account is not yet enabled. Please wait for
-                            admin approval.
+                            Please wait while our team reviews your profile.
                           </Text>
                         </>
                       ) : !isPaymentsEnabled ? (
@@ -518,22 +523,43 @@ function ProfileSettings({ route }) {
             {user.role === "therapist" && (
               <View style={styles.cardOutterContainer}>
                 <View style={styles.cardInnerContainer}>
-                  <Text style={styles.cardTitle}>Specialist Profile</Text>
+                  <Text style={styles.cardTitle}>Recovery Specialist Profile</Text>
                   <TouchableOpacity
                     style={styles.button}
-                    onPress={() => setEditTherapistServicesModalVisible(true)}
+                    onPress={() => {
+                      Alert.alert(
+                        "Edits in this section will require approval from our team. Are you sure you want to edit?",
+                        "",
+                        [
+                          {
+                            text: "Cancel",
+                            style: "cancel",
+                          },
+                          {
+                            text: "Edit",
+                            onPress: () => {
+                              setEditTherapistServicesModalVisible(true);
+                            },
+                          },
+                        ]
+                      )
+                    }}
                   >
                     <View>
                       <Text style={styles.buttonText}>Edit</Text>
                     </View>
                   </TouchableOpacity>
                   <View style={styles.cardContent}>
+                     <View style={styles.propContainer}>
+                      <Text style={styles.propLabel}>Primary Discipline:</Text>
+                      <Text>{therapist.profession}</Text>
+                    </View>
                     <View style={styles.propContainer}>
-                      <Text style={styles.propLabel}>Services Offered:</Text>
+                      <Text style={styles.propLabel}>Additional Services Offered:</Text>
                       <Text>{therapist.services}</Text>
                     </View>
                     <View style={styles.propContainer}>
-                      <Text style={styles.propLabel}>Summary: </Text>
+                      <Text style={styles.propLabel}>Professional Bio: </Text>
                       <Text>{therapist.summary}</Text>
                     </View>
                     <View style={styles.propContainer}>

@@ -11,6 +11,7 @@ function AthleteBookNowCard({ therapist, athleteAddress, selectedTherapist }) {
   if (!therapist) return null;
   if (!therapist.hourly_rate) return null;
 
+
   const [modalVisible, setModalVisible] = useState(false);
   const { user, setUser } = useContext(AuthContext);
 
@@ -34,6 +35,7 @@ function AthleteBookNowCard({ therapist, athleteAddress, selectedTherapist }) {
         therapistState={therapist.state}
         therapistZipCode={therapist.zipcode}
         therapistProfilePictureUrl={therapist.profile_picture_url}
+        therapistProfession={therapist.profession}
       />
       <View style={styles.OuterContainer}>
         <View
