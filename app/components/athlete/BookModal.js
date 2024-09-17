@@ -409,13 +409,13 @@ function BookModal({
         athleteLocation = `${therapistStreet}, ${therapistCity}, ${therapistState}, ${therapistZipCode}`;
       }
 
-      await bookingsApi.bookATherapist(
+      response = await bookingsApi.bookATherapist(
         athleteId,
         athleteLocation,
         therapistId,
         selectedDateTime,
         bookingDate,
-        therapistHourly,
+        therapistHourly, 
         appointmentDuration,
         subTotal,
         true,
@@ -424,6 +424,20 @@ function BookModal({
       );
       //hideProgress & showDone
       setBookingProgress(false);
+      if (response.status > 299) {
+        Alert.alert(
+          "Error",
+          `There was an error processing your request: ${response.data}. Please try again. You have not been charged.`,
+          [
+            {
+              text: "OK",
+              onPress: () => console.log("OK Pressed"),
+            },
+          ],
+          { cancelable: false }
+        );
+        return;
+      }
       setBookingDone(true);
       //navigate
       setTimeout(function () {
