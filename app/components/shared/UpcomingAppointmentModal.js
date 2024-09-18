@@ -13,6 +13,7 @@ import colors from "../../config/colors";
 import AthleteAppointmentDetails from "../athlete/AthleteAppointmentDetails";
 import bookings from "../../api/bookings";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { handleError } from "../../lib/error";
 
 function UpcomingAppointmentModal({
   booking,
@@ -43,10 +44,7 @@ function UpcomingAppointmentModal({
       } else {
         response = await bookings.athleteCancelBooking(booking.bookings_id);
       }
-      if (response.status !== 200) {
-        console.error("Error cancelling appointment", response);
-        return;
-      }
+      if (handleError(response)) return;
       if (response.data.status === "CancelledRefunded") {
         setCurrentStep(4);
       } else {

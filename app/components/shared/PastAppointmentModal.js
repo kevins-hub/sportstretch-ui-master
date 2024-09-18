@@ -6,6 +6,7 @@ import {
   View,
   TouchableOpacity,
   FlatList,
+  Alert,
   TextInput,
 } from "react-native";
 import { BlurView } from "expo-blur";
@@ -15,6 +16,7 @@ import AthleteAppointmentDetails from "../athlete/AthleteAppointmentDetails";
 import AuthContext from "../../auth/context";
 import { Formik } from "formik";
 import report from "../../api/report";
+import { handleError } from "../../lib/error";
 
 function PastAppointmentModal({ booking, setVisibility, visible }) {
   if (!visible) return null;
@@ -59,8 +61,9 @@ function PastAppointmentModal({ booking, setVisibility, visible }) {
       <Formik
         initialValues={{ reportIssue: "" }}
         onSubmit={(values) => {
-          handleConfirmReport(values.reportIssue);
-          setVisibility(false);
+          if (handleConfirmReport(values.reportIssue)) {
+            setVisibility(false);
+          };
         }}
       >
         {({ handleChange, handleBlur, handleSubmit, values }) => (
@@ -99,12 +102,20 @@ function PastAppointmentModal({ booking, setVisibility, visible }) {
   );
 
   const handleConfirmReport = async (issue) => {
-    const reportIssueObj = {
-      booking_id: booking.bookings_id,
-      issue: issue,
-      reporter_auth_id: userAuthId,
-    };
-    report.reportIssue(reportIssueObj);
+    try {
+      const reportIssueObj = {
+        booking_id: booking.bookings_id,
+        issue: issue,
+        reporter_auth_id: userAuthId,
+      };
+      const response = await report.reportIssue(reportIssueObj);
+      if (handleError(response)) return false;
+      return true;
+    }
+    catch (error) {
+      Alert.alert("Error reporting issue. Please try again later.");
+      return false;
+    }
   };
 
   return (

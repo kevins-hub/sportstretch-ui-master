@@ -31,6 +31,7 @@ import TherapistBusinessHours from "../../components/therapist/TherapistBusiness
 import payment from "../../api/payment";
 import auth from "../../api/auth";
 import TermsAndConditions from "../../components/shared/TermsAndConditions";
+import { handleError } from "../../lib/error";
 
 const bioMaxLength = 250;
 const feesAndTaxesPercentage = 0.15;
@@ -725,6 +726,7 @@ function TherapistForm(props) {
             const registerStripeResponse = await payment.registerStripeAccount({
               email: values.email.toLowerCase(),
             });
+            if (handleError(registerStripeResponse)) return;
             if (registerStripeResponse.status === 200) {
               const stripeAccountId = registerStripeResponse.data.account.id;
               values.stripeAccountId = stripeAccountId;

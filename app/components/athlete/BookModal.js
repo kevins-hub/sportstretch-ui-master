@@ -37,11 +37,15 @@ import paymentApi from "../../api/payment";
 import RNPickerSelect from "react-native-picker-select";
 import { StripeProvider } from "@stripe/stripe-react-native";
 import TermsAndConditions from "../shared/TermsAndConditions";
+<<<<<<< HEAD
 import {
   FontAwesome,
   MaterialCommunityIcons,
   SimpleLineIcons,
 } from "@expo/vector-icons";
+=======
+import { handleError } from "../../lib/error";
+>>>>>>> master
 
 function BookModal({
   visible,
@@ -440,21 +444,23 @@ function BookModal({
         athleteLocation = `${therapistStreet}, ${therapistCity}, ${therapistState} ${therapistZipCode}`;
       }
 
-      await bookingsApi.bookATherapist(
+      response = await bookingsApi.bookATherapist(
         athleteId,
         athleteLocation,
         therapistId,
         selectedTime,
         bookingDate,
-        therapistHourly,
+        therapistHourly, 
         appointmentDuration,
         subTotal,
         true,
         "Paid",
         paymentIntentId
       );
-      //hideProgress & showDone
       setBookingProgress(false);
+      if (handleError(response)) {
+        return;
+      };
       setBookingDone(true);
       //navigate
       setTimeout(function () {

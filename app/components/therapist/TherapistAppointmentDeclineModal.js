@@ -16,6 +16,7 @@ import RNPickerSelect from "react-native-picker-select";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import notificationsApi from "../../api/notifications";
 import bookingsApi from "../../api/bookings";
+import { handleError } from "../../lib/error";
 
 const TherapistAppointmentDeclineModal = ({
   item,
@@ -53,6 +54,7 @@ const TherapistAppointmentDeclineModal = ({
         reason: values.reason,
         suggestedBookingDateTime: newBookingDate,
       });
+      if (handleError(booking_status)) return;
       if (booking_status.data.confirmation_status === 0) {
         handleDeclineModal(false);
         notificationsApi.notifyAthlete(
