@@ -37,15 +37,11 @@ import paymentApi from "../../api/payment";
 import RNPickerSelect from "react-native-picker-select";
 import { StripeProvider } from "@stripe/stripe-react-native";
 import TermsAndConditions from "../shared/TermsAndConditions";
-<<<<<<< HEAD
 import {
   FontAwesome,
   MaterialCommunityIcons,
   SimpleLineIcons,
 } from "@expo/vector-icons";
-=======
-import { handleError } from "../../lib/error";
->>>>>>> master
 
 function BookModal({
   visible,
@@ -242,20 +238,6 @@ function BookModal({
   // const {initPaymentSheet} = useStripe();
   // const { presentPaymentSheet } = useStripe();
   // let minDate = new Date();
-  // console.warn("render");
-
-  // useEffect(() => {
-  //   refDateTime.current = selectedDateTime;
-  //   refDate.current = selectedDate;
-  // }, [selectedDate, selectedDateTime]);
-
-  // useEffect(() => {
-  //   console.log(refDateTime.current.toLocaleDateString(), refDate.current);
-  //   if (refDateTime.current.toLocaleDateString() !== refDate.current) {
-  //     console.log("fetch data");
-  //     getAvailableTimes(selectedDateTime, appointmentDuration);
-  //   }
-  // }, [selectedDate, selectedDateTime, appointmentDuration]);
 
   useEffect(() => {
     getAvailableTimes(selectedDateTime, appointmentDuration);
@@ -334,7 +316,6 @@ function BookModal({
     let formattedAddress = `${values.addressL1}${
       values.addressL2 ? " " + values.addressL2 + ", " : ", "
     }${values.city}, ${values.state} ${values.zipcode}`;
-    console.log("formattedAddress", formattedAddress);
     if (!!formattedAddress) {
       setAthleteAddress(formattedAddress);
     }
@@ -444,23 +425,21 @@ function BookModal({
         athleteLocation = `${therapistStreet}, ${therapistCity}, ${therapistState} ${therapistZipCode}`;
       }
 
-      response = await bookingsApi.bookATherapist(
+      await bookingsApi.bookATherapist(
         athleteId,
         athleteLocation,
         therapistId,
         selectedTime,
         bookingDate,
-        therapistHourly, 
+        therapistHourly,
         appointmentDuration,
         subTotal,
         true,
         "Paid",
         paymentIntentId
       );
+      //hideProgress & showDone
       setBookingProgress(false);
-      if (handleError(response)) {
-        return;
-      };
       setBookingDone(true);
       //navigate
       setTimeout(function () {
