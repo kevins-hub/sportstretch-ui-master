@@ -15,6 +15,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Card } from "react-native-paper";
 import { Rating } from "react-native-ratings";
 import therapistsApi from "../../api/therapists";
+import { handleError } from "../../lib/error";
 
 export default function AdminTherapistCard({
   therapist_id,
@@ -46,6 +47,7 @@ export default function AdminTherapistCard({
     let response = await therapistsApi.setToggle(therapist_id, {
       enabled: val,
     });
+    if (handleError(response)) return;
     let insert = Boolean(response.data.enabled);
     setIsEnabled((previousState) => !previousState);
     !isEnabled == false

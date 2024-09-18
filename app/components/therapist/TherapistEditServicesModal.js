@@ -28,6 +28,7 @@ import RNPickerSelect from "react-native-picker-select";
 import Checkbox from "expo-checkbox";
 import { stateConverter } from "../../lib/states";
 import therapists from "../../api/therapists";
+import { handleError } from "../../lib/error";
 
 function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
   if (!visible) return null;
@@ -444,6 +445,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
                             therapist.therapist_id,
                             values
                           );
+                          if (handleError(response)) return;
                           actions.resetForm();
                           setVisibility(false);
                         } catch (e) {

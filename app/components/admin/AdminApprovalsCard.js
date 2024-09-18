@@ -13,6 +13,7 @@ import colors from "../../config/colors";
 import ApproveButton from "../../components/admin/ApproveButton";
 import DenyButton from "../../components/admin/DenyButton";
 import therapistsApi from "../../api/therapists";
+import { handleError } from "../../lib/error";
 
 export default function AdminApprovalsCard({
   TherapistId,
@@ -27,14 +28,15 @@ export default function AdminApprovalsCard({
   Services,
 }) {
   async function approveTherapist(id) {
-    console.log("approve called in approve");
     let approve = await therapistsApi.approveTherapist(id);
+    if (handleError(approve)) return;
     loadAllRequests();
     // console.log(approve);
   }
 
   async function denyTherapist(id) {
     let deny = await therapistsApi.denyTherapist(id);
+    if (handleError(deny)) return;
     loadAllRequests();
     // console.log(deny);
   }

@@ -20,6 +20,7 @@ import ProfilePictureUpload from "./ProfilePictureUpload";
 import upload from "../../api/upload";
 import ProgressIndicator from "../athlete/ProgressIndicator";
 import DoneIndicator from "../athlete/DoneIndicator";
+import { handleError } from "../../lib/error";
 
 function ProfilePictureUploadModal({
   user,
@@ -43,6 +44,7 @@ function ProfilePictureUploadModal({
     try {
       setUploadProgress(true);
       const result = await upload.uploadProfilePicture(userAuthId, image, file);
+      if (handleError(result)) return;
       setUploadProgress(false);
 
       if (result.status === 201) {

@@ -17,6 +17,7 @@ import authApi from "../../api/auth";
 import jwtDecode from "jwt-decode";
 import authStorage from "../../auth/storage";
 import { ref } from "yup";
+import { handleError } from "../../lib/error";
 
 function TherapistEditBusinessHoursModal({
   user,
@@ -40,7 +41,8 @@ function TherapistEditBusinessHoursModal({
 
   const handleSubmit = async () => {
     try {
-      await therapists.editTherapistHours(therapistId, editedBusinessHours);
+      const response = await therapists.editTherapistHours(therapistId, editedBusinessHours);
+      if (handleError(response)) return;
       setVisibility(false);
     } catch (e) {
       console.warn("Error editing business hours: ", e);

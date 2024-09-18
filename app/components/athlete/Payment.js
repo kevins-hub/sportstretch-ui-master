@@ -27,47 +27,47 @@ const PaymentScreen = () => {
     return { clientSecret };
   };
 
-  const handleApplePayPress = async () => {
-    const { error, paymentMethod } = await presentApplePay({
-      cartItems: [{ label: "Your Product", amount: "10.00" }],
-      country: "US",
-      currency: "usd",
-    });
+  // const handleApplePayPress = async () => {
+  //   const { error, paymentMethod } = await presentApplePay({
+  //     cartItems: [{ label: "Your Product", amount: "10.00" }],
+  //     country: "US",
+  //     currency: "usd",
+  //   });
 
-    if (error) {
-      console.error(error);
-    } else {
-      const paymentIntentResult = await confirmApplePayPayment(clientSecret);
-      if (paymentIntentResult.error) {
-        console.error(paymentIntentResult.error);
-      } else {
-        // Success
-      }
-    }
-  };
+  //   if (error) {
+  //     console.error(error);
+  //   } else {
+  //     const paymentIntentResult = await confirmApplePayPayment(clientSecret);
+  //     if (paymentIntentResult.error) {
+  //       console.error(paymentIntentResult.error);
+  //     } else {
+  //       // Success
+  //     }
+  //   }
+  // };
 
-  const handlePayment = async () => {
-    // Fetch the payment intent client secret from your backend
-    const { clientSecret } = await fetchPaymentIntentClientSecret();
+  // const handlePayment = async () => {
+  //   // Fetch the payment intent client secret from your backend
+  //   const { clientSecret } = await fetchPaymentIntentClientSecret();
 
-    // Initialize the payment sheet
-    const { error } = await initPaymentSheet({
-      paymentIntentClientSecret: clientSecret,
-    });
+  //   // Initialize the payment sheet
+  //   const { error } = await initPaymentSheet({
+  //     paymentIntentClientSecret: clientSecret,
+  //   });
 
-    if (error) {
-      console.error(error);
-    } else {
-      // Present the payment sheet
-      const result = await presentPaymentSheet();
+  //   if (error) {
+  //     console.error(error);
+  //   } else {
+  //     // Present the payment sheet
+  //     const result = await presentPaymentSheet();
 
-      if (result.error) {
-        console.error(result.error);
-      } else {
-        alert("Payment successful!");
-      }
-    }
-  };
+  //     if (result.error) {
+  //       console.error(result.error);
+  //     } else {
+  //       alert("Payment successful!");
+  //     }
+  //   }
+  // };
 
   return (
     <View style={styles.container}>
