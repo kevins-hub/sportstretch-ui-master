@@ -11,6 +11,7 @@ import * as yup from "yup";
 import { Formik } from "formik";
 import contactApi from "../../api/contact";
 import contact from "../../api/contact";
+import { handleError } from "../../lib/error";
 
 function EditContactInfoModal({
   user,
@@ -87,6 +88,7 @@ function EditContactInfoModal({
       contactObj.state = values.state || "";
       contactObj.zipcode = values.zipcode || "";
       const res = await contactApi.editContact(contactObj);
+      if (handleError(res)) return false;
       setContactObj({
         email: contactObj.email,
         mobile: contactObj.phone,

@@ -17,6 +17,8 @@ function AthleteBookNow(props) {
   const [markers, setMarkers] = useState(null);
   const [stateModalVisible, setStateModalVisible] = useState(false);
 
+  console.error("test");
+
   const loadLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {

@@ -15,6 +15,7 @@ import colors from "../../config/colors";
 import notificationsApi from "../../api/notifications";
 import TherapistAppointmentDeclineModal from "./TherapistAppointmentDeclineModal";
 import bookingsApi from "../../api/bookings";
+import { handleError } from "../../lib/error";
 
 function TherapistUpcomingPendingCard({ therapistData, loadUpcomingBookings }) {
   const {
@@ -35,6 +36,7 @@ function TherapistUpcomingPendingCard({ therapistData, loadUpcomingBookings }) {
   const approveBooking = async () => {
     try {
       let booking_status = await bookingsApi.approveBooking(bookings_id);
+      if (handleError(booking_status)) return;
       if (booking_status.data.confirmation_status === 1) {
         Alert.alert("Booking Approved");
         notificationsApi.notifyAthlete(

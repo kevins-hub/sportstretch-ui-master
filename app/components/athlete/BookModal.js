@@ -28,6 +28,7 @@ import paymentApi from "../../api/payment";
 import RNPickerSelect from "react-native-picker-select";
 import { StripeProvider } from "@stripe/stripe-react-native";
 import TermsAndConditions from "../shared/TermsAndConditions";
+import { handleError } from "../../lib/error";
 
 function BookModal({
   visible,
@@ -422,22 +423,10 @@ function BookModal({
         "Paid",
         paymentIntentId
       );
-      //hideProgress & showDone
       setBookingProgress(false);
-      if (response.status > 299) {
-        Alert.alert(
-          "Error",
-          `There was an error processing your request: ${response.data}. Please try again. You have not been charged.`,
-          [
-            {
-              text: "OK",
-              onPress: () => console.log("OK Pressed"),
-            },
-          ],
-          { cancelable: false }
-        );
+      if (handleError(response)) {
         return;
-      }
+      };
       setBookingDone(true);
       //navigate
       setTimeout(function () {
