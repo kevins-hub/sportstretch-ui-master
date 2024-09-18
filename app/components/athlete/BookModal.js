@@ -828,7 +828,7 @@ function BookModal({
         <View style={styles.propContainer}>
           <Text style={styles.propTitle}>Start time:</Text>
           <Text style={styles.propText}>
-            {convertUTCDateToLocalDateTimeString(selectedDateTime)}
+            {convertUTCDateToLocalDateTimeString(selectedTime)}
           </Text>
         </View>
         <View style={styles.rateContainer}>
