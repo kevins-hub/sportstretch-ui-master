@@ -215,7 +215,8 @@ function BookModal({
     therapistHourly * appointmentDuration
   );
   const [selectedDateTime, setSelectedDateTime] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedTime, setSelectedTime] = useState(new Date());
+
   const [currentStep, setCurrentStep] = useState(1);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [termsAndConditionModal, setTermsAndConditionModal] = useState(false);
@@ -239,21 +240,22 @@ function BookModal({
   // let minDate = new Date();
   // console.warn("render");
 
-  useEffect(() => {
-    refDateTime.current = selectedDateTime;
-    refDate.current = selectedDate;
-  });
+  // useEffect(() => {
+  //   refDateTime.current = selectedDateTime;
+  //   refDate.current = selectedDate;
+  // }, [selectedDate, selectedDateTime]);
+
+  // useEffect(() => {
+  //   console.log(refDateTime.current.toLocaleDateString(), refDate.current);
+  //   if (refDateTime.current.toLocaleDateString() !== refDate.current) {
+  //     console.log("fetch data");
+  //     getAvailableTimes(selectedDateTime, appointmentDuration);
+  //   }
+  // }, [selectedDate, selectedDateTime, appointmentDuration]);
 
   useEffect(() => {
-    if (refDateTime.current.toLocaleDateString() !== refDate.current) {
-      getAvailableTimes(selectedDateTime, appointmentDuration);
-    }
-  }, [
-    selectedDateTime,
-    appointmentDuration,
-    refDateTime.current,
-    refDate.current,
-  ]);
+    getAvailableTimes(selectedDateTime, appointmentDuration);
+  }, [selectedDateTime, appointmentDuration]);
 
   const getTimeFromMap = (dateTimeISOString) => {
     return timeStrDateTimeMap[dateTimeISOString];
@@ -264,8 +266,7 @@ function BookModal({
   };
 
   const handleNewTimeSlot = (time) => {
-    setSelectedDate(time.toLocaleDateString());
-    setSelectedDateTime(time);
+    setSelectedTime(time);
   };
 
   const appointmentDurationOptions = [
@@ -326,27 +327,17 @@ function BookModal({
       );
 
   const proceedToReview = async (values) => {
-    let formattedAddress = "";
-    for (let key in values) {
-      if (values[key]) {
-        if (formattedAddress) {
-          formattedAddress += ", ";
-        }
-        formattedAddress += values[key];
-      }
-    }
+    let formattedAddress = `${values.addressL1}${
+      values.addressL2 ? " " + values.addressL2 + ", " : ", "
+    }${values.city}, ${values.state} ${values.zipcode}`;
+    console.log("formattedAddress", formattedAddress);
     if (!!formattedAddress) {
       setAthleteAddress(formattedAddress);
     }
     const timeMatch = availableDateTimes.some(
-      (time) => time.text === selectedDateTime.toISOString()
+      (time) => time.text === selectedTime.toISOString()
     );
 
-    const test = availableDateTimes.filter(
-      (item) =>
-        selectedDateTime.toLocaleString() ==
-        new Date(item.text).toLocaleString()
-    );
     if (availableDateTimes.length <= 0) {
       Alert.alert(
         "Error",
@@ -440,20 +431,20 @@ function BookModal({
       setBookingProgress(true);
       //format text and call API
 
-      const bookingDateStr = selectedDateTime.toISOString().split("T")[0];
+      const bookingDateStr = selectedTime.toISOString().split("T")[0];
       const bookingDate = new Date(bookingDateStr);
 
-      let athleteLocation = athleteLocation;
+      let athleteLocation = athleteAddress;
 
       if (selectedLocationOption === "1") {
-        athleteLocation = `${therapistStreet}, ${therapistCity}, ${therapistState}, ${therapistZipCode}`;
+        athleteLocation = `${therapistStreet}, ${therapistCity}, ${therapistState} ${therapistZipCode}`;
       }
 
       await bookingsApi.bookATherapist(
         athleteId,
         athleteLocation,
         therapistId,
-        selectedDateTime,
+        selectedTime,
         bookingDate,
         therapistHourly,
         appointmentDuration,
@@ -621,7 +612,7 @@ function BookModal({
                         <TouchableOpacity
                           key={item.key}
                           style={
-                            selectedDateTime.toLocaleString() ==
+                            selectedTime.toLocaleString() ==
                             new Date(item.text).toLocaleString()
                               ? styles.timeSlotButtonSelected
                               : styles.timeSlotButton
@@ -634,7 +625,7 @@ function BookModal({
                           <Text
                             key={item.key}
                             style={
-                              selectedDateTime.toLocaleString() ==
+                              selectedTime.toLocaleString() ==
                               new Date(item.text).toLocaleString()
                                 ? styles.timeSlotButtonSelectedText
                                 : styles.timeSlotButtonText

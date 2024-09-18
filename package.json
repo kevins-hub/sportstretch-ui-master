@@ -21,6 +21,7 @@
     "@stripe/stripe-react-native": "0.23.3",
     "apisauce": "^2.1.2",
     "aws-sdk": "^2.1649.0",
+    "email-existence": "^0.1.6",
     "expo": "^48.0.21",
     "expo-app-loading": "~1.2.1",
     "expo-blur": "~12.2.2",
