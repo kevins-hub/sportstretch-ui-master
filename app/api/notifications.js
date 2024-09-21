@@ -15,7 +15,13 @@ const notifyAthlete = (athleteId, booking_id) =>
       "Your appointment status has been changed for booking Id: " + booking_id,
   });
 
+const notifyAdmin = (message) =>
+  apiClient.post(endpoint + "/notifyAdmin", {
+    message: message,
+  });
+
 export default {
   notifyTherapist,
   notifyAthlete,
+  notifyAdmin,
 };
