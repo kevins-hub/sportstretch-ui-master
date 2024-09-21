@@ -17,6 +17,7 @@ import AuthContext from "../../auth/context";
 import { Formik } from "formik";
 import report from "../../api/report";
 import { handleError } from "../../lib/error";
+import notifications from "../../api/notifications";
 
 function PastAppointmentModal({ booking, setVisibility, visible }) {
   if (!visible) return null;
@@ -110,6 +111,7 @@ function PastAppointmentModal({ booking, setVisibility, visible }) {
       };
       const response = await report.reportIssue(reportIssueObj);
       if (handleError(response)) return false;
+      notifications.notifyAdmin(`Issue reported for booking ${booking.bookings_id}. Issue: ${issue}. Please review. Check email for more details.`);
       return true;
     }
     catch (error) {

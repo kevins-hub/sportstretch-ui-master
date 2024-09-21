@@ -21,6 +21,7 @@ import { useNavigation } from "@react-navigation/core";
 import { ScrollView } from "react-native-gesture-handler";
 import auth from "../../api/auth";
 import TermsAndConditions from "../../components/shared/TermsAndConditions";
+import notifications from "../../api/notifications";
 
 const ReviewSchema = yup.object({
   fname: yup.string().required().min(1).label("First Name"),
@@ -65,6 +66,7 @@ function AthleteForm(props) {
       let register_response = await registerApi.registerAthlete(athlete);
       if (register_response.status === 200) {
         alert("Registration successful.");
+        notifications.notifyAdmin(`New athlete registered: ${athlete.firstName} ${athlete.lastName} ${athlete.email}`);
         actions.resetForm();
         navigation.navigate("Login");
       } else {
