@@ -1,4 +1,13 @@
-import React, { useState, useEffect, useMemo, useContext, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useContext,
+  useRef,
+  useCallback,
+} from "react";
+import { Formik } from "formik";
+import * as yup from "yup";
 import {
   Modal,
   StyleSheet,
@@ -10,7 +19,7 @@ import {
   Image,
 } from "react-native";
 import Checkbox from "expo-checkbox";
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+// import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import { TextInput, ScrollView } from "react-native-gesture-handler";
 import { BlurView } from "expo-blur";
@@ -28,7 +37,12 @@ import paymentApi from "../../api/payment";
 import RNPickerSelect from "react-native-picker-select";
 import { StripeProvider } from "@stripe/stripe-react-native";
 import TermsAndConditions from "../shared/TermsAndConditions";
-import { handleError } from "../../lib/error";
+import { states } from "../../lib/states";
+import {
+  FontAwesome,
+  MaterialCommunityIcons,
+  SimpleLineIcons,
+} from "@expo/vector-icons";
 
 function BookModal({
   visible,
@@ -57,11 +71,13 @@ function BookModal({
   const closeTime = 23; // 10:00 PM
 
   let minDate = new Date();
+  const statesItemsObj = Object.entries(states).map(([abbr, name]) => {
+    return { label: abbr, value: abbr };
+  });
 
   const [availableDateTimes, setAvailableDateTimes] = useState([]);
   const [timeStrDateTimeMap, setTimeStrDateTimeMap] = useState({});
   const [paymentIntentId, setPaymentIntentId] = useState("");
-
   const getBookingsOnDate = async (date) => {
     try {
       // convert date to local date string YYYY-MM-DD
@@ -190,7 +206,7 @@ function BookModal({
   };
 
   const navigation = useNavigation();
-  const [text, onChangeText] = useState(athleteLocation);
+  const [athleteAddress, setAthleteAddress] = useState("");
   const [bookingProgress, setBookingProgress] = useState(false);
   const [bookingDone, setBookingDone] = useState(false);
   const [selectedLocationOption, setSelectedLocationOption] = useState(
@@ -203,14 +219,24 @@ function BookModal({
     therapistHourly * appointmentDuration
   );
   const [selectedDateTime, setSelectedDateTime] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  // const [selectedDateTime, setSelectedDateTime] = useState(new Date());
+  const [selectedTime, setSelectedTime] = useState(new Date());
+
   const [currentStep, setCurrentStep] = useState(1);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [termsAndConditionModal, setTermsAndConditionModal] = useState(false);
   const [termsAndCondition, setTermsAndCondition] = useState(false);
   const refDateTime = useRef();
   const refDate = useRef();
+  const locationSchema = yup.object({
+    addressL1: yup.string().required("Required").label("Street Address"),
+    addressL2: yup.string().label("Address Line 2"),
+    city: yup.string("City must be string").required("Required").label("City"),
+    state: yup
+      .string("State must be string")
+      .required("Required")
+      .label("State"),
+    zipcode: yup.string().required("Required").min(5).label("ZipCode"),
+  });
   // const [clientSecret, setClientSecret] = useState("");
   // const [availableDateTimes, setAvailableDateTimes] = useState([]);
   // const {initPaymentSheet} = useStripe();
@@ -218,14 +244,7 @@ function BookModal({
   // let minDate = new Date();
 
   useEffect(() => {
-    refDateTime.current = selectedDateTime;
-    refDate.current = selectedDate;
-  });
-
-  useEffect(() => {
-    if (refDateTime.current.toLocaleDateString() !== refDate.current) {
-      getAvailableTimes(selectedDateTime, appointmentDuration);
-    }
+    getAvailableTimes(selectedDateTime, appointmentDuration);
   }, [selectedDateTime, appointmentDuration]);
 
   const getTimeFromMap = (dateTimeISOString) => {
@@ -237,8 +256,7 @@ function BookModal({
   };
 
   const handleNewTimeSlot = (time) => {
-    setSelectedDate(time.toLocaleDateString());
-    setSelectedDateTime(time);
+    setSelectedTime(time);
   };
 
   const appointmentDurationOptions = [
@@ -298,16 +316,17 @@ function BookModal({
         []
       );
 
-  const proceedToReview = async () => {
+  const proceedToReview = async (values) => {
+    let formattedAddress = `${values.addressL1}${
+      values.addressL2 ? " " + values.addressL2 + ", " : ", "
+    }${values.city}, ${values.state} ${values.zipcode}`;
+    if (!!formattedAddress) {
+      setAthleteAddress(formattedAddress);
+    }
     const timeMatch = availableDateTimes.some(
-      (time) => time.text === selectedDateTime.toISOString()
+      (time) => time.text === selectedTime.toISOString()
     );
 
-    const test = availableDateTimes.filter(
-      (item) =>
-        selectedDateTime.toLocaleString() ==
-        new Date(item.text).toLocaleString()
-    );
     if (availableDateTimes.length <= 0) {
       Alert.alert(
         "Error",
@@ -401,32 +420,30 @@ function BookModal({
       setBookingProgress(true);
       //format text and call API
 
-      const bookingDateStr = selectedDateTime.toISOString().split("T")[0];
+      const bookingDateStr = selectedTime.toISOString().split("T")[0];
       const bookingDate = new Date(bookingDateStr);
 
-      let athleteLocation = athleteLocation;
+      let athleteLocation = athleteAddress;
 
       if (selectedLocationOption === "1") {
-        athleteLocation = `${therapistStreet}, ${therapistCity}, ${therapistState}, ${therapistZipCode}`;
+        athleteLocation = `${therapistStreet}, ${therapistCity}, ${therapistState} ${therapistZipCode}`;
       }
 
-      response = await bookingsApi.bookATherapist(
+      await bookingsApi.bookATherapist(
         athleteId,
         athleteLocation,
         therapistId,
-        selectedDateTime,
+        selectedTime,
         bookingDate,
-        therapistHourly, 
+        therapistHourly,
         appointmentDuration,
         subTotal,
         true,
         "Paid",
         paymentIntentId
       );
+      //hideProgress & showDone
       setBookingProgress(false);
-      if (handleError(response)) {
-        return;
-      };
       setBookingDone(true);
       //navigate
       setTimeout(function () {
@@ -533,176 +550,268 @@ function BookModal({
     </View>
   );
 
-  const AppointmentDetailsStep = ({}) => (
-    <View style={styles.modalContent}>
-      <Text style={styles.modalText}>
-        Book your appointment with {therapistName}!
-      </Text>
-      <View style={styles.appointmentScrollViewContainer}>
-        <ScrollView
-          style={styles.appointmentDetailsScrollView}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.rateContainer}>
-            <Text style={styles.propTitle}>Hourly Rate:</Text>
-            <Text style={styles.propText}>${therapistHourly}</Text>
-          </View>
-          <View style={styles.propContainer}>
-            <Text style={styles.propTitle}>Date & Time:</Text>
-            <DateTimePicker
-              testID="dateTimePicker"
-              value={selectedDateTime}
-              mode="date"
-              display="default"
-              onChange={handleDateChange}
-              style={styles.datePicker}
-              minimumDate={minDate}
-            />
-            <View style={styles.timeSlotContainer}>
-              {availableDateTimes.length > 0 ? (
-                availableDateTimes.map((item) => {
-                  return (
-                    <TouchableOpacity
-                      key={item.key}
-                      style={
-                        selectedDateTime.toLocaleString() ==
-                        new Date(item.text).toLocaleString()
-                          ? styles.timeSlotButtonSelected
-                          : styles.timeSlotButton
-                      }
-                      onPress={() => {
-                        handleNewTimeSlot(new Date(item.text));
-                        // setSelectedDateTime(new Date(item.text));
-                      }}
-                    >
-                      <Text
-                        key={item.key}
-                        style={
-                          selectedDateTime.toLocaleString() ==
-                          new Date(item.text).toLocaleString()
-                            ? styles.timeSlotButtonSelectedText
-                            : styles.timeSlotButtonText
-                        }
-                      >
-                        {getTimeFromMap(item.text)}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })
-              ) : (
-                <Text>No more availability on this date.</Text>
-              )}
-            </View>
-          </View>
-          <View style={styles.propContainer}>
-            <Text style={styles.propTitle}>Duration:</Text>
-            {/* Dropdown menu */}
-            <View>
-              <RNPickerSelect
-                onValueChange={async (value) => {
-                  await handleDurationChange(value);
-                }}
-                items={
-                  appointmentDurationOptions
-                    ? appointmentDurationOptions
-                    : [
-                        { label: "1 Hour", value: 1 },
-                        { label: "2 Hours", value: 2 },
-                        { label: "3 Hours", value: 3 },
-                        { label: "4 Hours", value: 4 },
-                        { label: "5 Hours", value: 5 },
-                        { label: "6 Hours", value: 6 },
-                        { label: "7 Hours", value: 7 },
-                        { label: "8 Hours", value: 8 },
-                      ]
-                }
-                placeholder={{
-                  label: "Select duration for appointment",
-                  value: 0,
-                }}
-                value={appointmentDuration}
-                style={styles.durationPicker}
-              />
-            </View>
-          </View>
-          <View style={styles.rateContainer}>
-            <Text style={styles.propTitle}>Subtotal:</Text>
-            <Text style={styles.propText}>
-              {appointmentDuration === 0
-                ? "(Select a duration)"
-                : `$${subTotal}`}
-            </Text>
-          </View>
-          <View style={styles.locationFormContainer}>
-            <Text style={styles.propTitle}>Location:</Text>
-            <RadioGroup
-              radioButtons={locations}
-              onPress={setSelectedLocationOption}
-              flexDirection="column"
-              selectedId={selectedLocationOption}
-              containerStyle={styles.radioGroup}
-            />
-            {/* <View style={styles.selectedLocationOptionContainer}>
-        <Text style={styles.selectedLocationOptionText}>
-          Selected Location: {selectedLocationOption}
-        </Text>
-      </View> */}
-          </View>
-          {selectedLocationOption === "2" ? (
-            <View style={styles.propContainer}>
-              <Text style={styles.propTitle}>Your Location:</Text>
-              <TextInput
-                style={styles.input}
-                onChangeText={onChangeText}
-                value={text}
-              />
-            </View>
-          ) : (
-            <Text style={styles.clinicInfoText}>
-              Clinic address will be provided upon confirmation of appointment.
-            </Text>
-          )}
-        </ScrollView>
-      </View>
+  const AppointmentDetailsStep = React.memo(() => (
+    <Formik
+      initialValues={{
+        addressL1: "",
+        addressL2: "",
+        city: "",
+        state: "",
+        zipcode: "",
+      }}
+      validationSchema={locationSchema}
+      onSubmit={(values) => proceedToReview(values)}
+    >
+      {({
+        handleChange,
+        handleBlur,
+        handleSubmit,
+        values,
+        errors,
+        touched,
+      }) => (
+        <View style={styles.modalContent}>
+          <Text style={styles.modalText}>
+            Book your appointment with {therapistName}!
+          </Text>
+          <View style={styles.appointmentScrollViewContainer}>
+            <ScrollView
+              style={styles.appointmentDetailsScrollView}
+              keyboardShouldPersistTaps="handled"
+            >
+              <View style={styles.rateContainer}>
+                <Text style={styles.propTitle}>Hourly Rate:</Text>
+                <Text style={styles.propText}>${therapistHourly}</Text>
+              </View>
+              <View style={styles.propContainer}>
+                <Text style={styles.propTitle}>Date & Time:</Text>
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  value={selectedDateTime}
+                  mode="date"
+                  display="default"
+                  onChange={handleDateChange}
+                  style={styles.datePicker}
+                  minimumDate={minDate}
+                />
+                <View style={styles.timeSlotContainer}>
+                  {availableDateTimes.length > 0 ? (
+                    availableDateTimes.map((item) => {
+                      return (
+                        <TouchableOpacity
+                          key={item.key}
+                          style={
+                            selectedTime.toLocaleString() ==
+                            new Date(item.text).toLocaleString()
+                              ? styles.timeSlotButtonSelected
+                              : styles.timeSlotButton
+                          }
+                          onPress={() => {
+                            handleNewTimeSlot(new Date(item.text));
+                            // setSelectedDateTime(new Date(item.text));
+                          }}
+                        >
+                          <Text
+                            key={item.key}
+                            style={
+                              selectedTime.toLocaleString() ==
+                              new Date(item.text).toLocaleString()
+                                ? styles.timeSlotButtonSelectedText
+                                : styles.timeSlotButtonText
+                            }
+                          >
+                            {getTimeFromMap(item.text)}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })
+                  ) : (
+                    <Text>No more availability on this date.</Text>
+                  )}
+                </View>
+              </View>
+              <View style={styles.propContainer}>
+                <Text style={styles.propTitle}>Duration:</Text>
+                {/* Dropdown menu */}
+                <View>
+                  <RNPickerSelect
+                    onValueChange={async (value) => {
+                      await handleDurationChange(value);
+                    }}
+                    items={
+                      appointmentDurationOptions
+                        ? appointmentDurationOptions
+                        : [
+                            { label: "1 Hour", value: 1 },
+                            { label: "2 Hours", value: 2 },
+                            { label: "3 Hours", value: 3 },
+                            { label: "4 Hours", value: 4 },
+                            { label: "5 Hours", value: 5 },
+                            { label: "6 Hours", value: 6 },
+                            { label: "7 Hours", value: 7 },
+                            { label: "8 Hours", value: 8 },
+                          ]
+                    }
+                    placeholder={{
+                      label: "Select duration for appointment",
+                      value: 0,
+                    }}
+                    value={appointmentDuration}
+                    style={styles.durationPicker}
+                  />
+                </View>
+              </View>
+              <View style={styles.rateContainer}>
+                <Text style={styles.propTitle}>Subtotal:</Text>
+                <Text style={styles.propText}>
+                  {appointmentDuration === 0
+                    ? "(Select a duration)"
+                    : `$${subTotal}`}
+                </Text>
+              </View>
+              <View style={styles.locationFormContainer}>
+                <Text style={styles.propTitle}>Location:</Text>
+                <RadioGroup
+                  radioButtons={locations}
+                  onPress={setSelectedLocationOption}
+                  flexDirection="column"
+                  selectedId={selectedLocationOption}
+                  containerStyle={styles.radioGroup}
+                />
+              </View>
+              {selectedLocationOption === "2" ? (
+                <View style={styles.propContainer}>
+                  <Text style={styles.propTitle}>Your Location:</Text>
 
-      {/* <TextInput
-      style={styles.input}
-      onChangeText={onChangeText}
-      value={text}
-    /> */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={() => {
-            setVisibility(false);
-          }}
-        >
-          <Text style={styles.cancelButtonText}>{"Cancel"}</Text>
-        </TouchableOpacity>
-        {/* <BookButton title="Request to Book" onPress={onConfirmPress} /> */}
-        <TouchableOpacity
-          style={styles.previousButton}
-          onPress={() => {
-            setCurrentStep(1);
-          }}
-        >
-          <Text style={styles.cancelButtonText}>{"Previous"}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={proceedToReview}
-        >
-          <Text style={styles.primaryButtonText}>{"Review & Pay"}</Text>
-        </TouchableOpacity>
-        {/* <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={openPaymentSheet}
-        >
-          <Text style={styles.primaryButtonText}>{"Open payment sheet"}</Text>
-        </TouchableOpacity> */}
-      </View>
-    </View>
-  );
+                  <View style={styles.inputContainer}>
+                    <View>
+                      <FontAwesome
+                        name="address-book"
+                        size={16}
+                        color="black"
+                        style={{ paddingRight: "5%" }}
+                      />
+                    </View>
+                    <TextInput
+                      style={{ flex: 1, flexWrap: "wrap" }}
+                      placeholder="Address"
+                      onChangeText={handleChange("addressL1")}
+                      onBlur={handleBlur("addressL1")}
+                      name="addressL1"
+                      value={values.addressL1}
+                      autoCapitalize="none"
+                    />
+                  </View>
+                  {touched.addressL1 && errors.addressL1 && (
+                    <Text style={styles.errorText}>{errors.addressL1}</Text>
+                  )}
+                  <View style={styles.inputContainerAddress}>
+                    <TextInput
+                      style={{ flex: 1, flexWrap: "wrap" }}
+                      placeholder="Apt, Suite, Floor, Building"
+                      onChangeText={handleChange("addressL2")}
+                      onBlur={handleBlur("addressL2")}
+                      name="addressL2"
+                      value={values.addressL2}
+                      textContentType="streetAddressLine2"
+                    />
+                    {touched.addressL2 && errors.addressL2 && (
+                      <Text style={styles.errorText}>{errors.addressL2}</Text>
+                    )}
+                  </View>
+                  <View style={styles.inputContainerCityState}>
+                    <View style={{ width: "45%" }}>
+                      <View style={styles.inputContainerCity}>
+                        <TextInput
+                          placeholder="City"
+                          onChangeText={handleChange("city")}
+                          value={values.city}
+                          onBlur={handleBlur("city")}
+                          textContentType="addressCity"
+                        />
+                      </View>
+                      {touched.city && errors.city && (
+                        <Text style={styles.errorText}>{errors.city}</Text>
+                      )}
+                    </View>
+                    <View style={{ marginHorizontal: "10%", width: "45%" }}>
+                      <View style={styles.inputContainerState}>
+                        <RNPickerSelect
+                          placeholder={{ label: "State", value: "" }}
+                          value={values.state}
+                          onValueChange={handleChange("state")}
+                          items={
+                            statesItemsObj
+                              ? statesItemsObj
+                              : [{ label: "CA", value: "California" }]
+                          }
+                        ></RNPickerSelect>
+                      </View>
+                      {touched.state && errors.state && (
+                        <Text style={styles.errorText}>{errors.state}</Text>
+                      )}
+                    </View>
+                  </View>
+                  <View style={styles.inputContainerZip}>
+                    <View>
+                      <SimpleLineIcons
+                        name="location-pin"
+                        size={16}
+                        color="black"
+                        style={{ paddingRight: "5%" }}
+                      />
+                    </View>
+                    <TextInput
+                      style={{ flex: 1, flexWrap: "wrap" }}
+                      placeholder="Zipcode"
+                      onChangeText={handleChange("zipcode")}
+                      onBlur={handleBlur("zipcode")}
+                      name="zipcode"
+                      value={values.zipcode}
+                      textContentType="postalCode"
+                    />
+                  </View>
+                  {touched.zipcode && errors.zipcode && (
+                    <Text style={styles.errorText}>{errors.zipcode}</Text>
+                  )}
+                </View>
+              ) : (
+                <Text style={styles.clinicInfoText}>
+                  Clinic address will be provided upon confirmation of
+                  appointment.
+                </Text>
+              )}
+            </ScrollView>
+          </View>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() => {
+                setVisibility(false);
+              }}
+            >
+              <Text style={styles.cancelButtonText}>{"Cancel"}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.previousButton}
+              onPress={() => {
+                setCurrentStep(1);
+              }}
+            >
+              <Text style={styles.cancelButtonText}>{"Previous"}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              // onPress={proceedToReview}
+              onPress={handleSubmit}
+            >
+              <Text style={styles.primaryButtonText}>{"Review & Pay"}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+    </Formik>
+  ));
 
   const PaymentStep = ({}) => (
     <View style={styles.modalContent}>
@@ -718,14 +827,14 @@ function BookModal({
           <Text style={styles.propTitle}>Location:</Text>
           <Text style={styles.propText}>
             {selectedLocationOption === "2"
-              ? text
+              ? athleteAddress
               : "Clinic address will be provided after your request is accepted."}
           </Text>
         </View>
         <View style={styles.propContainer}>
           <Text style={styles.propTitle}>Start time:</Text>
           <Text style={styles.propText}>
-            {convertUTCDateToLocalDateTimeString(selectedDateTime)}
+            {convertUTCDateToLocalDateTimeString(selectedTime)}
           </Text>
         </View>
         <View style={styles.rateContainer}>
@@ -932,6 +1041,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 8,
   },
+  errorText: {
+    marginHorizontal: "10%",
+    padding: "1%",
+    color: colors.grey,
+    fontWeight: "bold",
+    fontSize: 15,
+  },
   input: {
     marginTop: 4,
     marginBottom: 2,
@@ -941,6 +1057,53 @@ const styles = StyleSheet.create({
     borderColor: "#D3D3D3",
     width: "100%",
     backgroundColor: "#F6F6F6",
+  },
+  inputContainer: {
+    flexDirection: "row",
+    borderWidth: 1,
+    borderRadius: 15,
+    padding: "2%",
+    // marginHorizontal: "10%",
+    marginRight: "10%",
+    marginTop: "4%",
+  },
+  inputContainerAddress: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    paddingHorizontal: "2%",
+    paddingBottom: "2%",
+    // marginHorizontal: "10%",
+    marginRight: "9%",
+    marginTop: "5%",
+  },
+  inputContainerCity: {
+    flexDirection: "row",
+    borderWidth: 1,
+    borderRadius: 15,
+    paddingVertical: "4%",
+    paddingHorizontal: "5%",
+    // marginRight: "9%",
+  },
+  inputContainerCityState: {
+    flexDirection: "row",
+    marginRight: "9%",
+    // marginHorizontal: "10%",
+    marginTop: "5%",
+  },
+  inputContainerState: {
+    borderWidth: 1,
+    borderRadius: 15,
+    paddingVertical: "4%",
+    paddingHorizontal: "7%",
+  },
+  inputContainerZip: {
+    flexDirection: "row",
+    borderWidth: 1,
+    borderRadius: 15,
+    padding: "2%",
+    // marginHorizontal: "10%",
+    marginRight: "9%",
+    marginTop: "2%",
   },
   datePicker: {
     alignItems: "left",
@@ -1067,4 +1230,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BookModal;
+export default React.memo(BookModal);
