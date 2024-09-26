@@ -37,6 +37,7 @@ import paymentApi from "../../api/payment";
 import RNPickerSelect from "react-native-picker-select";
 import { StripeProvider } from "@stripe/stripe-react-native";
 import TermsAndConditions from "../shared/TermsAndConditions";
+import { states } from "../../lib/states";
 import {
   FontAwesome,
   MaterialCommunityIcons,
@@ -70,6 +71,9 @@ function BookModal({
   const closeTime = 23; // 10:00 PM
 
   let minDate = new Date();
+  const statesItemsObj = Object.entries(states).map(([abbr, name]) => {
+    return { label: abbr, value: abbr };
+  });
 
   const [availableDateTimes, setAvailableDateTimes] = useState([]);
   const [timeStrDateTimeMap, setTimeStrDateTimeMap] = useState({});
@@ -732,14 +736,16 @@ function BookModal({
                     </View>
                     <View style={{ marginHorizontal: "10%", width: "45%" }}>
                       <View style={styles.inputContainerState}>
-                        <TextInput
-                          placeholder="State"
-                          onChangeText={handleChange("state")}
-                          onBlur={handleBlur("state")}
-                          name="state"
+                        <RNPickerSelect
+                          placeholder={{ label: "State", value: "" }}
                           value={values.state}
-                          textContentType="addressState"
-                        />
+                          onValueChange={handleChange("state")}
+                          items={
+                            statesItemsObj
+                              ? statesItemsObj
+                              : [{ label: "CA", value: "California" }]
+                          }
+                        ></RNPickerSelect>
                       </View>
                       {touched.state && errors.state && (
                         <Text style={styles.errorText}>{errors.state}</Text>
