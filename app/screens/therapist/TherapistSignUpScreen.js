@@ -32,6 +32,7 @@ import payment from "../../api/payment";
 import auth from "../../api/auth";
 import TermsAndConditions from "../../components/shared/TermsAndConditions";
 import { handleError } from "../../lib/error";
+import notifications from "../../api/notifications";
 
 const bioMaxLength = 250;
 const feesAndTaxesPercentage = 0.15;
@@ -97,7 +98,7 @@ function TherapistForm(props) {
   const [currentStep, setCurrentStep] = useState(1);
   const [showInvalidFieldError, setShowInvalidFieldError] = useState(false);
   const [showEmailExistsError, setShowEmailExistsError] = useState(false);
-  const [enableHouseCalls, setEnableHouseCalls] = useState(false);
+  const [enableHouseCalls, setEnableHouseCalls] = useState(false); 
   const [enableInClinic, setEnableInClinic] = useState(false);
   const [businessHours, setBusinessHours] = useState(businessHoursObj);  
   const [termsAndConditionModal, setTermsAndConditionModal] = useState(false);
@@ -107,6 +108,7 @@ function TherapistForm(props) {
       let register_response = await registerApi.registerTherapist(values);
       if (register_response.status === 200) {
         navigation.navigate("TherapistRegistrationPending");
+        notifications.notifyAdmin(`New recovery specialist registered: ${values.profession}: ${values.fname} ${values.lname}, ${values.email}`);
       } else {
         Alert.alert(
           `Error while registration: ${register_response.data} Please try again.`
