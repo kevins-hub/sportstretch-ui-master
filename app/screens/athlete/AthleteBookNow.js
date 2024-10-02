@@ -17,8 +17,6 @@ function AthleteBookNow(props) {
   const [markers, setMarkers] = useState(null);
   const [stateModalVisible, setStateModalVisible] = useState(false);
 
-  console.error("test");
-
   const loadLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
@@ -68,7 +66,7 @@ function AthleteBookNow(props) {
       await loadMarkers(therapistList);
       return therapistList;
     } catch (error) {
-      console.error("Error on book now getTherapists", error);
+      console.warn("Error on book now getTherapists", error);
     }
   };
 
