@@ -78,8 +78,8 @@ const approveBooking = (bookingId) => {
   return apiClient.put(endpoint + "/therapist/approveBooking/" + bookingId);
 };
 
-const declineBooking = (bookingId) => {
-  return apiClient.put(endpoint + "/therapist/declineBooking/" + bookingId);
+const declineBooking = (bookingId, declineObj) => {
+  return apiClient.put(endpoint + "/therapist/declineBooking/" + bookingId, declineObj);
 };
 
 const getAllBookings = () => {
