@@ -55,9 +55,24 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
   const bioMaxLength = 250;
   const feesAndTaxesPercentage = 0.15;
 
+  const addressRegExp = /^[a-zA-Z0-9\s,'.-]*$/;
+
   const ReviewSchema = yup.object({
-    addressL1: yup.string().required().label("Street Address"),
-    addressL2: yup.string().label("Address Line 2"),
+    addressL1: yup
+      .string()
+      .matches(
+        addressRegExp,
+        "Address can only contain numbers, letters, spaces, commas, periods, and dashes."
+      )
+      .required()
+      .label("Street Address"),
+    addressL2: yup
+      .string()
+      .matches(
+        addressRegExp,
+        "Address can only contain numbers, letters, spaces, commas, periods, and dashes."
+      )
+      .label("Address Line 2"),
     city: yup
       .string("City must be string")
       .required("City is required")
@@ -79,6 +94,25 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
   const handlePrevious = () => {
     setShowInvalidFieldError(false);
     setCurrentStep(currentStep - 1);
+  };
+
+  const handleNext = (values) => {
+    Promise.all([
+      ReviewSchema.validateAt("profession", values),
+      ReviewSchema.validateAt("addressL1", values),
+      ReviewSchema.validateAt("addressL2", values),
+      ReviewSchema.validateAt("city", values),
+      ReviewSchema.validateAt("state", values),
+      ReviewSchema.validateAt("zipcode", values),
+    ])
+      .then(() => {
+        setShowInvalidFieldError(false);
+        setCurrentStep(currentStep + 1);
+      })
+      .catch((err) => {
+        setShowInvalidFieldError(true);
+        // console.warn(err);
+      });
   };
 
   const ServicesStep = (props) => (
@@ -332,6 +366,11 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
           </Text>
         </View>
         <View style={styles.buttonContainer}>
+          {showInvalidFieldError && (
+            <Text style={styles.errorText}>
+              Please fix errors in fields before continuing.
+            </Text>
+          )}
           <TouchableOpacity
             style={styles.secondaryButton}
             onPress={() => setVisibility(false)}
@@ -340,7 +379,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => setCurrentStep(2)}
+            onPress={() => handleNext(props.values)}
           >
             <Text style={styles.buttonText}>Next</Text>
           </TouchableOpacity>

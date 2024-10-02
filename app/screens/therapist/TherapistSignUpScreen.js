@@ -39,6 +39,8 @@ const feesAndTaxesPercentage = 0.15;
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
 
+const addressRegExp = /^[a-zA-Z0-9\s,'.-]*$/;
+
 const statesItemsObj = Object.entries(states).map(([abbr, name]) => {
   return { label: abbr, value: name };
 });
@@ -63,8 +65,8 @@ const ReviewSchema = yup.object({
     .matches(phoneRegExp, "Phone number is not valid")
     .required()
     .label("Phone"),
-  addressL1: yup.string().required().label("Street Address"),
-  addressL2: yup.string().label("Address Line 2"),
+  addressL1: yup.string().matches(addressRegExp, "Address can only contain numbers, letters, spaces, commas, periods, and dashes.").required().label("Street Address"),
+  addressL2: yup.string().matches(addressRegExp, "Address can only contain numbers, letters, spaces, commas, periods, and dashes.").label("Address Line 2"),
   city: yup
     .string("City must be string")
     .required("City is required")
@@ -161,6 +163,7 @@ function TherapistForm(props) {
       Promise.all([
         ReviewSchema.validateAt("profession", values),
         ReviewSchema.validateAt("addressL1", values),
+        ReviewSchema.validateAt("addressL2", values),
         ReviewSchema.validateAt("city", values),
         ReviewSchema.validateAt("state", values),
         ReviewSchema.validateAt("zipcode", values),
@@ -171,7 +174,7 @@ function TherapistForm(props) {
         })
         .catch((err) => {
           setShowInvalidFieldError(true);
-          console.warn(err);
+          // console.warn(err);
         });
     } else if (currentStep === 3) {
       setShowInvalidFieldError(false);
