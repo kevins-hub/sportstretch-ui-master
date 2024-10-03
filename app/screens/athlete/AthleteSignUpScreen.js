@@ -13,7 +13,6 @@ import {
 } from "react-native";
 import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as yup from "yup";
-import "yup-phone";
 import Constants from "expo-constants";
 import colors from "../../config/colors";
 import registerApi from "../../api/register";
@@ -38,7 +37,7 @@ const ReviewSchema = yup.object({
     .required()
     .min(6)
     .label("Confirm Password"),
-  phone: yup.string().phone().required().max(10).label("Phone"),
+  phone: yup.string().required().max(10).label("Phone"),
 });
 
 function AthleteForm(props) {
@@ -66,7 +65,9 @@ function AthleteForm(props) {
       let register_response = await registerApi.registerAthlete(athlete);
       if (register_response.status === 200) {
         alert("Registration successful.");
-        notifications.notifyAdmin(`New athlete registered: ${athlete.firstName} ${athlete.lastName} ${athlete.email}`);
+        notifications.notifyAdmin(
+          `New athlete registered: ${athlete.firstName} ${athlete.lastName} ${athlete.email}`
+        );
         actions.resetForm();
         navigation.navigate("Login");
       } else {

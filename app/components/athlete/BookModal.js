@@ -227,16 +227,30 @@ function BookModal({
   const [termsAndCondition, setTermsAndCondition] = useState(false);
   const refDateTime = useRef();
   const refDate = useRef();
-  const locationSchema = yup.object({
-    addressL1: yup.string().required("Required").label("Street Address"),
-    addressL2: yup.string().label("Address Line 2"),
-    city: yup.string("City must be string").required("Required").label("City"),
-    state: yup
-      .string("State must be string")
-      .required("Required")
-      .label("State"),
-    zipcode: yup.string().required("Required").min(5).label("ZipCode"),
-  });
+  const locationSchema = () =>
+    yup.object().shape({
+      addressL1: yup.string().when([], {
+        is: () => selectedLocationOption === "2",
+        then: yup.string().required("Required").label("Street Address"),
+        otherwise: yup.string().nullable(),
+      }),
+      addressL2: yup.string().label("Address Line 2"),
+      city: yup.string().when([], {
+        is: () => selectedLocationOption === "2",
+        then: yup.string().required("Required").label("City"),
+        otherwise: yup.string().nullable(),
+      }),
+      state: yup.string().when([], {
+        is: () => selectedLocationOption === "2",
+        then: yup.string().required("Required").label("State"),
+        otherwise: yup.string().nullable(),
+      }),
+      zipcode: yup.string().when([], {
+        is: () => selectedLocationOption === "2",
+        then: yup.string().required("Required").min(5).label("ZipCode"),
+        otherwise: yup.string().nullable(),
+      }),
+    });
   // const [clientSecret, setClientSecret] = useState("");
   // const [availableDateTimes, setAvailableDateTimes] = useState([]);
   // const {initPaymentSheet} = useStripe();
