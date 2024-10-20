@@ -13,6 +13,7 @@ import { TextInput } from "react-native-gesture-handler";
 import * as yup from "yup";
 import { Formik } from "formik";
 import registerApi from "../../api/register";
+import authStorage from "../../auth/storage";
 
 function DeleteAccountModal({ visible, setVisibility, authId }) {
   if (!visible) return null;
@@ -28,8 +29,9 @@ function DeleteAccountModal({ visible, setVisibility, authId }) {
     }
 
     try {
-        setUser(null);
         await registerApi.deleteAccount(authId);
+        setUser(null);
+        await authStorage.removeToken();
         navigation.navigate("Login");
     } catch (error) {
         console.log("Error deleting account", error);
