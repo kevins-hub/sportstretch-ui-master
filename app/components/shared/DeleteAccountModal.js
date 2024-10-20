@@ -57,6 +57,7 @@ function DeleteAccountModal({ visible, setVisibility, authId }) {
                     <View style={styles.modalView}>
                         <Text style={styles.modalText}>
                             Are you sure you want to delete your account?
+                            This action cannot be undone.
                         </Text>
                         <Text style={styles.modalText}>Type 'delete' to confirm</Text>
                         <TextInput
