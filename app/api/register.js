@@ -14,8 +14,13 @@ const deleteAccount = (id) => {
   return apiClient.delete(endpoint + "/delete/" + id);
 };
 
+const checkPhone = (phone) => {
+  return apiClient.post(endpoint + "/checkPhone", { phone });
+}
+
 export default {
   registerAthlete,
   registerTherapist,
   deleteAccount,
+  checkPhone
 };
