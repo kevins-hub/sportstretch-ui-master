@@ -22,6 +22,9 @@ import auth from "../../api/auth";
 import TermsAndConditions from "../../components/shared/TermsAndConditions";
 import notifications from "../../api/notifications";
 
+const phoneRegExp =
+  /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+
 const ReviewSchema = yup.object({
   fname: yup.string().required().min(1).label("First Name"),
   lname: yup.string().required().min(1).label("Last Name"),
@@ -37,12 +40,13 @@ const ReviewSchema = yup.object({
     .required()
     .min(6)
     .label("Confirm Password"),
-  phone: yup.string().required().max(10).label("Phone"),
+  phone: yup.string().matches(phoneRegExp, "Phone number is not valid. Please use numbers only.").required().max(10).label("Phone"),
 });
 
 function AthleteForm(props) {
   const navigation = useNavigation();
   const [showEmailExistsError, setShowEmailExistsError] = useState(false);
+  const [showPhoneExistsError, setShowPhoneExistsError] = useState(false);
   const [termsAndConditionModal, setTermsAndConditionModal] = useState(false);
 
   const handleSubmit = async (values, actions) => {
@@ -51,6 +55,11 @@ function AthleteForm(props) {
     );
     if (!emailAvailable) {
       setShowEmailExistsError(true);
+      return;
+    }
+    const phoneAvailable = await checkPhoneAvailable(values.phone);
+    if (!phoneAvailable) {
+      setShowPhoneExistsError(true);
       return;
     }
     try {
@@ -91,6 +100,16 @@ function AthleteForm(props) {
       return false;
     }
   };
+
+  const checkPhoneAvailable = async (phone) => {
+    try {
+      const response = await registerApi.checkPhone(phone);
+      return response.data === "Phone already registered." ? false : true;
+    } catch (error) {
+      console.warn("Error checking phone availability: ", error);
+      return false;
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -268,6 +287,7 @@ function AthleteForm(props) {
               <Text style={styles.errorText}>
                 {" "}
                 {props.touched.phone && props.errors.phone}
+                {showPhoneExistsError && "Phone number already registered."}
               </Text>
               <TouchableOpacity onPress={props.handleSubmit}>
                 <View style={styles.button}>
