@@ -35,7 +35,6 @@ import TermsAndConditions from "../../components/shared/TermsAndConditions";
 import { handleError } from "../../lib/error";
 import OTPInputView from "@twotalltotems/react-native-otp-input";
 import base64 from "react-native-base64";
-import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } from "@env";
 
 const bioMaxLength = 250;
 const feesAndTaxesPercentage = 0.15;
