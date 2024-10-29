@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Formik } from "formik";
 import {
   Modal,
   Text,
   TextInput,
   View,
+  SafeAreaView,
   StyleSheet,
   TouchableOpacity,
   Image,
@@ -32,18 +33,18 @@ import payment from "../../api/payment";
 import auth from "../../api/auth";
 import TermsAndConditions from "../../components/shared/TermsAndConditions";
 import { handleError } from "../../lib/error";
-import notifications from "../../api/notifications";
+import OTPInputView from "@twotalltotems/react-native-otp-input";
+import base64 from "react-native-base64";
+import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } from "@env";
 
 const bioMaxLength = 250;
 const feesAndTaxesPercentage = 0.15;
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
-
-const addressRegExp = /^[a-zA-Z0-9\s,'.-]*$/;
-
 const statesItemsObj = Object.entries(states).map(([abbr, name]) => {
   return { label: abbr, value: name };
 });
+const addressRegExp = /^[a-zA-Z0-9\s,'.-]*$/;
 
 const ReviewSchema = yup.object({
   fname: yup.string().required().min(1).label("First Name"),
@@ -65,8 +66,21 @@ const ReviewSchema = yup.object({
     .matches(phoneRegExp, "Phone number is not valid. Please use numbers only.")
     .required()
     .label("Phone"),
-  addressL1: yup.string().matches(addressRegExp, "Address can only contain numbers, letters, spaces, commas, periods, and dashes.").required().label("Street Address"),
-  addressL2: yup.string().matches(addressRegExp, "Address can only contain numbers, letters, spaces, commas, periods, and dashes.").label("Address Line 2"),
+  addressL1: yup
+    .string()
+    .matches(
+      addressRegExp,
+      "Address can only contain numbers, letters, spaces, commas, periods, and dashes."
+    )
+    .required()
+    .label("Street Address"),
+  addressL2: yup
+    .string()
+    .matches(
+      addressRegExp,
+      "Address can only contain numbers, letters, spaces, commas, periods, and dashes."
+    )
+    .label("Address Line 2"),
   city: yup
     .string("City must be string")
     .required("City is required")
@@ -103,15 +117,21 @@ function TherapistForm(props) {
   const [showPhoneExistsError, setShowPhoneExistsError] = useState(false);
   const [enableHouseCalls, setEnableHouseCalls] = useState(false); 
   const [enableInClinic, setEnableInClinic] = useState(false);
-  const [businessHours, setBusinessHours] = useState(businessHoursObj);  
+  const [businessHours, setBusinessHours] = useState(businessHoursObj);
   const [termsAndConditionModal, setTermsAndConditionModal] = useState(false);
+  const [isVerified, setIsVerified] = useState(true);
+  const [verificationCode, setVerificationCode] = useState(0);
+  const [phoneNumber, setPhoneNumber] = useState(0);
+  const [verified, setVerified] = useState(false);
 
   const register_therapist = async (values) => {
     try {
       let register_response = await registerApi.registerTherapist(values);
       if (register_response.status === 200) {
         navigation.navigate("TherapistRegistrationPending");
-        notifications.notifyAdmin(`New recovery specialist registered: ${values.profession}: ${values.fname} ${values.lname}, ${values.email}`);
+        notifications.notifyAdmin(
+          `New recovery specialist registered: ${values.profession}: ${values.fname} ${values.lname}, ${values.email}`
+        );
       } else {
         Alert.alert(
           `Error while registration: ${register_response.data} Please try again.`
@@ -162,12 +182,14 @@ function TherapistForm(props) {
           setShowEmailExistsError(false);
           setShowPhoneExistsError(false);
           setCurrentStep(currentStep + 1);
+          setPhoneNumber(values.phone);
+          sendSMSVerification(values.phone);
         })
         .catch((err) => {
           setShowInvalidFieldError(true);
           console.warn(err);
         });
-    } else if (currentStep === 2) {
+    } else if (currentStep === 3) {
       Promise.all([
         ReviewSchema.validateAt("profession", values),
         ReviewSchema.validateAt("addressL1", values),
@@ -184,10 +206,10 @@ function TherapistForm(props) {
           setShowInvalidFieldError(true);
           // console.warn(err);
         });
-    } else if (currentStep === 3) {
+    } else if (currentStep === 4) {
       setShowInvalidFieldError(false);
       setCurrentStep(currentStep + 1);
-    } else if (currentStep === 4) {
+    } else if (currentStep === 5) {
       Promise.all([ReviewSchema.validateAt("licenseUrl", values)])
         .then(() => {
           setShowInvalidFieldError(false);
@@ -220,7 +242,49 @@ function TherapistForm(props) {
 
   const handlePrevious = () => {
     setShowInvalidFieldError(false);
-    setCurrentStep(currentStep - 1);
+    if (currentStep === 3 && !!verified) {
+      setCurrentStep(currentStep - 2);
+    } else {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const sendSMSVerification = async (phoneNumber) => {
+    let code = Math.floor(100000 + Math.random() * 900000);
+    setVerificationCode(code);
+    const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
+
+    const body = new URLSearchParams({
+      To: `+1${phoneNumber}`,
+      From: "+18333628163",
+      Body: `Your verification code is ${code}`, // Or generate dynamically
+    });
+
+    const headers = {
+      Authorization:
+        "Basic " + base64.encode(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`),
+      "Content-Type": "application/x-www-form-urlencoded",
+    };
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: body.toString(),
+      });
+      const data = await response.json();
+    } catch (error) {
+      console.error("Error sending SMS:", error);
+    }
+  };
+
+  const handleVerificationComplete = (code) => {
+    if (parseInt(code) === verificationCode) {
+      setCurrentStep(currentStep + 1);
+      setVerified(true);
+    } else {
+      setIsVerified(false);
+    }
   };
 
   const ContactStep = (props) => (
@@ -316,6 +380,28 @@ function TherapistForm(props) {
         <Text style={styles.errorText}>{props.errors.phone}</Text>
       )}
     </>
+  );
+
+  const VerificationStep = (props) => (
+    <View style={{ flex: 1, alignItems: "center" }}>
+      <Text>Please enter the code sent to you</Text>
+      <OTPInputView
+        style={{
+          width: "80%",
+          height: 200,
+          color: "black",
+        }}
+        pinCount={6}
+        codeInputFieldStyle={styles.verificationInputField}
+        codeInputHighlightStyle={styles.verificationHighlightField}
+        onCodeFilled={handleVerificationComplete}
+      />
+      {!isVerified && (
+        <Text style={styles.errorText}>
+          The code does not match. Please try again
+        </Text>
+      )}
+    </View>
   );
 
   const ServicesStep = (props) => (
@@ -521,7 +607,11 @@ function TherapistForm(props) {
               placeholder={{ label: "Select A State", value: "" }}
               value={props.values.state}
               onValueChange={props.handleChange("state")}
-              items={statesItemsObj ? statesItemsObj : [{ label: "CA", value: "California" }]}
+              items={
+                statesItemsObj
+                  ? statesItemsObj
+                  : [{ label: "CA", value: "California" }]
+              }
             ></RNPickerSelect>
           </View>
           {props.touched.state && props.errors.state && (
@@ -668,7 +758,7 @@ function TherapistForm(props) {
         <Modal animationType="slide" visible={!!termsAndConditionModal}>
           <View style={styles.termAndConditionModalBackground}>
             <Text style={styles.modalText}>Terms and Conditions</Text>
-              <TermsAndConditions />
+            <TermsAndConditions />
             <View
             // style={{
             //   flexDirection: "row",
@@ -707,17 +797,20 @@ function TherapistForm(props) {
         <Text style={styles.accountText}>Tell us about yourself</Text>
       )}
       {currentStep === 2 && (
-        <Text style={styles.accountText}>Tell us about your business</Text>
+        <Text style={styles.accountText}>Phone Verification</Text>
       )}
       {currentStep === 3 && (
-        <Text style={styles.accountText}>Set your availability</Text>
+        <Text style={styles.accountText}>Tell us about your business</Text>
       )}
       {currentStep === 4 && (
+        <Text style={styles.accountText}>Set your availability</Text>
+      )}
+      {currentStep === 5 && (
         <Text style={styles.accountText}>
           Please provide your license information
         </Text>
       )}
-      {currentStep === 5 && <Text style={styles.accountText}>Last Step!</Text>}
+      {currentStep === 6 && <Text style={styles.accountText}>Last Step!</Text>}
       {/* <Text style={styles.accountText}>Create your profile</Text> */}
       <Formik
         initialValues={{
@@ -727,6 +820,7 @@ function TherapistForm(props) {
           phone: "",
           password: "",
           confirmPassword: "",
+          otp: "",
           addressL1: "",
           addressL2: "",
           city: "",
@@ -765,15 +859,16 @@ function TherapistForm(props) {
         {(props) => (
           <View style={styles.propsContainer}>
             {currentStep === 1 && <ContactStep {...props} />}
-            {currentStep === 2 && <ServicesStep {...props} />}
-            {currentStep === 3 && (
+            {currentStep === 2 && <VerificationStep {...props} />}
+            {currentStep === 3 && <ServicesStep {...props} />}
+            {currentStep === 4 && (
               <TherapistBusinessHours
                 businessHours={businessHours}
                 setBusinessHours={setBusinessHours}
               />
             )}
-            {currentStep === 4 && <LicenseStep {...props} />}
-            {currentStep === 5 && <PasswordStep {...props} />}
+            {currentStep === 5 && <LicenseStep {...props} />}
+            {currentStep === 6 && <PasswordStep {...props} />}
             <View style={styles.buttonContainer}>
               {showInvalidFieldError && (
                 <Text style={styles.errorText}>
@@ -798,7 +893,7 @@ function TherapistForm(props) {
                   <Text style={styles.secondaryButtonText}>Previous</Text>
                 </TouchableOpacity>
               )}
-              {currentStep < 5 && (
+              {currentStep < 5 && currentStep !== 2 && (
                 <TouchableOpacity
                   style={styles.button}
                   onPress={() => {
@@ -807,6 +902,15 @@ function TherapistForm(props) {
                   type="button"
                 >
                   <Text style={styles.buttonText}>Next</Text>
+                </TouchableOpacity>
+              )}
+              {currentStep == 2 && (
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => sendSMSVerification(phoneNumber)}
+                  type="button"
+                >
+                  <Text style={styles.buttonText}>Resend Code</Text>
                 </TouchableOpacity>
               )}
               {currentStep === 5 && (
@@ -1011,7 +1115,7 @@ const styles = StyleSheet.create({
   termsAndConditionsContainer: {
     marginHorizontal: "10%",
     marginTop: "5%",
-  },  
+  },
   termsAndConditionModal: {
     flexDirection: "row",
     alignItems: "center",
@@ -1028,6 +1132,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: "90%",
     paddingBottom: 30,
+  },
+  borderStyleBase: {
+    width: 30,
+    height: 45,
+  },
+
+  borderStyleHighLighted: {
+    borderColor: "#03DAC6",
+  },
+
+  verificationInputField: {
+    // width: 30,
+    // height: 45,
+    // borderWidth: 0,
+    // borderBottomWidth: 1,
+    color: "#000",
+  },
+
+  verificationHighlightField: {
+    // borderColor: "#03DAC6",
+    borderColor: "#000",
   },
 });
 
