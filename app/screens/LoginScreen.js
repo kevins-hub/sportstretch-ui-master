@@ -32,7 +32,7 @@ function LoginScreen(props) {
 
   const handleSubmit = async ({ email, password }) => {
     try {
-      const result = await authApi.login(email, password);
+      const result = await authApi.login(email.toLowerCase(), password);
       if (!result.ok)
         return setErrorText(
           result.data === "Invalid email or password."

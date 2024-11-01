@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Formik } from "formik";
 import {
   Modal,
@@ -21,6 +21,10 @@ import { ScrollView } from "react-native-gesture-handler";
 import auth from "../../api/auth";
 import TermsAndConditions from "../../components/shared/TermsAndConditions";
 import notifications from "../../api/notifications";
+import OTPInputView from "@twotalltotems/react-native-otp-input";
+import base64 from "react-native-base64";
+import DoneIndicator from "../../components/athlete/DoneIndicator";
+import register from "../../api/register";
 
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
@@ -48,11 +52,115 @@ function AthleteForm(props) {
   const [showEmailExistsError, setShowEmailExistsError] = useState(false);
   const [showPhoneExistsError, setShowPhoneExistsError] = useState(false);
   const [termsAndConditionModal, setTermsAndConditionModal] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [athleteForm, setAthleteForm] = useState(null);
+  const [verificationCode, setVerificationCode] = useState(0);
+  const [hasAttempted, setHasAttempted] = useState(false);
+  const [verified, setVerified] = useState(false);
+
+  useEffect(() => {
+    if (currentStep === 2) {
+      sendSMSVerification(athleteForm.phone);
+    } else if (currentStep === 3) {
+      sendSMSVerification(athleteForm.email);
+    }
+  }, [currentStep]);
+
+  const sendSMSVerification = async (value) => {
+    let code = Math.floor(100000 + Math.random() * 900000);
+    setVerificationCode(code);
+    if (currentStep === 2) {
+      console.log("code", code);
+      const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
+
+      const body = new URLSearchParams({
+        To: `+1${value}`,
+        From: "+18333628163",
+        Body: `SportStretch: Your verification code is ${code}`,
+      });
+
+      const headers = {
+        Authorization:
+          "Basic " +
+          base64.encode(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`),
+        "Content-Type": "application/x-www-form-urlencoded",
+      };
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers,
+          body: body.toString(),
+        });
+        const data = await response.json();
+      } catch (error) {
+        console.error("Error sending SMS:", error);
+      }
+    } else if (currentStep === 3) {
+      console.log("step 3 is initated");
+      try {
+        let emailVerificationCode = { email: athleteForm.email, token: code };
+        let res = await register.verifyEmail(emailVerificationCode);
+        if (!!res) {
+          console.warn("It worked");
+        } else {
+          console.warn("error in verifying email");
+        }
+      } catch (error) {
+        console.warn(error);
+      }
+    }
+  };
+
+  const registerAthlete = async () => {
+    try {
+      const athlete = {
+        email: athleteForm.email.toLowerCase(),
+        firstName: athleteForm.fname,
+        lastName: athleteForm.lname,
+        password: athleteForm.password,
+        confirmPassword: athleteForm.confirmPassword,
+        mobile: athleteForm.phone,
+      };
+      let register_response = await registerApi.registerAthlete(athlete);
+      if (register_response.status === 200) {
+        alert("Registration successful.");
+        notifications.notifyAdmin(
+          `New athlete registered: ${athlete.firstName} ${athlete.lastName} ${athlete.email}`
+        );
+        navigation.navigate("Login");
+      } else {
+        Alert.alert(`An error occurred during registration. Please try again.`);
+      }
+    } catch (error) {
+      Alert.alert("An error occurred during registration. Please try again.");
+    }
+  };
+
+  const resetVerificationStep = () => {
+    setVerified(false);
+    setHasAttempted(false);
+    if (currentStep <= 2) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handleVerificationComplete = async (code) => {
+    setHasAttempted(true);
+    if (parseInt(code) === verificationCode) {
+      if (currentStep === 3) {
+        await registerAthlete(athleteForm);
+      }
+      setVerified(true);
+      setTimeout(resetVerificationStep, 2000);
+    }
+  };
 
   const handleSubmit = async (values, actions) => {
     const emailAvailable = await checkEmailAvailable(
       values.email.toLowerCase()
     );
+    console.log("values", values);
     if (!emailAvailable) {
       setShowEmailExistsError(true);
       return;
@@ -62,28 +170,35 @@ function AthleteForm(props) {
       setShowPhoneExistsError(true);
       return;
     }
-    try {
-      const athlete = {
-        email: values.email.toLowerCase(),
-        firstName: values.fname,
-        lastName: values.lname,
-        password: values.password,
-        confirmPassword: values.confirmPassword,
-        mobile: values.phone,
-      };
-      let register_response = await registerApi.registerAthlete(athlete);
-      if (register_response.status === 200) {
-        alert("Registration successful.");
-        notifications.notifyAdmin(
-          `New athlete registered: ${athlete.firstName} ${athlete.lastName} ${athlete.email}`
-        );
-        actions.resetForm();
-        navigation.navigate("Login");
-      } else {
-        Alert.alert(`An error occurred during registration. Please try again.`);
+    else {
+      setAthleteForm(values);
+      setCurrentStep(currentStep + 1);
+      try {
+        const athlete = {
+          email: values.email.toLowerCase(),
+          firstName: values.fname,
+          lastName: values.lname,
+          password: values.password,
+          confirmPassword: values.confirmPassword,
+          mobile: values.phone,
+        };
+        let register_response = await registerApi.registerAthlete(athlete);
+        console.log("register_response", register_response);
+        if (register_response.status === 200) {
+          alert("Registration successful.");
+          notifications.notifyAdmin(
+            `New athlete registered: ${athlete.firstName} ${athlete.lastName} ${athlete.email}`
+          );
+          actions.resetForm();
+          navigation.navigate("Login");
+        } else {
+          Alert.alert(
+            `An error occurred during registration. Please try again.`
+          );
+        }
+      } catch (error) {
+        Alert.alert("An error occurred during registration. Please try again.");
       }
-    } catch (error) {
-      Alert.alert("An error occurred during registration. Please try again.");
     }
   };
 
@@ -111,16 +226,8 @@ function AthleteForm(props) {
     }
   }
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.headerConatiner}>
-        <Image
-          source={require("../../assets/logo_crop.png")}
-          style={styles.logo}
-        />
-        <Text style={styles.headerText}>Recovery On The Go</Text>
-      </View>
-
+  const CreateAccount = () => (
+    <>
       <View style={styles.CaptionContainer}>
         <Text style={styles.accountText}>Create your account</Text>
       </View>
@@ -227,10 +334,10 @@ function AthleteForm(props) {
                   onChangeText={props.handleChange("password")}
                   value={props.values.password}
                   keyboardType="visible-password"
-                  onBlur={props.handleBlur("password")}
-                  textContentType="newPassword"
-                  autoCapitalize="none"
-                  secureTextEntry={true}
+                  // onBlur={props.handleBlur("password")}
+                  // textContentType="newPassword"
+                  // autoCapitalize="none"
+                  // secureTextEntry={true}
                 />
               </View>
               <Text style={styles.errorText}>
@@ -342,6 +449,82 @@ function AthleteForm(props) {
           </TouchableOpacity>
         </View>
       </ScrollView>
+    </>
+  );
+
+  const VerificationStep = (props) => (
+    <ScrollView keyboardShouldPersistTaps="handled">
+      <View style={styles.CaptionContainer}>
+        <Text style={styles.accountText}>
+          {currentStep === 2 ? "SMS Verification Step" : "Email Verification"}
+        </Text>
+      </View>
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          padding: 20,
+        }}
+      >
+        <Text>
+          Your verification code has been sent to your{" "}
+          {currentStep === 2 ? "mobile number" : "email"}. Please enter the
+          6-digit code below to complete your login.
+        </Text>
+        <OTPInputView
+          style={{
+            width: "80%",
+            height: 120,
+            color: "black",
+          }}
+          pinCount={6}
+          codeInputFieldStyle={styles.verificationInputField}
+          codeInputHighlightStyle={styles.verificationHighlightField}
+          onCodeFilled={handleVerificationComplete}
+        />
+        {!!hasAttempted && !verified && (
+          <Text style={styles.errorText}>
+            The code does not match. Please try again
+          </Text>
+        )}
+      </View>
+
+      <DoneIndicator visible={!!verified} style={{ width: 10, height: 10 }} />
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() =>
+          sendSMSVerification(
+            currentStep === 2 ? athleteForm.phone : athleteForm.email
+          )
+        }
+        type="button"
+      >
+        <Text style={styles.buttonText}>Resend Code</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() =>
+          setCurrentStep(currentStep === 2 ? currentStep - 1 : currentStep - 2)
+        }
+        type="button"
+      >
+        <Text style={styles.buttonText}>Go Back</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.headerConatiner}>
+        <Image
+          source={require("../../assets/logo_crop.png")}
+          style={styles.logo}
+        />
+        <Text style={styles.headerText}>Recovery On The Go</Text>
+      </View>
+      {currentStep === 1 && <CreateAccount />}
+      {currentStep === 2 && <VerificationStep />}
+      {currentStep === 3 && <VerificationStep />}
     </View>
   );
 }
@@ -360,12 +543,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     alignSelf: "center",
     padding: 15,
-    width: "30%",
-    margin: 30,
+    width: "35%",
+    margin: 10,
   },
   buttonText: {
     color: colors.secondary,
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "bold",
   },
   container: {
@@ -443,6 +626,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: "90%",
     paddingBottom: 30,
+  },
+  verificationInputField: {
+    color: "#000",
+  },
+
+  verificationHighlightField: {
+    borderColor: "#000",
   },
 });
 
