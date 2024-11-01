@@ -54,6 +54,7 @@ function AthleteForm(props) {
   const [hasAttempted, setHasAttempted] = useState(false);
   const [verified, setVerified] = useState(false);
 
+
   useEffect(() => {
     if (currentStep === 2) {
       sendSMSVerification(athleteForm.phone);
