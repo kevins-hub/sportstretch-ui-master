@@ -47,7 +47,6 @@ const statesItemsObj = Object.entries(states).map(([abbr, name]) => {
 });
 const addressRegExp = /^[a-zA-Z0-9\s,'.-]*$/;
 
-
 const ReviewSchema = yup.object({
   fname: yup.string().required().min(1).label("First Name"),
   lname: yup.string().required().min(1).label("Last Name"),
@@ -116,6 +115,7 @@ function TherapistForm(props) {
   const [currentStep, setCurrentStep] = useState(1);
   const [showInvalidFieldError, setShowInvalidFieldError] = useState(false);
   const [showEmailExistsError, setShowEmailExistsError] = useState(false);
+  const [showPhoneExistsError, setShowPhoneExistsError] = useState(false);
   const [enableHouseCalls, setEnableHouseCalls] = useState(false);
   const [enableInClinic, setEnableInClinic] = useState(false);
   const [businessHours, setBusinessHours] = useState(businessHoursObj);
@@ -177,6 +177,12 @@ function TherapistForm(props) {
         setShowEmailExistsError(true);
         return;
       }
+      const phoneAvailable = await checkPhoneAvailable(values.phone);
+      if (!phoneAvailable) {
+        setShowInvalidFieldError(true);
+        setShowPhoneExistsError(true);
+        return;
+      }
       Promise.all([
         ReviewSchema.validateAt("fname", values),
         ReviewSchema.validateAt("lname", values),
@@ -186,6 +192,7 @@ function TherapistForm(props) {
         .then(() => {
           setShowInvalidFieldError(false);
           setShowEmailExistsError(false);
+          setShowPhoneExistsError(false);
           setCurrentStep(currentStep + 1);
           setPhoneNumber(values.phone);
           setEmail(values.email);
@@ -234,6 +241,16 @@ function TherapistForm(props) {
       return response.data === "Email already registered." ? false : true;
     } catch (error) {
       console.warn("Error checking email availability: ", error);
+      return false;
+    }
+  };
+
+  const checkPhoneAvailable = async (phone) => {
+    try {
+      const response = await registerApi.checkPhone(phone);
+      return response.data === "Phone already registered." ? false : true;
+    } catch (error) {
+      console.warn("Error checking phone availability: ", error);
       return false;
     }
   };
@@ -918,6 +935,11 @@ function TherapistForm(props) {
               {showEmailExistsError && (
                 <Text style={styles.errorText}>
                   An account with this email already exists.
+                </Text>
+              )}
+              {showPhoneExistsError && (
+                <Text style={styles.errorText}>
+                  An account with this phone number already exists.
                 </Text>
               )}
               {currentStep > 1 && currentStep !== 6 && (

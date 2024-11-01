@@ -26,6 +26,9 @@ import base64 from "react-native-base64";
 import DoneIndicator from "../../components/athlete/DoneIndicator";
 import register from "../../api/register";
 
+const phoneRegExp =
+  /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+
 const ReviewSchema = yup.object({
   fname: yup.string().required().min(1).label("First Name"),
   lname: yup.string().required().min(1).label("Last Name"),
@@ -41,19 +44,24 @@ const ReviewSchema = yup.object({
     .required()
     .min(6)
     .label("Confirm Password"),
-  phone: yup.string().required().max(10).label("Phone"),
+  phone: yup
+    .string()
+    .matches(phoneRegExp, "Phone number is not valid. Please use numbers only.")
+    .required()
+    .max(10)
+    .label("Phone"),
 });
 
 function AthleteForm(props) {
   const navigation = useNavigation();
   const [showEmailExistsError, setShowEmailExistsError] = useState(false);
+  const [showPhoneExistsError, setShowPhoneExistsError] = useState(false);
   const [termsAndConditionModal, setTermsAndConditionModal] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [athleteForm, setAthleteForm] = useState(null);
   const [verificationCode, setVerificationCode] = useState(0);
   const [hasAttempted, setHasAttempted] = useState(false);
   const [verified, setVerified] = useState(false);
-
 
   useEffect(() => {
     if (currentStep === 2) {
@@ -153,43 +161,20 @@ function AthleteForm(props) {
     }
   };
 
-  const handleSubmit = async (values, actions) => {
+  const handleSubmit = async (values) => {
     const emailAvailable = await checkEmailAvailable(
       values.email.toLowerCase()
     );
-    console.log("values", values);
-    if (!emailAvailable) {
+    const phoneAvailable = await checkPhoneAvailable(values.phone);
+    if (!phoneAvailable) {
+      setShowPhoneExistsError(true);
+      return;
+    } else if (!emailAvailable) {
       setShowEmailExistsError(true);
       return;
-    } else {
+    } else if (!!phoneAvailable && !!emailAvailable) {
       setAthleteForm(values);
       setCurrentStep(currentStep + 1);
-      // try {
-      //   const athlete = {
-      //     email: values.email.toLowerCase(),
-      //     firstName: values.fname,
-      //     lastName: values.lname,
-      //     password: values.password,
-      //     confirmPassword: values.confirmPassword,
-      //     mobile: values.phone,
-      //   };
-      //   let register_response = await registerApi.registerAthlete(athlete);
-      //   console.log("register_response", register_response);
-      //   if (register_response.status === 200) {
-      //     alert("Registration successful.");
-      //     notifications.notifyAdmin(
-      //       `New athlete registered: ${athlete.firstName} ${athlete.lastName} ${athlete.email}`
-      //     );
-      //     actions.resetForm();
-      //     navigation.navigate("Login");
-      //   } else {
-      //     Alert.alert(
-      //       `An error occurred during registration. Please try again.`
-      //     );
-      //   }
-      // } catch (error) {
-      //   Alert.alert("An error occurred during registration. Please try again.");
-      // }
     }
   };
 
@@ -203,6 +188,16 @@ function AthleteForm(props) {
       return response.data === "Email already registered." ? false : true;
     } catch (error) {
       console.warn("Error checking email availability: ", error);
+      return false;
+    }
+  };
+
+  const checkPhoneAvailable = async (phone) => {
+    try {
+      const response = await registerApi.checkPhone(phone);
+      return response.data === "Phone already registered." ? false : true;
+    } catch (error) {
+      console.warn("Error checking phone availability: ", error);
       return false;
     }
   };
@@ -375,6 +370,7 @@ function AthleteForm(props) {
               <Text style={styles.errorText}>
                 {" "}
                 {props.touched.phone && props.errors.phone}
+                {showPhoneExistsError && "Phone number already registered."}
               </Text>
               <TouchableOpacity onPress={props.handleSubmit}>
                 <View style={styles.button}>
