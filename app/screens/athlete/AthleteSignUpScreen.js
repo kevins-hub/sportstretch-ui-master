@@ -44,7 +44,12 @@ const ReviewSchema = yup.object({
     .required()
     .min(6)
     .label("Confirm Password"),
-  phone: yup.string().matches(phoneRegExp, "Phone number is not valid. Please use numbers only.").required().max(10).label("Phone"),
+  phone: yup
+    .string()
+    .matches(phoneRegExp, "Phone number is not valid. Please use numbers only.")
+    .required()
+    .max(10)
+    .label("Phone"),
 });
 
 function AthleteForm(props) {
@@ -156,49 +161,20 @@ function AthleteForm(props) {
     }
   };
 
-  const handleSubmit = async (values, actions) => {
+  const handleSubmit = async (values) => {
     const emailAvailable = await checkEmailAvailable(
       values.email.toLowerCase()
     );
-    console.log("values", values);
-    if (!emailAvailable) {
-      setShowEmailExistsError(true);
-      return;
-    }
     const phoneAvailable = await checkPhoneAvailable(values.phone);
     if (!phoneAvailable) {
       setShowPhoneExistsError(true);
       return;
-    }
-    else {
+    } else if (!emailAvailable) {
+      setShowEmailExistsError(true);
+      return;
+    } else if (!!phoneAvailable && !!emailAvailable) {
       setAthleteForm(values);
       setCurrentStep(currentStep + 1);
-      try {
-        const athlete = {
-          email: values.email.toLowerCase(),
-          firstName: values.fname,
-          lastName: values.lname,
-          password: values.password,
-          confirmPassword: values.confirmPassword,
-          mobile: values.phone,
-        };
-        let register_response = await registerApi.registerAthlete(athlete);
-        console.log("register_response", register_response);
-        if (register_response.status === 200) {
-          alert("Registration successful.");
-          notifications.notifyAdmin(
-            `New athlete registered: ${athlete.firstName} ${athlete.lastName} ${athlete.email}`
-          );
-          actions.resetForm();
-          navigation.navigate("Login");
-        } else {
-          Alert.alert(
-            `An error occurred during registration. Please try again.`
-          );
-        }
-      } catch (error) {
-        Alert.alert("An error occurred during registration. Please try again.");
-      }
     }
   };
 
@@ -224,7 +200,7 @@ function AthleteForm(props) {
       console.warn("Error checking phone availability: ", error);
       return false;
     }
-  }
+  };
 
   const CreateAccount = () => (
     <>

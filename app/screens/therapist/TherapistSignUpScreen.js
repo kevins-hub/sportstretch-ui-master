@@ -116,7 +116,7 @@ function TherapistForm(props) {
   const [showInvalidFieldError, setShowInvalidFieldError] = useState(false);
   const [showEmailExistsError, setShowEmailExistsError] = useState(false);
   const [showPhoneExistsError, setShowPhoneExistsError] = useState(false);
-  const [enableHouseCalls, setEnableHouseCalls] = useState(false); 
+  const [enableHouseCalls, setEnableHouseCalls] = useState(false);
   const [enableInClinic, setEnableInClinic] = useState(false);
   const [businessHours, setBusinessHours] = useState(businessHoursObj);
   const [termsAndConditionModal, setTermsAndConditionModal] = useState(false);
