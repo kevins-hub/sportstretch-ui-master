@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Formik } from "formik";
 import {
   Modal,
@@ -31,11 +31,12 @@ import Checkbox from "expo-checkbox";
 import TherapistBusinessHours from "../../components/therapist/TherapistBusinessHours";
 import payment from "../../api/payment";
 import auth from "../../api/auth";
+import register from "../../api/register";
 import TermsAndConditions from "../../components/shared/TermsAndConditions";
 import { handleError } from "../../lib/error";
 import OTPInputView from "@twotalltotems/react-native-otp-input";
 import base64 from "react-native-base64";
-import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } from "@env";
+import DoneIndicator from "../../components/athlete/DoneIndicator";
 
 const bioMaxLength = 250;
 const feesAndTaxesPercentage = 0.15;
@@ -63,7 +64,7 @@ const ReviewSchema = yup.object({
     .label("Confirm Password"),
   phone: yup
     .string()
-    .matches(phoneRegExp, "Phone number is not valid. Please use numbers only.")
+    .matches(phoneRegExp, "Phone number is not valid")
     .required()
     .label("Phone"),
   addressL1: yup
@@ -115,14 +116,25 @@ function TherapistForm(props) {
   const [showInvalidFieldError, setShowInvalidFieldError] = useState(false);
   const [showEmailExistsError, setShowEmailExistsError] = useState(false);
   const [showPhoneExistsError, setShowPhoneExistsError] = useState(false);
-  const [enableHouseCalls, setEnableHouseCalls] = useState(false); 
+  const [enableHouseCalls, setEnableHouseCalls] = useState(false);
   const [enableInClinic, setEnableInClinic] = useState(false);
   const [businessHours, setBusinessHours] = useState(businessHoursObj);
   const [termsAndConditionModal, setTermsAndConditionModal] = useState(false);
-  const [isVerified, setIsVerified] = useState(true);
+  const [hasAttempted, setHasAttempted] = useState(false);
+  const [verified, setVerified] = useState(false);
   const [verificationCode, setVerificationCode] = useState(0);
   const [phoneNumber, setPhoneNumber] = useState(0);
-  const [verified, setVerified] = useState(false);
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    console.log("which step am i fucking on", currentStep);
+    if (currentStep === 2) {
+      sendSMSVerification(phoneNumber);
+    } else if (currentStep === 3) {
+      setVerified(false);
+      sendSMSVerification(email);
+    }
+  }, [currentStep]);
 
   const register_therapist = async (values) => {
     try {
@@ -183,7 +195,7 @@ function TherapistForm(props) {
           setShowPhoneExistsError(false);
           setCurrentStep(currentStep + 1);
           setPhoneNumber(values.phone);
-          sendSMSVerification(values.phone);
+          setEmail(values.email);
         })
         .catch((err) => {
           setShowInvalidFieldError(true);
@@ -210,6 +222,9 @@ function TherapistForm(props) {
       setShowInvalidFieldError(false);
       setCurrentStep(currentStep + 1);
     } else if (currentStep === 5) {
+      setShowInvalidFieldError(false);
+      setCurrentStep(currentStep + 1);
+    } else if (currentStep === 6) {
       Promise.all([ReviewSchema.validateAt("licenseUrl", values)])
         .then(() => {
           setShowInvalidFieldError(false);
@@ -242,48 +257,74 @@ function TherapistForm(props) {
 
   const handlePrevious = () => {
     setShowInvalidFieldError(false);
-    if (currentStep === 3 && !!verified) {
+    if (currentStep === 3) {
       setCurrentStep(currentStep - 2);
+    } else if (currentStep === 4) {
+      setCurrentStep(currentStep - 3);
     } else {
       setCurrentStep(currentStep - 1);
     }
   };
 
-  const sendSMSVerification = async (phoneNumber) => {
-    let code = Math.floor(100000 + Math.random() * 900000);
-    setVerificationCode(code);
-    const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
+  const sendSMSVerification = async (value) => {
+    console.log("is this working");
+    if (currentStep === 2) {
+      let code = Math.floor(100000 + Math.random() * 900000);
+      setVerificationCode(code);
+      const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
 
-    const body = new URLSearchParams({
-      To: `+1${phoneNumber}`,
-      From: "+18333628163",
-      Body: `Your verification code is ${code}`, // Or generate dynamically
-    });
-
-    const headers = {
-      Authorization:
-        "Basic " + base64.encode(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`),
-      "Content-Type": "application/x-www-form-urlencoded",
-    };
-
-    try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers,
-        body: body.toString(),
+      const body = new URLSearchParams({
+        To: `+1${value}`,
+        From: "+18333628163",
+        Body: `SportStretch: Your verification code is ${code}`,
       });
-      const data = await response.json();
-    } catch (error) {
-      console.error("Error sending SMS:", error);
+
+      const headers = {
+        Authorization:
+          "Basic " +
+          base64.encode(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`),
+        "Content-Type": "application/x-www-form-urlencoded",
+      };
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers,
+          body: body.toString(),
+        });
+        const data = await response.json();
+      } catch (error) {
+        console.error("Error sending SMS:", error);
+      }
+    } else if (currentStep === 3) {
+      try {
+        const code = Math.floor(100000 + Math.random() * 900000);
+        setVerificationCode(code);
+        let emailVerificationCode = { email: email, token: code };
+        let res = await register.verifyEmail(emailVerificationCode);
+        if (!!res) {
+          console.warn("It worked");
+        } else {
+          console.warn("error in verifying email");
+        }
+      } catch (error) {
+        console.warn(error);
+      }
     }
   };
 
+  const resetVerificationStep = () => {
+    setVerified(false);
+    setHasAttempted(false);
+    setCurrentStep(currentStep + 1);
+  };
+
   const handleVerificationComplete = (code) => {
+    setHasAttempted(true);
     if (parseInt(code) === verificationCode) {
-      setCurrentStep(currentStep + 1);
+      // setCurrentStep(currentStep + 1);
       setVerified(true);
-    } else {
-      setIsVerified(false);
+      setTimeout(resetVerificationStep, 2000);
     }
   };
 
@@ -384,7 +425,12 @@ function TherapistForm(props) {
 
   const VerificationStep = (props) => (
     <View style={{ flex: 1, alignItems: "center" }}>
-      <Text>Please enter the code sent to you</Text>
+      <Text>
+        Your verification code has been sent to your{" "}
+        {currentStep === 2 ? "mobile number" : "email"}. Please enter the
+        6-digit code below to complete your login.
+      </Text>
+
       <OTPInputView
         style={{
           width: "80%",
@@ -396,11 +442,12 @@ function TherapistForm(props) {
         codeInputHighlightStyle={styles.verificationHighlightField}
         onCodeFilled={handleVerificationComplete}
       />
-      {!isVerified && (
+      {!!hasAttempted && !verified && (
         <Text style={styles.errorText}>
           The code does not match. Please try again
         </Text>
       )}
+      <DoneIndicator visible={!!verified} />
     </View>
   );
 
@@ -800,17 +847,20 @@ function TherapistForm(props) {
         <Text style={styles.accountText}>Phone Verification</Text>
       )}
       {currentStep === 3 && (
-        <Text style={styles.accountText}>Tell us about your business</Text>
+        <Text style={styles.accountText}>Email Verification</Text>
       )}
       {currentStep === 4 && (
-        <Text style={styles.accountText}>Set your availability</Text>
+        <Text style={styles.accountText}>Tell us about your business</Text>
       )}
       {currentStep === 5 && (
+        <Text style={styles.accountText}>Set your availability</Text>
+      )}
+      {currentStep === 6 && (
         <Text style={styles.accountText}>
           Please provide your license information
         </Text>
       )}
-      {currentStep === 6 && <Text style={styles.accountText}>Last Step!</Text>}
+      {currentStep === 7 && <Text style={styles.accountText}>Last Step!</Text>}
       {/* <Text style={styles.accountText}>Create your profile</Text> */}
       <Formik
         initialValues={{
@@ -858,17 +908,24 @@ function TherapistForm(props) {
       >
         {(props) => (
           <View style={styles.propsContainer}>
+            {/* <DoneIndicator
+              visible={
+                (currentStep === 2 && !!isVerified) ||
+                (currentStep === 3 && !!isVerified)
+              }
+            /> */}
             {currentStep === 1 && <ContactStep {...props} />}
             {currentStep === 2 && <VerificationStep {...props} />}
-            {currentStep === 3 && <ServicesStep {...props} />}
-            {currentStep === 4 && (
+            {currentStep === 3 && <VerificationStep {...props} />}
+            {currentStep === 4 && <ServicesStep {...props} />}
+            {currentStep === 5 && (
               <TherapistBusinessHours
                 businessHours={businessHours}
                 setBusinessHours={setBusinessHours}
               />
             )}
-            {currentStep === 5 && <LicenseStep {...props} />}
-            {currentStep === 6 && <PasswordStep {...props} />}
+            {currentStep === 6 && <LicenseStep {...props} />}
+            {currentStep === 7 && <PasswordStep {...props} />}
             <View style={styles.buttonContainer}>
               {showInvalidFieldError && (
                 <Text style={styles.errorText}>
@@ -885,15 +942,16 @@ function TherapistForm(props) {
                   An account with this phone number already exists.
                 </Text>
               )}
-              {currentStep > 1 && (
+              {currentStep > 1 && currentStep !== 6 && (
                 <TouchableOpacity
                   style={styles.secondaryButton}
                   onPress={handlePrevious}
+                  disabled={!!verified}
                 >
                   <Text style={styles.secondaryButtonText}>Previous</Text>
                 </TouchableOpacity>
               )}
-              {currentStep < 5 && currentStep !== 2 && (
+              {(currentStep === 1 || currentStep > 3) && (
                 <TouchableOpacity
                   style={styles.button}
                   onPress={() => {
@@ -904,16 +962,19 @@ function TherapistForm(props) {
                   <Text style={styles.buttonText}>Next</Text>
                 </TouchableOpacity>
               )}
-              {currentStep == 2 && (
+              {(currentStep == 2 || currentStep == 3) && (
                 <TouchableOpacity
                   style={styles.button}
-                  onPress={() => sendSMSVerification(phoneNumber)}
+                  onPress={() =>
+                    sendSMSVerification(currentStep === 2 ? phoneNumber : email)
+                  }
                   type="button"
+                  disabled={!!verified}
                 >
                   <Text style={styles.buttonText}>Resend Code</Text>
                 </TouchableOpacity>
               )}
-              {currentStep === 5 && (
+              {currentStep === 6 && (
                 <TouchableOpacity
                   style={styles.button}
                   onPress={props.handleSubmit}
