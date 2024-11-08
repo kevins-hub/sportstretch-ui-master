@@ -14,23 +14,17 @@ const deleteAccount = (id) => {
   return apiClient.delete(endpoint + "/delete/" + id);
 };
 
-<<<<<<< HEAD
 const verifyEmail = (verifyEmailObj) => {
   return apiClient.post(endpoint + "/verify-email", verifyEmailObj);
 };
-=======
 const checkPhone = (phone) => {
   return apiClient.post(endpoint + "/checkPhone", { phone });
-}
->>>>>>> master
+};
 
 export default {
   registerAthlete,
   registerTherapist,
   deleteAccount,
-<<<<<<< HEAD
   verifyEmail,
-=======
-  checkPhone
->>>>>>> master
+  checkPhone,
 };
