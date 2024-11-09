@@ -25,6 +25,7 @@ import OTPInputView from "@twotalltotems/react-native-otp-input";
 import base64 from "react-native-base64";
 import DoneIndicator from "../../components/athlete/DoneIndicator";
 import register from "../../api/register";
+import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } from "@env";
 
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
