@@ -26,6 +26,15 @@ import base64 from "react-native-base64";
 import DoneIndicator from "../../components/athlete/DoneIndicator";
 import register from "../../api/register";
 import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } from "@env";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { SMS } from "aws-sdk";
+
+const DETAILS_STEP = 1;
+const DOB_STEP = 2;
+const SMS_VERIFICATION_STEP = 3;
+const EMAIL_VERIFIACTION_STEP = 4;
+
+const MIN_AGE = 18;
 
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
@@ -63,11 +72,14 @@ function AthleteForm(props) {
   const [verificationCode, setVerificationCode] = useState(0);
   const [hasAttempted, setHasAttempted] = useState(false);
   const [verified, setVerified] = useState(false);
+  const [dob, setDob] = useState(null);
+  const [hasChangedDate, setHasChangedDate] = useState(false);
+  const [isAboveAge, setIsAboveAge] = useState(false);
 
   useEffect(() => {
-    if (currentStep === 2) {
+    if (currentStep === SMS_VERIFICATION_STEP) {
       sendSMSVerification(athleteForm.phone);
-    } else if (currentStep === 3) {
+    } else if (currentStep === EMAIL_VERIFIACTION_STEP) {
       sendSMSVerification(athleteForm.email);
     }
   }, [currentStep]);
@@ -75,7 +87,7 @@ function AthleteForm(props) {
   const sendSMSVerification = async (value) => {
     let code = Math.floor(100000 + Math.random() * 900000);
     setVerificationCode(code);
-    if (currentStep === 2) {
+    if (currentStep === SMS_VERIFICATION_STEP) {
       console.log("code", code);
       const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
 
@@ -102,7 +114,7 @@ function AthleteForm(props) {
       } catch (error) {
         console.error("Error sending SMS:", error);
       }
-    } else if (currentStep === 3) {
+    } else if (currentStep === EMAIL_VERIFIACTION_STEP) {
       console.log("step 3 is initated");
       try {
         let emailVerificationCode = { email: athleteForm.email, token: code };
@@ -118,6 +130,32 @@ function AthleteForm(props) {
     }
   };
 
+  const checkAge = (dob) => {
+    const today = new Date();
+    const birthDate = new Date(dob);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age >= MIN_AGE;
+  };
+
+  const handleDateChange = (event, selectedDate) => {
+    setHasChangedDate(true);
+
+    // convert selectedDate to local date considering time zone
+    const selectedDateLocal = new Date(
+      selectedDate.getTime() + selectedDate.getTimezoneOffset() * 60000
+    );
+    setDob(selectedDateLocal);
+    if (checkAge(selectedDateLocal)) {
+      setIsAboveAge(true);
+    } else {
+      setIsAboveAge(false);
+    }
+  };
+
   const registerAthlete = async () => {
     try {
       const athlete = {
@@ -127,6 +165,7 @@ function AthleteForm(props) {
         password: athleteForm.password,
         confirmPassword: athleteForm.confirmPassword,
         mobile: athleteForm.phone,
+        dob: dob,
       };
       let register_response = await registerApi.registerAthlete(athlete);
       if (register_response.status === 200) {
@@ -146,7 +185,7 @@ function AthleteForm(props) {
   const resetVerificationStep = () => {
     setVerified(false);
     setHasAttempted(false);
-    if (currentStep <= 2) {
+    if (currentStep <= SMS_VERIFICATION_STEP) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -154,7 +193,7 @@ function AthleteForm(props) {
   const handleVerificationComplete = async (code) => {
     setHasAttempted(true);
     if (parseInt(code) === verificationCode) {
-      if (currentStep === 3) {
+      if (currentStep === EMAIL_VERIFIACTION_STEP) {
         await registerAthlete(athleteForm);
       }
       setVerified(true);
@@ -162,7 +201,7 @@ function AthleteForm(props) {
     }
   };
 
-  const handleSubmit = async (values) => {
+  const handleNext = async (values) => {
     const emailAvailable = await checkEmailAvailable(
       values.email.toLowerCase()
     );
@@ -219,7 +258,7 @@ function AthleteForm(props) {
           }}
           validationSchema={ReviewSchema}
           onSubmit={async (values, actions) => {
-            await handleSubmit(values, actions);
+            await handleNext(values, actions);
           }}
         >
           {(props) => (
@@ -375,7 +414,7 @@ function AthleteForm(props) {
               </Text>
               <TouchableOpacity onPress={props.handleSubmit}>
                 <View style={styles.button}>
-                  <Text style={styles.buttonText}>Sign Up</Text>
+                  <Text style={styles.buttonText}>Next</Text>
                 </View>
               </TouchableOpacity>
             </View>
@@ -429,11 +468,59 @@ function AthleteForm(props) {
     </>
   );
 
+  const DobStep = () => (
+    <>
+      <View style={styles.dobContainer}>
+        <Text style={styles.disclaimerText}>
+          SportStretch is intended for users who are 18 years of age or older.
+          By using this service, you confirm that you are at least 18 years old.
+          Please do not use SportStretch if you are under 18.
+        </Text>
+        <Text style={styles.accountText}>Please enter your date of birth:</Text>
+        <DateTimePicker
+          value={dob || new Date()}
+          mode="date"
+          display="spinner"
+          onChange={handleDateChange}
+          style={styles.datePicker}
+          shouldCloseOnSelect={false}
+        />
+
+        {!!hasChangedDate && !isAboveAge && (
+          <Text style={styles.errorText}>
+            You must be at least 18 years old to use SportStretch.
+          </Text>
+        )}
+        <View style={styles.buttonContainer}>
+          {!!isAboveAge && (
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => setCurrentStep(currentStep + 1)}
+              type="button"
+            >
+              <Text style={styles.buttonText}>Next</Text>
+            </TouchableOpacity>
+          )}
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => setCurrentStep(currentStep - 1)}
+            type="button"
+          >
+            <Text style={styles.buttonText}>Previous</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </>
+  );
+
   const VerificationStep = (props) => (
     <ScrollView keyboardShouldPersistTaps="handled">
       <View style={styles.CaptionContainer}>
         <Text style={styles.accountText}>
-          {currentStep === 2 ? "SMS Verification Step" : "Email Verification"}
+          {currentStep === SMS_VERIFICATION_STEP
+            ? "SMS Verification Step"
+            : "Email Verification"}
         </Text>
       </View>
       <View
@@ -445,8 +532,8 @@ function AthleteForm(props) {
       >
         <Text>
           Your verification code has been sent to your{" "}
-          {currentStep === 2 ? "mobile number" : "email"}. Please enter the
-          6-digit code below to complete your login.
+          {currentStep === SMS_VERIFICATION_STEP ? "mobile number" : "email"}.
+          Please enter the 6-digit code below to complete your login.
         </Text>
         <OTPInputView
           style={{
@@ -471,7 +558,9 @@ function AthleteForm(props) {
         style={styles.button}
         onPress={() =>
           sendSMSVerification(
-            currentStep === 2 ? athleteForm.phone : athleteForm.email
+            currentStep === SMS_VERIFICATION_STEP
+              ? athleteForm.phone
+              : athleteForm.email
           )
         }
         type="button"
@@ -481,7 +570,11 @@ function AthleteForm(props) {
       <TouchableOpacity
         style={styles.button}
         onPress={() =>
-          setCurrentStep(currentStep === 2 ? currentStep - 1 : currentStep - 2)
+          setCurrentStep(
+            currentStep === SMS_VERIFICATION_STEP
+              ? currentStep - 1
+              : currentStep - 2
+          )
         }
         type="button"
       >
@@ -499,9 +592,10 @@ function AthleteForm(props) {
         />
         <Text style={styles.headerText}>Recovery On The Go</Text>
       </View>
-      {currentStep === 1 && <CreateAccount />}
-      {currentStep === 2 && <VerificationStep />}
-      {currentStep === 3 && <VerificationStep />}
+      {currentStep === DETAILS_STEP && <CreateAccount />}
+      {currentStep === DOB_STEP && <DobStep />}
+      {currentStep === SMS_VERIFICATION_STEP && <VerificationStep />}
+      {currentStep === EMAIL_VERIFIACTION_STEP && <VerificationStep />}
     </View>
   );
 }
@@ -511,6 +605,12 @@ const styles = StyleSheet.create({
     fontSize: 25,
     color: colors.dullblack,
     //marginBottom: "5%",
+    textAlign: "center",
+  },
+  disclaimerText: {
+    fontSize: 15,
+    color: colors.grey,
+    marginBottom: "5%",
     textAlign: "center",
   },
   button: {
@@ -571,6 +671,7 @@ const styles = StyleSheet.create({
   backToLoginContainer: {
     marginTop: "2%",
     alignItems: "center",
+    marginBottom: "5%",
   },
   loginLink: {
     marginTop: "1%",
@@ -610,6 +711,24 @@ const styles = StyleSheet.create({
 
   verificationHighlightField: {
     borderColor: "#000",
+  },
+  datePicker: {
+    height: 200,
+    position: "relative",
+    zIndex: -1,
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
+  dobContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-around",
+  },
+  buttonContainer: {
+    width: "100%",
   },
 });
 
