@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Formik } from "formik";
 import {
   Modal,
@@ -31,11 +31,26 @@ import Checkbox from "expo-checkbox";
 import TherapistBusinessHours from "../../components/therapist/TherapistBusinessHours";
 import payment from "../../api/payment";
 import auth from "../../api/auth";
+import register from "../../api/register";
 import TermsAndConditions from "../../components/shared/TermsAndConditions";
 import { handleError } from "../../lib/error";
 import OTPInputView from "@twotalltotems/react-native-otp-input";
 import base64 from "react-native-base64";
+import DoneIndicator from "../../components/athlete/DoneIndicator";
 import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } from "@env";
+import notifications from "../../api/notifications";
+import DateTimePicker from "@react-native-community/datetimepicker";
+
+const CONTACT_STEP = 1;
+const DOB_STEP = 2;
+const SMS_VERIFICATION_STEP = 3;
+const EMAIL_VERIFIACTION_STEP = 4;
+const SERVICES_STEP = 5;
+const BUSINESS_HOURS_STEP = 6;
+const LICENSE_STEP = 7;
+const PASSWORD_STEP = 8;
+
+const MIN_AGE = 18;
 
 const bioMaxLength = 250;
 const feesAndTaxesPercentage = 0.15;
@@ -115,30 +130,71 @@ function TherapistForm(props) {
   const [showInvalidFieldError, setShowInvalidFieldError] = useState(false);
   const [showEmailExistsError, setShowEmailExistsError] = useState(false);
   const [showPhoneExistsError, setShowPhoneExistsError] = useState(false);
-  const [enableHouseCalls, setEnableHouseCalls] = useState(false); 
+  const [enableHouseCalls, setEnableHouseCalls] = useState(false);
   const [enableInClinic, setEnableInClinic] = useState(false);
   const [businessHours, setBusinessHours] = useState(businessHoursObj);
   const [termsAndConditionModal, setTermsAndConditionModal] = useState(false);
-  const [isVerified, setIsVerified] = useState(true);
+  const [hasAttempted, setHasAttempted] = useState(false);
+  const [verified, setVerified] = useState(false);
   const [verificationCode, setVerificationCode] = useState(0);
   const [phoneNumber, setPhoneNumber] = useState(0);
-  const [verified, setVerified] = useState(false);
+  const [email, setEmail] = useState("");
+  const [showSubmitError, setShowSubmitError] = useState(false);
+  const [dob, setDob] = useState(null);
+  const [hasChangedDate, setHasChangedDate] = useState(false);
+  const [isAboveAge, setIsAboveAge] = useState(false);
+
+  useEffect(() => {
+    console.log("which step am i fucking on", currentStep);
+    if (currentStep === SMS_VERIFICATION_STEP) {
+      sendSMSVerification(phoneNumber);
+    } else if (currentStep === EMAIL_VERIFIACTION_STEP) {
+      setVerified(false);
+      sendSMSVerification(email);
+    }
+  }, [currentStep]);
+
+  const checkAge = (dob) => {
+    const today = new Date();
+    const birthDate = new Date(dob);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age >= MIN_AGE;
+  };
+
+  const handleDateChange = (event, selectedDate) => {
+    setHasChangedDate(true);
+
+    // convert selectedDate to local date considering time zone
+    const selectedDateLocal = new Date(
+      selectedDate.getTime() + selectedDate.getTimezoneOffset() * 60000
+    );
+    setDob(selectedDateLocal);
+    if (checkAge(selectedDateLocal)) {
+      setIsAboveAge(true);
+    } else {
+      setIsAboveAge(false);
+    }
+  };
 
   const register_therapist = async (values) => {
+    let registerSuccess = false;
     try {
       let register_response = await registerApi.registerTherapist(values);
       if (register_response.status === 200) {
         navigation.navigate("TherapistRegistrationPending");
-        notifications.notifyAdmin(
-          `New recovery specialist registered: ${values.profession}: ${values.fname} ${values.lname}, ${values.email}`
-        );
-      } else {
-        Alert.alert(
-          `Error while registration: ${register_response.data} Please try again.`
-        );
+        registerSuccess = true;
       }
     } catch (error) {
       Alert.alert("An error occurred during registration. Please try again.");
+    }
+    if (registerSuccess) {
+      notifications.notifyAdmin(
+        `New recovery specialist registered: ${values.profession}: ${values.fname} ${values.lname}, ${values.email}`
+      );
     }
   };
 
@@ -158,7 +214,7 @@ function TherapistForm(props) {
   ];
 
   const handleNext = async (values) => {
-    if (currentStep === 1) {
+    if (currentStep === CONTACT_STEP) {
       const emailAvailable = await checkEmailAvailable(values.email);
       if (!emailAvailable) {
         setShowInvalidFieldError(true);
@@ -183,13 +239,20 @@ function TherapistForm(props) {
           setShowPhoneExistsError(false);
           setCurrentStep(currentStep + 1);
           setPhoneNumber(values.phone);
-          sendSMSVerification(values.phone);
+          setEmail(values.email);
         })
         .catch((err) => {
           setShowInvalidFieldError(true);
           console.warn(err);
         });
-    } else if (currentStep === 3) {
+    } else if (currentStep === DOB_STEP) {
+      if (!isAboveAge) {
+        setShowInvalidFieldError(true);
+        return;
+      }
+        setShowInvalidFieldError(false);
+        setCurrentStep(currentStep + 1);
+    } else if (currentStep === EMAIL_VERIFIACTION_STEP) {
       Promise.all([
         ReviewSchema.validateAt("profession", values),
         ReviewSchema.validateAt("addressL1", values),
@@ -206,11 +269,14 @@ function TherapistForm(props) {
           setShowInvalidFieldError(true);
           // console.warn(err);
         });
-    } else if (currentStep === 4) {
+    } else if (currentStep === SERVICES_STEP) {
       setShowInvalidFieldError(false);
       setCurrentStep(currentStep + 1);
-    } else if (currentStep === 5) {
-      Promise.all([ReviewSchema.validateAt("licenseUrl", values)])
+    } else if (currentStep === BUSINESS_HOURS_STEP) {
+      setShowInvalidFieldError(false);
+      setCurrentStep(currentStep + 1);
+    } else if (currentStep === LICENSE_STEP) {
+      ReviewSchema.validateAt("licenseUrl", values)
         .then(() => {
           setShowInvalidFieldError(false);
           setCurrentStep(currentStep + 1);
@@ -242,48 +308,74 @@ function TherapistForm(props) {
 
   const handlePrevious = () => {
     setShowInvalidFieldError(false);
-    if (currentStep === 3 && !!verified) {
+    if (currentStep === EMAIL_VERIFIACTION_STEP) {
       setCurrentStep(currentStep - 2);
+    } else if (currentStep === SERVICES_STEP) {
+      setCurrentStep(currentStep - 3);
     } else {
       setCurrentStep(currentStep - 1);
     }
   };
 
-  const sendSMSVerification = async (phoneNumber) => {
-    let code = Math.floor(100000 + Math.random() * 900000);
-    setVerificationCode(code);
-    const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
+  const sendSMSVerification = async (value) => {
+    console.log("is this working");
+    if (currentStep === SMS_VERIFICATION_STEP) {
+      let code = Math.floor(100000 + Math.random() * 900000);
+      setVerificationCode(code);
+      const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
 
-    const body = new URLSearchParams({
-      To: `+1${phoneNumber}`,
-      From: "+18333628163",
-      Body: `Your verification code is ${code}`, // Or generate dynamically
-    });
-
-    const headers = {
-      Authorization:
-        "Basic " + base64.encode(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`),
-      "Content-Type": "application/x-www-form-urlencoded",
-    };
-
-    try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers,
-        body: body.toString(),
+      const body = new URLSearchParams({
+        To: `+1${value}`,
+        From: "+18333628163",
+        Body: `SportStretch: Your verification code is ${code}`,
       });
-      const data = await response.json();
-    } catch (error) {
-      console.error("Error sending SMS:", error);
+
+      const headers = {
+        Authorization:
+          "Basic " +
+          base64.encode(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`),
+        "Content-Type": "application/x-www-form-urlencoded",
+      };
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers,
+          body: body.toString(),
+        });
+        const data = await response.json();
+      } catch (error) {
+        console.error("Error sending SMS:", error);
+      }
+    } else if (currentStep === EMAIL_VERIFIACTION_STEP) {
+      try {
+        const code = Math.floor(100000 + Math.random() * 900000);
+        setVerificationCode(code);
+        let emailVerificationCode = { email: email, token: code };
+        let res = await register.verifyEmail(emailVerificationCode);
+        if (!!res) {
+          console.warn("It worked");
+        } else {
+          console.warn("error in verifying email");
+        }
+      } catch (error) {
+        console.warn(error);
+      }
     }
   };
 
+  const resetVerificationStep = () => {
+    setVerified(false);
+    setHasAttempted(false);
+    setCurrentStep(currentStep + 1);
+  };
+
   const handleVerificationComplete = (code) => {
+    setHasAttempted(true);
     if (parseInt(code) === verificationCode) {
-      setCurrentStep(currentStep + 1);
+      // setCurrentStep(currentStep + 1);
       setVerified(true);
-    } else {
-      setIsVerified(false);
+      setTimeout(resetVerificationStep, 2000);
     }
   };
 
@@ -382,9 +474,60 @@ function TherapistForm(props) {
     </>
   );
 
+  const DobStep = () => (
+    <>
+      <View style={styles.dobContainer}>
+        <Text style={styles.disclaimerText}>
+          SportStretch is intended for users who are 18 years of age or older.
+          By using this service, you confirm that you are at least 18 years old.
+          Please do not use SportStretch if you are under 18.
+        </Text>
+        <Text style={styles.accountText}>Please enter your date of birth:</Text>
+        <DateTimePicker
+          value={dob || new Date()}
+          mode="date"
+          display="spinner"
+          onChange={handleDateChange}
+          style={styles.datePicker}
+          shouldCloseOnSelect={false}
+        />
+
+        {!!hasChangedDate && !isAboveAge && (
+          <Text style={styles.errorText}>
+            You must be at least 18 years old to use SportStretch.
+          </Text>
+        )}
+        {/* <View style={styles.buttonContainer}>
+          {!!isAboveAge && (
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => setCurrentStep(currentStep + 1)}
+              type="button"
+            >
+              <Text style={styles.buttonText}>Next</Text>
+            </TouchableOpacity>
+          )}
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => setCurrentStep(currentStep - 1)}
+            type="button"
+          >
+            <Text style={styles.buttonText}>Previous</Text>
+          </TouchableOpacity>
+        </View> */}
+      </View>
+    </>
+  );
+
   const VerificationStep = (props) => (
     <View style={{ flex: 1, alignItems: "center" }}>
-      <Text>Please enter the code sent to you</Text>
+      <Text>
+        Your verification code has been sent to your{" "}
+        {currentStep === SMS_VERIFICATION_STEP ? "mobile number" : "email"}.
+        Please enter the 6-digit code below to complete your login.
+      </Text>
+
       <OTPInputView
         style={{
           width: "80%",
@@ -396,11 +539,12 @@ function TherapistForm(props) {
         codeInputHighlightStyle={styles.verificationHighlightField}
         onCodeFilled={handleVerificationComplete}
       />
-      {!isVerified && (
+      {!!hasAttempted && !verified && (
         <Text style={styles.errorText}>
           The code does not match. Please try again
         </Text>
       )}
+      <DoneIndicator visible={!!verified} />
     </View>
   );
 
@@ -793,24 +937,29 @@ function TherapistForm(props) {
         />
         <Text style={styles.headerText}>Recovery On The Go</Text>
       </View>
-      {currentStep === 1 && (
+      {currentStep === CONTACT_STEP && (
         <Text style={styles.accountText}>Tell us about yourself</Text>
       )}
-      {currentStep === 2 && (
+      {currentStep === SMS_VERIFICATION_STEP && (
         <Text style={styles.accountText}>Phone Verification</Text>
       )}
-      {currentStep === 3 && (
+      {currentStep === EMAIL_VERIFIACTION_STEP && (
+        <Text style={styles.accountText}>Email Verification</Text>
+      )}
+      {currentStep === SERVICES_STEP && (
         <Text style={styles.accountText}>Tell us about your business</Text>
       )}
-      {currentStep === 4 && (
+      {currentStep === BUSINESS_HOURS_STEP && (
         <Text style={styles.accountText}>Set your availability</Text>
       )}
-      {currentStep === 5 && (
+      {currentStep === LICENSE_STEP && (
         <Text style={styles.accountText}>
           Please provide your license information
         </Text>
       )}
-      {currentStep === 6 && <Text style={styles.accountText}>Last Step!</Text>}
+      {currentStep === PASSWORD_STEP && (
+        <Text style={styles.accountText}>Last Step!</Text>
+      )}
       {/* <Text style={styles.accountText}>Create your profile</Text> */}
       <Formik
         initialValues={{
@@ -839,6 +988,7 @@ function TherapistForm(props) {
           values.acceptsHouseCalls = enableHouseCalls;
           values.acceptsInClinic = enableInClinic;
           values.businessHours = businessHours;
+          values.dob = dob;
           try {
             const registerStripeResponse = await payment.registerStripeAccount({
               email: values.email.toLowerCase(),
@@ -852,23 +1002,39 @@ function TherapistForm(props) {
             console.warn("Error registering stripe account: ", error);
           }
 
-          register_therapist(values);
-          actions.resetForm();
+          try {
+            await register_therapist(values);
+          } catch (error) {
+            console.warn("Error registering therapist: ", error);
+            setShowSubmitError(true);
+          }
         }}
       >
         {(props) => (
           <View style={styles.propsContainer}>
-            {currentStep === 1 && <ContactStep {...props} />}
-            {currentStep === 2 && <VerificationStep {...props} />}
-            {currentStep === 3 && <ServicesStep {...props} />}
-            {currentStep === 4 && (
+            {/* <DoneIndicator
+              visible={
+                (currentStep === 2 && !!isVerified) ||
+                (currentStep === 3 && !!isVerified)
+              }
+            /> */}
+            {currentStep === CONTACT_STEP && <ContactStep {...props} />}
+            {currentStep === DOB_STEP && <DobStep {...props} />}
+            {currentStep === SMS_VERIFICATION_STEP && (
+              <VerificationStep {...props} />
+            )}
+            {currentStep === EMAIL_VERIFIACTION_STEP && (
+              <VerificationStep {...props} />
+            )}
+            {currentStep === SERVICES_STEP && <ServicesStep {...props} />}
+            {currentStep === BUSINESS_HOURS_STEP && (
               <TherapistBusinessHours
                 businessHours={businessHours}
                 setBusinessHours={setBusinessHours}
               />
             )}
-            {currentStep === 5 && <LicenseStep {...props} />}
-            {currentStep === 6 && <PasswordStep {...props} />}
+            {currentStep === LICENSE_STEP && <LicenseStep {...props} />}
+            {currentStep === PASSWORD_STEP && <PasswordStep {...props} />}
             <View style={styles.buttonContainer}>
               {showInvalidFieldError && (
                 <Text style={styles.errorText}>
@@ -885,41 +1051,60 @@ function TherapistForm(props) {
                   An account with this phone number already exists.
                 </Text>
               )}
-              {currentStep > 1 && (
+              {currentStep > CONTACT_STEP && (
                 <TouchableOpacity
                   style={styles.secondaryButton}
                   onPress={handlePrevious}
+                  disabled={!!verified}
                 >
                   <Text style={styles.secondaryButtonText}>Previous</Text>
                 </TouchableOpacity>
               )}
-              {currentStep < 5 && currentStep !== 2 && (
+              {(currentStep <= DOB_STEP ||
+                currentStep > EMAIL_VERIFIACTION_STEP) &&
+                currentStep !== PASSWORD_STEP && (
+                  <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => {
+                      handleNext(props.values);
+                    }}
+                    type="button"
+                  >
+                    <Text style={styles.buttonText}>Next</Text>
+                  </TouchableOpacity>
+                )}
+              {(currentStep == SMS_VERIFICATION_STEP ||
+                currentStep == EMAIL_VERIFIACTION_STEP) && (
                 <TouchableOpacity
                   style={styles.button}
-                  onPress={() => {
-                    handleNext(props.values);
-                  }}
+                  onPress={() =>
+                    sendSMSVerification(
+                      currentStep === SMS_VERIFICATION_STEP
+                        ? phoneNumber
+                        : email
+                    )
+                  }
                   type="button"
-                >
-                  <Text style={styles.buttonText}>Next</Text>
-                </TouchableOpacity>
-              )}
-              {currentStep == 2 && (
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={() => sendSMSVerification(phoneNumber)}
-                  type="button"
+                  disabled={!!verified}
                 >
                   <Text style={styles.buttonText}>Resend Code</Text>
                 </TouchableOpacity>
               )}
-              {currentStep === 5 && (
+              {currentStep === PASSWORD_STEP && (
                 <TouchableOpacity
                   style={styles.button}
                   onPress={props.handleSubmit}
                 >
                   <Text style={styles.buttonText}>Finish Sign Up</Text>
                 </TouchableOpacity>
+              )}
+
+              {currentStep === PASSWORD_STEP && showSubmitError && (
+                <>
+                  <Text style={styles.errorText}>
+                    Please fix errors in fields before submitting
+                  </Text>
+                </>
               )}
             </View>
             <View style={styles.backToLoginContainer}>
@@ -947,6 +1132,12 @@ const styles = StyleSheet.create({
   accountText: {
     fontSize: 25,
     color: colors.dullblack,
+    marginBottom: "5%",
+    textAlign: "center",
+  },
+  disclaimerText: {
+    fontSize: 15,
+    color: colors.grey,
     marginBottom: "5%",
     textAlign: "center",
   },
@@ -1153,6 +1344,21 @@ const styles = StyleSheet.create({
   verificationHighlightField: {
     // borderColor: "#03DAC6",
     borderColor: "#000",
+  },
+  datePicker: {
+    height: 200,
+    position: "relative",
+    zIndex: -1,
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
+  dobContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-around",
   },
 });
 

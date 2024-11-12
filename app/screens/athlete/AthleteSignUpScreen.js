@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Formik } from "formik";
 import {
   Modal,
@@ -21,6 +21,20 @@ import { ScrollView } from "react-native-gesture-handler";
 import auth from "../../api/auth";
 import TermsAndConditions from "../../components/shared/TermsAndConditions";
 import notifications from "../../api/notifications";
+import OTPInputView from "@twotalltotems/react-native-otp-input";
+import base64 from "react-native-base64";
+import DoneIndicator from "../../components/athlete/DoneIndicator";
+import register from "../../api/register";
+import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } from "@env";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { SMS } from "aws-sdk";
+
+const DETAILS_STEP = 1;
+const DOB_STEP = 2;
+const SMS_VERIFICATION_STEP = 3;
+const EMAIL_VERIFIACTION_STEP = 4;
+
+const MIN_AGE = 18;
 
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
@@ -40,7 +54,12 @@ const ReviewSchema = yup.object({
     .required()
     .min(6)
     .label("Confirm Password"),
-  phone: yup.string().matches(phoneRegExp, "Phone number is not valid. Please use numbers only.").required().max(10).label("Phone"),
+  phone: yup
+    .string()
+    .matches(phoneRegExp, "Phone number is not valid. Please use numbers only.")
+    .required()
+    .max(10)
+    .label("Phone"),
 });
 
 function AthleteForm(props) {
@@ -48,28 +67,105 @@ function AthleteForm(props) {
   const [showEmailExistsError, setShowEmailExistsError] = useState(false);
   const [showPhoneExistsError, setShowPhoneExistsError] = useState(false);
   const [termsAndConditionModal, setTermsAndConditionModal] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [athleteForm, setAthleteForm] = useState(null);
+  const [verificationCode, setVerificationCode] = useState(0);
+  const [hasAttempted, setHasAttempted] = useState(false);
+  const [verified, setVerified] = useState(false);
+  const [dob, setDob] = useState(null);
+  const [hasChangedDate, setHasChangedDate] = useState(false);
+  const [isAboveAge, setIsAboveAge] = useState(false);
 
-  const handleSubmit = async (values, actions) => {
-    const emailAvailable = await checkEmailAvailable(
-      values.email.toLowerCase()
+  useEffect(() => {
+    if (currentStep === SMS_VERIFICATION_STEP) {
+      sendSMSVerification(athleteForm.phone);
+    } else if (currentStep === EMAIL_VERIFIACTION_STEP) {
+      sendSMSVerification(athleteForm.email);
+    }
+  }, [currentStep]);
+
+  const sendSMSVerification = async (value) => {
+    let code = Math.floor(100000 + Math.random() * 900000);
+    setVerificationCode(code);
+    if (currentStep === SMS_VERIFICATION_STEP) {
+      console.log("code", code);
+      const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
+
+      const body = new URLSearchParams({
+        To: `+1${value}`,
+        From: "+18333628163",
+        Body: `SportStretch: Your verification code is ${code}`,
+      });
+
+      const headers = {
+        Authorization:
+          "Basic " +
+          base64.encode(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`),
+        "Content-Type": "application/x-www-form-urlencoded",
+      };
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers,
+          body: body.toString(),
+        });
+        const data = await response.json();
+      } catch (error) {
+        console.error("Error sending SMS:", error);
+      }
+    } else if (currentStep === EMAIL_VERIFIACTION_STEP) {
+      console.log("step 3 is initated");
+      try {
+        let emailVerificationCode = { email: athleteForm.email, token: code };
+        let res = await register.verifyEmail(emailVerificationCode);
+        if (!!res) {
+          console.warn("It worked");
+        } else {
+          console.warn("error in verifying email");
+        }
+      } catch (error) {
+        console.warn(error);
+      }
+    }
+  };
+
+  const checkAge = (dob) => {
+    const today = new Date();
+    const birthDate = new Date(dob);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age >= MIN_AGE;
+  };
+
+  const handleDateChange = (event, selectedDate) => {
+    setHasChangedDate(true);
+
+    // convert selectedDate to local date considering time zone
+    const selectedDateLocal = new Date(
+      selectedDate.getTime() + selectedDate.getTimezoneOffset() * 60000
     );
-    if (!emailAvailable) {
-      setShowEmailExistsError(true);
-      return;
+    setDob(selectedDateLocal);
+    if (checkAge(selectedDateLocal)) {
+      setIsAboveAge(true);
+    } else {
+      setIsAboveAge(false);
     }
-    const phoneAvailable = await checkPhoneAvailable(values.phone);
-    if (!phoneAvailable) {
-      setShowPhoneExistsError(true);
-      return;
-    }
+  };
+
+  const registerAthlete = async () => {
     try {
       const athlete = {
-        email: values.email.toLowerCase(),
-        firstName: values.fname,
-        lastName: values.lname,
-        password: values.password,
-        confirmPassword: values.confirmPassword,
-        mobile: values.phone,
+        email: athleteForm.email.toLowerCase(),
+        firstName: athleteForm.fname,
+        lastName: athleteForm.lname,
+        password: athleteForm.password,
+        confirmPassword: athleteForm.confirmPassword,
+        mobile: athleteForm.phone,
+        dob: dob,
       };
       let register_response = await registerApi.registerAthlete(athlete);
       if (register_response.status === 200) {
@@ -77,13 +173,48 @@ function AthleteForm(props) {
         notifications.notifyAdmin(
           `New athlete registered: ${athlete.firstName} ${athlete.lastName} ${athlete.email}`
         );
-        actions.resetForm();
         navigation.navigate("Login");
       } else {
         Alert.alert(`An error occurred during registration. Please try again.`);
       }
     } catch (error) {
       Alert.alert("An error occurred during registration. Please try again.");
+    }
+  };
+
+  const resetVerificationStep = () => {
+    setVerified(false);
+    setHasAttempted(false);
+    if (currentStep <= SMS_VERIFICATION_STEP) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handleVerificationComplete = async (code) => {
+    setHasAttempted(true);
+    if (parseInt(code) === verificationCode) {
+      if (currentStep === EMAIL_VERIFIACTION_STEP) {
+        await registerAthlete(athleteForm);
+      }
+      setVerified(true);
+      setTimeout(resetVerificationStep, 2000);
+    }
+  };
+
+  const handleNext = async (values) => {
+    const emailAvailable = await checkEmailAvailable(
+      values.email.toLowerCase()
+    );
+    const phoneAvailable = await checkPhoneAvailable(values.phone);
+    if (!phoneAvailable) {
+      setShowPhoneExistsError(true);
+      return;
+    } else if (!emailAvailable) {
+      setShowEmailExistsError(true);
+      return;
+    } else if (!!phoneAvailable && !!emailAvailable) {
+      setAthleteForm(values);
+      setCurrentStep(currentStep + 1);
     }
   };
 
@@ -109,18 +240,10 @@ function AthleteForm(props) {
       console.warn("Error checking phone availability: ", error);
       return false;
     }
-  }
+  };
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.headerConatiner}>
-        <Image
-          source={require("../../assets/logo_crop.png")}
-          style={styles.logo}
-        />
-        <Text style={styles.headerText}>Recovery On The Go</Text>
-      </View>
-
+  const CreateAccount = () => (
+    <>
       <View style={styles.CaptionContainer}>
         <Text style={styles.accountText}>Create your account</Text>
       </View>
@@ -135,7 +258,7 @@ function AthleteForm(props) {
           }}
           validationSchema={ReviewSchema}
           onSubmit={async (values, actions) => {
-            await handleSubmit(values, actions);
+            await handleNext(values, actions);
           }}
         >
           {(props) => (
@@ -228,7 +351,7 @@ function AthleteForm(props) {
                   value={props.values.password}
                   keyboardType="visible-password"
                   onBlur={props.handleBlur("password")}
-                  textContentType="newPassword"
+                  textContentType="password"
                   autoCapitalize="none"
                   secureTextEntry={true}
                 />
@@ -256,7 +379,7 @@ function AthleteForm(props) {
                   value={props.values.confirmPassword}
                   keyboardType="visible-password"
                   onBlur={props.handleBlur("confirmPassword")}
-                  textContentType="newPassword"
+                  textContentType="password"
                   secureTextEntry={true}
                 />
               </View>
@@ -291,7 +414,7 @@ function AthleteForm(props) {
               </Text>
               <TouchableOpacity onPress={props.handleSubmit}>
                 <View style={styles.button}>
-                  <Text style={styles.buttonText}>Sign Up</Text>
+                  <Text style={styles.buttonText}>Next</Text>
                 </View>
               </TouchableOpacity>
             </View>
@@ -342,6 +465,137 @@ function AthleteForm(props) {
           </TouchableOpacity>
         </View>
       </ScrollView>
+    </>
+  );
+
+  const DobStep = () => (
+    <>
+      <View style={styles.dobContainer}>
+        <Text style={styles.disclaimerText}>
+          SportStretch is intended for users who are 18 years of age or older.
+          By using this service, you confirm that you are at least 18 years old.
+          Please do not use SportStretch if you are under 18.
+        </Text>
+        <Text style={styles.accountText}>Please enter your date of birth:</Text>
+        <DateTimePicker
+          value={dob || new Date()}
+          mode="date"
+          display="spinner"
+          onChange={handleDateChange}
+          style={styles.datePicker}
+          shouldCloseOnSelect={false}
+        />
+
+        {!!hasChangedDate && !isAboveAge && (
+          <Text style={styles.errorText}>
+            You must be at least 18 years old to use SportStretch.
+          </Text>
+        )}
+        <View style={styles.buttonContainer}>
+          {!!isAboveAge && (
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => setCurrentStep(currentStep + 1)}
+              type="button"
+            >
+              <Text style={styles.buttonText}>Next</Text>
+            </TouchableOpacity>
+          )}
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => setCurrentStep(currentStep - 1)}
+            type="button"
+          >
+            <Text style={styles.buttonText}>Previous</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </>
+  );
+
+  const VerificationStep = (props) => (
+    <ScrollView keyboardShouldPersistTaps="handled">
+      <View style={styles.CaptionContainer}>
+        <Text style={styles.accountText}>
+          {currentStep === SMS_VERIFICATION_STEP
+            ? "SMS Verification Step"
+            : "Email Verification"}
+        </Text>
+      </View>
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          padding: 20,
+        }}
+      >
+        <Text>
+          Your verification code has been sent to your{" "}
+          {currentStep === SMS_VERIFICATION_STEP ? "mobile number" : "email"}.
+          Please enter the 6-digit code below to complete your login.
+        </Text>
+        <OTPInputView
+          style={{
+            width: "80%",
+            height: 120,
+            color: "black",
+          }}
+          pinCount={6}
+          codeInputFieldStyle={styles.verificationInputField}
+          codeInputHighlightStyle={styles.verificationHighlightField}
+          onCodeFilled={handleVerificationComplete}
+        />
+        {!!hasAttempted && !verified && (
+          <Text style={styles.errorText}>
+            The code does not match. Please try again
+          </Text>
+        )}
+      </View>
+
+      <DoneIndicator visible={!!verified} style={{ width: 10, height: 10 }} />
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() =>
+          sendSMSVerification(
+            currentStep === SMS_VERIFICATION_STEP
+              ? athleteForm.phone
+              : athleteForm.email
+          )
+        }
+        type="button"
+      >
+        <Text style={styles.buttonText}>Resend Code</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() =>
+          setCurrentStep(
+            currentStep === SMS_VERIFICATION_STEP
+              ? currentStep - 1
+              : currentStep - 2
+          )
+        }
+        type="button"
+      >
+        <Text style={styles.buttonText}>Go Back</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.headerConatiner}>
+        <Image
+          source={require("../../assets/logo_crop.png")}
+          style={styles.logo}
+        />
+        <Text style={styles.headerText}>Recovery On The Go</Text>
+      </View>
+      {currentStep === DETAILS_STEP && <CreateAccount />}
+      {currentStep === DOB_STEP && <DobStep />}
+      {currentStep === SMS_VERIFICATION_STEP && <VerificationStep />}
+      {currentStep === EMAIL_VERIFIACTION_STEP && <VerificationStep />}
     </View>
   );
 }
@@ -353,6 +607,12 @@ const styles = StyleSheet.create({
     //marginBottom: "5%",
     textAlign: "center",
   },
+  disclaimerText: {
+    fontSize: 15,
+    color: colors.grey,
+    marginBottom: "5%",
+    textAlign: "center",
+  },
   button: {
     backgroundColor: colors.primary,
     borderRadius: 25,
@@ -360,12 +620,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     alignSelf: "center",
     padding: 15,
-    width: "30%",
-    margin: 30,
+    width: "35%",
+    margin: 10,
   },
   buttonText: {
     color: colors.secondary,
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "bold",
   },
   container: {
@@ -411,6 +671,7 @@ const styles = StyleSheet.create({
   backToLoginContainer: {
     marginTop: "2%",
     alignItems: "center",
+    marginBottom: "5%",
   },
   loginLink: {
     marginTop: "1%",
@@ -443,6 +704,31 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: "90%",
     paddingBottom: 30,
+  },
+  verificationInputField: {
+    color: "#000",
+  },
+
+  verificationHighlightField: {
+    borderColor: "#000",
+  },
+  datePicker: {
+    height: 200,
+    position: "relative",
+    zIndex: -1,
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
+  dobContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-around",
+  },
+  buttonContainer: {
+    width: "100%",
   },
 });
 
