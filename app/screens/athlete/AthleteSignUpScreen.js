@@ -350,10 +350,10 @@ function AthleteForm(props) {
                   onChangeText={props.handleChange("password")}
                   value={props.values.password}
                   keyboardType="visible-password"
-                  // onBlur={props.handleBlur("password")}
-                  // textContentType="newPassword"
-                  // autoCapitalize="none"
-                  // secureTextEntry={true}
+                  onBlur={props.handleBlur("password")}
+                  textContentType="password"
+                  autoCapitalize="none"
+                  secureTextEntry={true}
                 />
               </View>
               <Text style={styles.errorText}>
@@ -379,7 +379,7 @@ function AthleteForm(props) {
                   value={props.values.confirmPassword}
                   keyboardType="visible-password"
                   onBlur={props.handleBlur("confirmPassword")}
-                  textContentType="newPassword"
+                  textContentType="password"
                   secureTextEntry={true}
                 />
               </View>
