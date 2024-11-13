@@ -88,6 +88,12 @@ export default {
       },
       package: "com.sportstretchusa.sportstretch",
     },
+    
+      plugins: [
+        "expo-secure-store"
+      ],
+    
+    
     // plugins: [
     //   [
     //     "react-native-purchases",
