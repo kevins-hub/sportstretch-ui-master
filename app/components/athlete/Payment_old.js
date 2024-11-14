@@ -17,7 +17,6 @@ import { Card } from 'react-native-paper';
 function PaymentOld() {
   return (
     <StripeProvider
-      publishableKey="pk_test_51OnV42DyUl485VKLZRnwkZn04TybrH3innsENQPR7WlE8MUy9Em0A5rP4TAixIG8QwoIWh031hJSPMOTtMc1cZQt00b9PAOcUb"
       urlScheme="your-url-scheme" // required for 3D Secure and bank redirects
       merchantIdentifier="merchant.com.{{YOUR_APP_NAME}}" // required for Apple Pay
     >

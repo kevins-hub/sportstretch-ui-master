@@ -43,6 +43,7 @@ import {
   MaterialCommunityIcons,
   SimpleLineIcons,
 } from "@expo/vector-icons";
+import { STRIPE_P_KEY_TEST} from "@env";
 
 function BookModal({
   visible,
@@ -938,7 +939,7 @@ function BookModal({
 
   return (
     <StripeProvider
-      publishableKey="pk_test_51OnV42DyUl485VKLZRnwkZn04TybrH3innsENQPR7WlE8MUy9Em0A5rP4TAixIG8QwoIWh031hJSPMOTtMc1cZQt00b9PAOcUb"
+      publishableKey={process.env.ENVIRONMENT === "prod" ? process.env.STRIPE_P_KEY_LIVE : ( process.env.STRIPE_P_KEY_TEST ? process.env.STRIPE_P_KEY_TEST : STRIPE_P_KEY_TEST)}
       stripeAccountId={therapistStripeAccountId}
     >
       <Modal

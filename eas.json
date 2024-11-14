@@ -10,10 +10,18 @@
       }
     },
     "development": {
+      "env": {
+        "API_URL": "https://sportstretch-api.herokuapp.com/",
+        "ENVIRONMENT": "qa"
+      },
       "developmentClient": true,
       "distribution": "internal"
     },
     "development-simulator": {
+      "env": {
+        "API_URL": "https://sportstretch-api.herokuapp.com/",
+        "ENVIRONMENT": "qa"
+      },
       "developmentClient": true,
       "distribution": "internal",
       "ios": {
@@ -23,7 +31,13 @@
     "preview": {
       "distribution": "internal"
     },
-    "production": {}
+    "production-beta": {
+      "distribution": "internal",
+      "env": {
+        "API_URL": "https://sportstretch-prod.herokuapp.com/",
+        "ENVIRONMENT": "prod"
+      }
+    }
   },
   "submit": {
     "testflight": {
