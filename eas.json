@@ -33,11 +33,6 @@
     },
     "production-beta": {
       "distribution": "store",
-      "ios": {
-        "buildType": "app-store",
-        "bundleIdentifier": "com.sportstretchusa.sportstretch",
-        "autoIncrement": true
-      },
       "env": {
         "API_URL": "https://sportstretch-prod.herokuapp.com/",
         "ENVIRONMENT": "prod"
