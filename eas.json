@@ -34,7 +34,7 @@
     "production-beta": {
       "distribution": "store",
       "env": {
-        "API_URL": "https://sportstretch-prod.herokuapp.com/",
+        "API_URL": "https://sportstretch-prod-4a4ed9fbdcd9.herokuapp.com/",
         "ENVIRONMENT": "prod"
       }
     }
