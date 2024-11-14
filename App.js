@@ -5,6 +5,7 @@ import AuthContext from "./app/auth/context";
 import AuthNavigator from "./app/navigation/AuthNavigator";
 import authStorage from "./app/auth/storage";
 import AppContainer from "./app/screens/AppContainer";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 // import {StripeProvider} from '@stripe/stripe-react-native';
 
 function App() {
@@ -26,17 +27,19 @@ function App() {
     );
 
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
-      {user ? (
-        <>
-          <AppContainer user={user} />
-        </>
-      ) : (
-        <NavigationContainer>
-          <AuthNavigator />
-        </NavigationContainer>
-      )}
-    </AuthContext.Provider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AuthContext.Provider value={{ user, setUser }}>
+        {user ? (
+          <>
+            <AppContainer user={user} />
+          </>
+        ) : (
+          <NavigationContainer>
+            <AuthNavigator />
+          </NavigationContainer>
+        )}
+      </AuthContext.Provider>
+    </GestureHandlerRootView>
   );
 }
 
