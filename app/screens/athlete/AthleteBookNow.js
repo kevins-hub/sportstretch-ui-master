@@ -51,6 +51,9 @@ function AthleteBookNow(props) {
     setTherapists([]);
     try {
       const response = await therapistsApi.getTherapistsByState(athleteRegion);
+      if (response.status === 404) {
+        return;
+      }
       let therapistList = response.data;
       therapistList = therapistList.filter(
         (therapist) =>
