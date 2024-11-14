@@ -26,7 +26,7 @@ import {
 } from "@expo/vector-icons";
 import RNPickerSelect from "react-native-picker-select";
 import Checkbox from "expo-checkbox";
-import { stateConverter } from "../../lib/states";
+import { stateConverter, states } from "../../lib/states";
 import therapists from "../../api/therapists";
 import { handleError } from "../../lib/error";
 
@@ -36,6 +36,10 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
   const navigation = useNavigation();
   const [currentStep, setCurrentStep] = useState(1);
   const [showInvalidFieldError, setShowInvalidFieldError] = useState(false);
+
+  const statesItemsObj = Object.entries(states).map(([abbr, name]) => {
+    return { label: abbr, value: name };
+  });
 
   const professionsList = [
     { label: "Massage Therapist", value: "Massage Therapist" },
@@ -327,13 +331,23 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
 
           <View style={{ marginHorizontal: "10%", width: "45%" }}>
             <View style={styles.inputContainerState}>
-              <TextInput
+            <RNPickerSelect
+              placeholder={{ label: "Select A State", value: "" }}
+              value={props.values.state}
+              onValueChange={props.handleChange("state")}
+              items={
+                statesItemsObj
+                  ? statesItemsObj
+                  : [{ label: "CA", value: "California" }]
+              }
+            ></RNPickerSelect>
+              {/* <TextInput
                 placeholder="State"
                 onChangeText={props.handleChange("state")}
                 value={props.values.state}
                 onBlur={props.handleBlur("state")}
                 textContentType="addressState"
-              />
+              /> */}
             </View>
             {props.touched.state && props.errors.state && (
               <Text style={styles.errorTextCityState}>
@@ -478,7 +492,6 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
                     {
                       text: "Submit",
                       onPress: async () => {
-                        values.state = stateConverter(values.state);
                         try {
                           let response = await therapists.editTherapist(
                             therapist.therapist_id,
