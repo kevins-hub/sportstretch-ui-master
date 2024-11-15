@@ -16,14 +16,14 @@ function AdminApproveCard(item) {
   const approveTherapist = async () => {
     let manageTherapist = await therapistsApi.approveTherapist(therapist_id);
     manageTherapist.data.enabled === 1
-      ? Alert.alert("Therapist Approved")
+      ? Alert.alert("Recovery Specialist Approved")
       : Alert.alert("Error while approving. Please try again.");
   };
 
   const denyTherapist = async () => {
     let manageTherapist = await therapistsApi.denyTherapist(bookings_id);
     manageTherapist.data.enabled === 0
-      ? Alert.alert("Therapist Declined")
+      ? Alert.alert("Recovery Specialist Declined")
       : Alert.alert("Error while declining. Please try again.");
   };
 
