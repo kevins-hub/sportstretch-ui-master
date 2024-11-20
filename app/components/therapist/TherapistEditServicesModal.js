@@ -62,6 +62,18 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
 
   const addressRegExp = /^[a-zA-Z0-9\s,'.-]*$/;
 
+  const hasServicesChanged = (therapist, values) => {
+    return (
+      therapist.profession !== values.profession ||
+      therapist.services !== values.services ||
+      therapist.summary !== values.summary ||
+      therapist.hourly_rate !== values.hourlyRate ||
+      therapist.accepts_house_calls !== values.acceptsHouseCalls ||
+      therapist.accepts_in_clinic !== values.acceptsInClinic ||
+      therapist.license_infourl !== values.licenseUrl
+    );
+  };
+
   const ReviewSchema = yup.object({
     addressL1: yup
       .string()
@@ -489,32 +501,52 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
                 }}
                 validationSchema={ReviewSchema}
                 onSubmit={async (values, actions) => {
-                  Alert.alert(
-                    "Are you sure you want to submit these changes?",
-                    "By submitting changes to your recovery profile, your profile will need to be reviewed by our team and re-approved. This process may take up to 2-3 business days. You will not be able to accept bookigns at this time. (existing bookings will be unaffected)",
-                    [
-                      {
-                        text: "Cancel",
-                        style: "cancel",
-                      },
-                      {
-                        text: "Submit",
-                        onPress: async () => {
-                          try {
-                            let response = await therapists.editTherapist(
-                              therapist.therapist_id,
-                              values
-                            );
-                            if (handleError(response)) return;
-                            actions.resetForm();
-                            setVisibility(false);
-                          } catch (e) {
-                            console.warn("Error updating therapist: ", e);
-                          }
+                  const servicesChanged = hasServicesChanged(therapist, values);
+                  const editTherapistObject = {
+                    ...values,
+                    servicesChanged: servicesChanged,
+                  };
+
+                  if (servicesChanged) {
+                    Alert.alert(
+                      "Are you sure you want to submit these changes?",
+                      "By submitting changes to your recovery profile, your profile will need to be reviewed by our team and re-approved. This process may take up to 2-3 business days. You will not be able to accept bookigns at this time. (existing bookings will be unaffected)",
+                      [
+                        {
+                          text: "Cancel",
+                          style: "cancel",
                         },
-                      },
-                    ]
-                  );
+                        {
+                          text: "Submit",
+                          onPress: async () => {
+                            try {
+                              let response = await therapists.editTherapist(
+                                therapist.therapist_id,
+                                editTherapistObject
+                              );
+                              if (handleError(response)) return;
+                              actions.resetForm();
+                              setVisibility(false);
+                            } catch (e) {
+                              console.warn("Error updating therapist: ", e);
+                            }
+                          },
+                        },
+                      ]
+                    );
+                  } else {
+                    try {
+                      let response = await therapists.editTherapist(
+                        therapist.therapist_id,
+                        editTherapistObject
+                      );
+                      if (handleError(response)) return;
+                      actions.resetForm();
+                      setVisibility(false);
+                    } catch (e) {
+                      console.warn("Error updating therapist: ", e);
+                    }
+                  }
                 }}
               >
                 {(props) => (
