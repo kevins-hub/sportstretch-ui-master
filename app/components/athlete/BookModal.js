@@ -17,6 +17,7 @@ import {
   Button,
   Alert,
   Image,
+  KeyboardAvoidingView,
 } from "react-native";
 import Checkbox from "expo-checkbox";
 // import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -43,7 +44,7 @@ import {
   MaterialCommunityIcons,
   SimpleLineIcons,
 } from "@expo/vector-icons";
-import { STRIPE_P_KEY_TEST} from "@env";
+import { STRIPE_P_KEY_TEST } from "@env";
 
 function BookModal({
   visible,
@@ -939,7 +940,13 @@ function BookModal({
 
   return (
     <StripeProvider
-      publishableKey={process.env.ENVIRONMENT === "prod" ? process.env.STRIPE_P_KEY_LIVE : ( process.env.STRIPE_P_KEY_TEST ? process.env.STRIPE_P_KEY_TEST : STRIPE_P_KEY_TEST)}
+      publishableKey={
+        process.env.ENVIRONMENT === "prod"
+          ? process.env.STRIPE_P_KEY_LIVE
+          : process.env.STRIPE_P_KEY_TEST
+          ? process.env.STRIPE_P_KEY_TEST
+          : STRIPE_P_KEY_TEST
+      }
       stripeAccountId={therapistStripeAccountId}
     >
       <Modal
@@ -950,17 +957,23 @@ function BookModal({
       >
         <BlurView intensity={50} style={styles.centeredView}>
           <View style={styles.modalView}>
-            <ProgressIndicator visible={bookingProgress} />
-            <DoneIndicator visible={bookingDone} />
-            {!bookingProgress && !bookingDone && currentStep === 1 && (
-              <TherapistDetailsStep />
-            )}
-            {!bookingProgress && !bookingDone && currentStep === 2 && (
-              <AppointmentDetailsStep />
-            )}
-            {!bookingProgress && !bookingDone && currentStep === 3 && (
-              <PaymentStep />
-            )}
+            <KeyboardAvoidingView
+              // change padding to height for android devices  platform === ios ? padding : height
+              behavior="padding"
+              style={{ flex: 1 }}
+            >
+              <ProgressIndicator visible={bookingProgress} />
+              <DoneIndicator visible={bookingDone} />
+              {!bookingProgress && !bookingDone && currentStep === 1 && (
+                <TherapistDetailsStep />
+              )}
+              {!bookingProgress && !bookingDone && currentStep === 2 && (
+                <AppointmentDetailsStep />
+              )}
+              {!bookingProgress && !bookingDone && currentStep === 3 && (
+                <PaymentStep />
+              )}
+            </KeyboardAvoidingView>
           </View>
         </BlurView>
       </Modal>

@@ -122,7 +122,7 @@ export default function AdminApprovalsCard({
             onPress={() => {
               approveTherapist(TherapistId);
               Alert.alert(
-                "Therapist " + FirstName + " " + LastName + " is approved!"
+                "Recovery Specialist " + FirstName + " " + LastName + " is approved!"
               );
             }}
             title={"Approve"}
@@ -132,7 +132,7 @@ export default function AdminApprovalsCard({
             onPress={() => {
               denyTherapist(TherapistId);
               Alert.alert(
-                FirstName + " " + LastName + "'s therapist request is denied"
+                FirstName + " " + LastName + "'s recovery specialist request is denied"
               );
             }}
             title={"Deny"}

@@ -51,8 +51,8 @@ export default function AdminTherapistCard({
     let insert = Boolean(response.data.enabled);
     setIsEnabled((previousState) => !previousState);
     !isEnabled == false
-      ? Alert.alert("Therapist " + FirstName + " " + LastName + " is disabled")
-      : Alert.alert("Therapist " + FirstName + " " + LastName + " is enabled");
+      ? Alert.alert("Recovery Specialist " + FirstName + " " + LastName + " is disabled")
+      : Alert.alert("Recovery Specialist " + FirstName + " " + LastName + " is enabled");
   };
 
   const openURL = (url) => {

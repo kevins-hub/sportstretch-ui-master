@@ -5,9 +5,11 @@ import {
   Text,
   View,
   TouchableOpacity,
-  FlatList,
   Alert,
   TextInput,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { BlurView } from "expo-blur";
 import Constants from "expo-constants";
@@ -55,50 +57,57 @@ function PastAppointmentModal({ booking, setVisibility, visible }) {
 
   const ReportIssueStep = ({}) => (
     <View style={styles.modalContent}>
-      <Text style={styles.cancelAppointmentText}>
-        Please describe the issue you experienced with this appointment. We will
-        review your report and get back to you as soon as possible.
-      </Text>
-      <Formik
-        initialValues={{ reportIssue: "" }}
-        onSubmit={(values) => {
-          if (handleConfirmReport(values.reportIssue)) {
-            setVisibility(false);
-          };
-        }}
+      <KeyboardAvoidingView
+        // change padding to height for android devices  platform === ios ? padding : height
+        behavior="padding"
+        style={{ flex: 1 }}
       >
-        {({ handleChange, handleBlur, handleSubmit, values }) => (
-          <>
-            <View>
-              <TextInput
-                style={styles.textInput}
-                value={values.reportIssue}
-                onChangeText={handleChange("reportIssue")}
-                onBlur={handleBlur("reportIssue")}
-                placeholder="Type here"
-                multiline={true}
-              />
-            </View>
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.secondaryButton}
-                onPress={() => {
-                  setVisibility(false);
-                }}
-              >
-                <Text style={styles.cancelButtonText}>{"Nevermind"}</Text>
-              </TouchableOpacity>
-              {/* <BookButton title="Request to Book" onPress={onConfirmPress} /> */}
-              <TouchableOpacity
-                style={styles.primaryButton}
-                onPress={handleSubmit}
-              >
-                <Text style={styles.primaryButtonText}>{"Confirm Report"}</Text>
-              </TouchableOpacity>
-            </View>
-          </>
-        )}
-      </Formik>
+        <Text style={styles.cancelAppointmentText}>
+          Please describe the issue you experienced with this appointment. We
+          will review your report and get back to you as soon as possible.
+        </Text>
+        <Formik
+          initialValues={{ reportIssue: "" }}
+          onSubmit={(values) => {
+            if (handleConfirmReport(values.reportIssue)) {
+              setVisibility(false);
+            }
+          }}
+        >
+          {({ handleChange, handleBlur, handleSubmit, values }) => (
+            <>
+              <View>
+                <TextInput
+                  style={styles.textInput}
+                  value={values.reportIssue}
+                  onChangeText={handleChange("reportIssue")}
+                  onBlur={handleBlur("reportIssue")}
+                  placeholder="Type here"
+                  multiline={true}
+                />
+              </View>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.secondaryButton}
+                  onPress={() => {
+                    setVisibility(false);
+                  }}
+                >
+                  <Text style={styles.cancelButtonText}>{"Nevermind"}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.primaryButton}
+                  onPress={handleSubmit}
+                >
+                  <Text style={styles.primaryButtonText}>
+                    {"Confirm Report"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+        </Formik>
+      </KeyboardAvoidingView>
     </View>
   );
 
@@ -111,10 +120,11 @@ function PastAppointmentModal({ booking, setVisibility, visible }) {
       };
       const response = await report.reportIssue(reportIssueObj);
       if (handleError(response)) return false;
-      notifications.notifyAdmin(`Issue reported for booking ${booking.bookings_id}. Issue: ${issue}. Please review. Check email for more details.`);
+      notifications.notifyAdmin(
+        `Issue reported for booking ${booking.bookings_id}. Issue: ${issue}. Please review. Check email for more details.`
+      );
       return true;
-    }
-    catch (error) {
+    } catch (error) {
       Alert.alert("Error reporting issue. Please try again later.");
       return false;
     }
@@ -127,12 +137,14 @@ function PastAppointmentModal({ booking, setVisibility, visible }) {
       visible={visible}
       onRequestClose={() => {}}
     >
-      <BlurView intensity={50} style={styles.centeredView}>
-        <View style={styles.modalView}>
-          {currentStep === 1 && <AppointmentDetailsStep />}
-          {currentStep === 2 && <ReportIssueStep />}
-        </View>
-      </BlurView>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <BlurView intensity={50} style={styles.centeredView}>
+          <View style={styles.modalView}>
+            {currentStep === 1 && <AppointmentDetailsStep />}
+            {currentStep === 2 && <ReportIssueStep />}
+          </View>
+        </BlurView>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 }

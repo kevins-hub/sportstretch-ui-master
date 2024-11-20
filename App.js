@@ -6,7 +6,7 @@ import AuthNavigator from "./app/navigation/AuthNavigator";
 import authStorage from "./app/auth/storage";
 import AppContainer from "./app/screens/AppContainer";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-// import {StripeProvider} from '@stripe/stripe-react-native';
+
 
 function App() {
   const [user, setUser] = useState();
