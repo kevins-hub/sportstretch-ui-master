@@ -1,17 +1,22 @@
-import React, { useState, useContext } from "react";
-import { Modal, StyleSheet, Text, View, TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import React from "react";
+import {
+  Modal,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import { TextInput, ScrollView } from "react-native-gesture-handler";
 import { BlurView } from "expo-blur";
 import Constants from "expo-constants";
-import notificationsApi from "../../api/notifications";
-import AuthContext from "../../auth/context";
 import colors from "../../config/colors";
 import * as yup from "yup";
 import { Formik } from "formik";
 import contactApi from "../../api/contact";
-import contact from "../../api/contact";
 import { handleError } from "../../lib/error";
+import registerApi from "../../api/register";
+import auth from "../../api/auth";
 
 function EditContactInfoModal({
   user,
@@ -19,15 +24,14 @@ function EditContactInfoModal({
   visible,
   setVisibility,
   setContactObj,
-  // therapistId,
-  // athleteId,
-  // athleteLocation,
 }) {
   if (!visible) return null;
 
-  const navigation = useNavigation();
 
   const isAthlete = user.role === "athlete" ? true : false;
+
+  const phoneRegExp =
+    /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
 
   let editContactInfoSchema = {};
   const contactObj = {
@@ -46,7 +50,10 @@ function EditContactInfoModal({
       email: yup.string().required("Email is required").label("Email"),
       phone: yup
         .string()
-        .matches(/^[0-9]{10}$/, "Invalid phone number")
+        .matches(
+          /^[0-9]{10}$/,
+          "Phone number is not valid. Please use numbers only."
+        )
         .required("Phone Number is required")
         .label("Phone"),
     });
@@ -57,7 +64,7 @@ function EditContactInfoModal({
       email: yup.string().required("Email is required").label("Email"),
       phone: yup
         .string()
-        .matches(/^[0-9]{10}$/, "Invalid phone number")
+        .matches(phoneRegExp, "Invalid phone number")
         .required("Phone Number is required")
         .label("Phone"),
       addressL1: yup.string().required().label("Address Line 1"),
@@ -66,6 +73,26 @@ function EditContactInfoModal({
       state: yup.string().required().label("State"),
       zipcode: yup.string().required().label("Zip Code"),
     });
+  };
+
+  const checkPhoneAvailable = async (phone) => {
+    try {
+      const response = await registerApi.checkPhone(phone);
+      return response.data === "Phone already registered." ? false : true;
+    } catch (error) {
+      console.warn("Error checking phone availability: ", error);
+      return false;
+    }
+  };
+
+  const checkEmailAvailable = async (email) => {
+    try {
+      const response = await auth.checkEmail(email);
+      return response.data === "Email already registered." ? false : true;
+    } catch (error) {
+      console.warn("Error checking email availability: ", error);
+      return false;
+    }
   };
 
   if (isAthlete) {
@@ -78,6 +105,33 @@ function EditContactInfoModal({
     // return if schema has errors
     if (!editContactInfoSchema.isValidSync(values)) {
       return false;
+    }
+
+    // check if email or phone have been changed, if so, check if they are available
+    if (values.email !== contactInfo.email) {
+      try {
+        const emailAvailable = await checkEmailAvailable(values.email);
+        if (!emailAvailable) {
+          Alert.alert("Email already registered.");
+          return false;
+        }
+      } catch (error) {
+        console.warn("Error checking email availability: ", error);
+        return false;
+      }
+    }
+
+    if (values.phone !== contactInfo.mobile) {
+      try {
+        const phoneAvailable = await checkPhoneAvailable(values.phone);
+        if (!phoneAvailable) {
+          Alert.alert("Phone number already registered.");
+          return false;
+        }
+      } catch (error) {
+        console.warn("Error checking phone availability: ", error);
+        return false;
+      }
     }
     try {
       contactObj.email = values.email;
@@ -134,8 +188,10 @@ function EditContactInfoModal({
                   }
             }
             validationSchema={editContactInfoSchema}
-            onSubmit={(values, actions) => {
-              handleSubmit(values) ? setVisibility(false) : actions.resetForm();
+            onSubmit={async (values, actions) => {
+              (await handleSubmit(values))
+                ? setVisibility(false)
+                : actions.resetForm();
             }}
           >
             {(props) => (
@@ -172,6 +228,11 @@ function EditContactInfoModal({
                           autoCapitalize="none"
                         />
                       </View>
+                      {props.touched.phone && props.errors.phone && (
+                        <Text style={styles.errorText}>
+                          {props.errors.phone}
+                        </Text>
+                      )}
                     </View>
 
                     {!isAthlete && (
