@@ -5,13 +5,13 @@ import {
   Text,
   TextInput,
   View,
-  SafeAreaView,
   StyleSheet,
   TouchableOpacity,
   Image,
   ScrollView,
   Button,
   Alert,
+  KeyboardAvoidingView,
 } from "react-native";
 import {
   FontAwesome,
@@ -250,8 +250,8 @@ function TherapistForm(props) {
         setShowInvalidFieldError(true);
         return;
       }
-        setShowInvalidFieldError(false);
-        setCurrentStep(currentStep + 1);
+      setShowInvalidFieldError(false);
+      setCurrentStep(currentStep + 1);
     } else if (currentStep === EMAIL_VERIFIACTION_STEP) {
       Promise.all([
         ReviewSchema.validateAt("profession", values),
@@ -925,201 +925,208 @@ function TherapistForm(props) {
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      keyboardShouldPersistTaps="handled"
-      snapToAlignment={null}
+    <KeyboardAvoidingView
+      // change padding to height for android devices  platform === ios ? padding : height
+      behavior="padding"
+      style={{ flex: 1 }}
     >
-      <View style={styles.header}>
-        <Image
-          source={require("../../assets/logo_crop.png")}
-          style={styles.logo}
-        />
-        <Text style={styles.headerText}>Recovery On The Go</Text>
-      </View>
-      {currentStep === CONTACT_STEP && (
-        <Text style={styles.accountText}>Tell us about yourself</Text>
-      )}
-      {currentStep === SMS_VERIFICATION_STEP && (
-        <Text style={styles.accountText}>Phone Verification</Text>
-      )}
-      {currentStep === EMAIL_VERIFIACTION_STEP && (
-        <Text style={styles.accountText}>Email Verification</Text>
-      )}
-      {currentStep === SERVICES_STEP && (
-        <Text style={styles.accountText}>Tell us about your business</Text>
-      )}
-      {currentStep === BUSINESS_HOURS_STEP && (
-        <Text style={styles.accountText}>Set your availability</Text>
-      )}
-      {currentStep === LICENSE_STEP && (
-        <Text style={styles.accountText}>
-          Please provide your license information
-        </Text>
-      )}
-      {currentStep === PASSWORD_STEP && (
-        <Text style={styles.accountText}>Last Step!</Text>
-      )}
-      {/* <Text style={styles.accountText}>Create your profile</Text> */}
-      <Formik
-        initialValues={{
-          fname: "",
-          lname: "",
-          email: "",
-          phone: "",
-          password: "",
-          confirmPassword: "",
-          otp: "",
-          addressL1: "",
-          addressL2: "",
-          city: "",
-          state: "",
-          zipcode: "",
-          profession: "",
-          services: "",
-          summary: "",
-          hourlyRate: "",
-          licenseUrl: "",
-          acceptsHouseCalls: false,
-        }}
-        validationSchema={ReviewSchema}
-        onSubmit={async (values, actions) => {
-          values.state = values.state;
-          values.acceptsHouseCalls = enableHouseCalls;
-          values.acceptsInClinic = enableInClinic;
-          values.businessHours = businessHours;
-          values.dob = dob;
-          try {
-            const registerStripeResponse = await payment.registerStripeAccount({
-              email: values.email.toLowerCase(),
-            });
-            if (handleError(registerStripeResponse)) return;
-            if (registerStripeResponse.status === 200) {
-              const stripeAccountId = registerStripeResponse.data.account.id;
-              values.stripeAccountId = stripeAccountId;
-            }
-          } catch (error) {
-            console.warn("Error registering stripe account: ", error);
-          }
-
-          try {
-            await register_therapist(values);
-          } catch (error) {
-            console.warn("Error registering therapist: ", error);
-            setShowSubmitError(true);
-          }
-        }}
+      <ScrollView
+        style={styles.container}
+        keyboardShouldPersistTaps="handled"
+        snapToAlignment={null}
       >
-        {(props) => (
-          <View style={styles.propsContainer}>
-            {/* <DoneIndicator
+        <View style={styles.header}>
+          <Image
+            source={require("../../assets/logo_crop.png")}
+            style={styles.logo}
+          />
+          <Text style={styles.headerText}>Recovery On The Go</Text>
+        </View>
+        {currentStep === CONTACT_STEP && (
+          <Text style={styles.accountText}>Tell us about yourself</Text>
+        )}
+        {currentStep === SMS_VERIFICATION_STEP && (
+          <Text style={styles.accountText}>Phone Verification</Text>
+        )}
+        {currentStep === EMAIL_VERIFIACTION_STEP && (
+          <Text style={styles.accountText}>Email Verification</Text>
+        )}
+        {currentStep === SERVICES_STEP && (
+          <Text style={styles.accountText}>Tell us about your business</Text>
+        )}
+        {currentStep === BUSINESS_HOURS_STEP && (
+          <Text style={styles.accountText}>Set your availability</Text>
+        )}
+        {currentStep === LICENSE_STEP && (
+          <Text style={styles.accountText}>
+            Please provide your license information
+          </Text>
+        )}
+        {currentStep === PASSWORD_STEP && (
+          <Text style={styles.accountText}>Last Step!</Text>
+        )}
+        {/* <Text style={styles.accountText}>Create your profile</Text> */}
+        <Formik
+          initialValues={{
+            fname: "",
+            lname: "",
+            email: "",
+            phone: "",
+            password: "",
+            confirmPassword: "",
+            otp: "",
+            addressL1: "",
+            addressL2: "",
+            city: "",
+            state: "",
+            zipcode: "",
+            profession: "",
+            services: "",
+            summary: "",
+            hourlyRate: "",
+            licenseUrl: "",
+            acceptsHouseCalls: false,
+          }}
+          validationSchema={ReviewSchema}
+          onSubmit={async (values, actions) => {
+            values.state = values.state;
+            values.acceptsHouseCalls = enableHouseCalls;
+            values.acceptsInClinic = enableInClinic;
+            values.businessHours = businessHours;
+            values.dob = dob;
+            try {
+              const registerStripeResponse =
+                await payment.registerStripeAccount({
+                  email: values.email.toLowerCase(),
+                });
+              if (handleError(registerStripeResponse)) return;
+              if (registerStripeResponse.status === 200) {
+                const stripeAccountId = registerStripeResponse.data.account.id;
+                values.stripeAccountId = stripeAccountId;
+              }
+            } catch (error) {
+              console.warn("Error registering stripe account: ", error);
+            }
+
+            try {
+              await register_therapist(values);
+            } catch (error) {
+              console.warn("Error registering therapist: ", error);
+              setShowSubmitError(true);
+            }
+          }}
+        >
+          {(props) => (
+            <View style={styles.propsContainer}>
+              {/* <DoneIndicator
               visible={
                 (currentStep === 2 && !!isVerified) ||
                 (currentStep === 3 && !!isVerified)
               }
             /> */}
-            {currentStep === CONTACT_STEP && <ContactStep {...props} />}
-            {currentStep === DOB_STEP && <DobStep {...props} />}
-            {currentStep === SMS_VERIFICATION_STEP && (
-              <VerificationStep {...props} />
-            )}
-            {currentStep === EMAIL_VERIFIACTION_STEP && (
-              <VerificationStep {...props} />
-            )}
-            {currentStep === SERVICES_STEP && <ServicesStep {...props} />}
-            {currentStep === BUSINESS_HOURS_STEP && (
-              <TherapistBusinessHours
-                businessHours={businessHours}
-                setBusinessHours={setBusinessHours}
-              />
-            )}
-            {currentStep === LICENSE_STEP && <LicenseStep {...props} />}
-            {currentStep === PASSWORD_STEP && <PasswordStep {...props} />}
-            <View style={styles.buttonContainer}>
-              {showInvalidFieldError && (
-                <Text style={styles.errorText}>
-                  Please fix errors in fields before continuing.
-                </Text>
+              {currentStep === CONTACT_STEP && <ContactStep {...props} />}
+              {currentStep === DOB_STEP && <DobStep {...props} />}
+              {currentStep === SMS_VERIFICATION_STEP && (
+                <VerificationStep {...props} />
               )}
-              {showEmailExistsError && (
-                <Text style={styles.errorText}>
-                  An account with this email already exists.
-                </Text>
+              {currentStep === EMAIL_VERIFIACTION_STEP && (
+                <VerificationStep {...props} />
               )}
-              {showPhoneExistsError && (
-                <Text style={styles.errorText}>
-                  An account with this phone number already exists.
-                </Text>
+              {currentStep === SERVICES_STEP && <ServicesStep {...props} />}
+              {currentStep === BUSINESS_HOURS_STEP && (
+                <TherapistBusinessHours
+                  businessHours={businessHours}
+                  setBusinessHours={setBusinessHours}
+                />
               )}
-              {currentStep > CONTACT_STEP && (
-                <TouchableOpacity
-                  style={styles.secondaryButton}
-                  onPress={handlePrevious}
-                  disabled={!!verified}
-                >
-                  <Text style={styles.secondaryButtonText}>Previous</Text>
-                </TouchableOpacity>
-              )}
-              {(currentStep <= DOB_STEP ||
-                currentStep > EMAIL_VERIFIACTION_STEP) &&
-                currentStep !== PASSWORD_STEP && (
+              {currentStep === LICENSE_STEP && <LicenseStep {...props} />}
+              {currentStep === PASSWORD_STEP && <PasswordStep {...props} />}
+              <View style={styles.buttonContainer}>
+                {showInvalidFieldError && (
+                  <Text style={styles.errorText}>
+                    Please fix errors in fields before continuing.
+                  </Text>
+                )}
+                {showEmailExistsError && (
+                  <Text style={styles.errorText}>
+                    An account with this email already exists.
+                  </Text>
+                )}
+                {showPhoneExistsError && (
+                  <Text style={styles.errorText}>
+                    An account with this phone number already exists.
+                  </Text>
+                )}
+                {currentStep > CONTACT_STEP && (
                   <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => {
-                      handleNext(props.values);
-                    }}
-                    type="button"
+                    style={styles.secondaryButton}
+                    onPress={handlePrevious}
+                    disabled={!!verified}
                   >
-                    <Text style={styles.buttonText}>Next</Text>
+                    <Text style={styles.secondaryButtonText}>Previous</Text>
                   </TouchableOpacity>
                 )}
-              {(currentStep == SMS_VERIFICATION_STEP ||
-                currentStep == EMAIL_VERIFIACTION_STEP) && (
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={() =>
-                    sendSMSVerification(
-                      currentStep === SMS_VERIFICATION_STEP
-                        ? phoneNumber
-                        : email
-                    )
-                  }
-                  type="button"
-                  disabled={!!verified}
-                >
-                  <Text style={styles.buttonText}>Resend Code</Text>
-                </TouchableOpacity>
-              )}
-              {currentStep === PASSWORD_STEP && (
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={props.handleSubmit}
-                >
-                  <Text style={styles.buttonText}>Finish Sign Up</Text>
-                </TouchableOpacity>
-              )}
+                {(currentStep <= DOB_STEP ||
+                  currentStep > EMAIL_VERIFIACTION_STEP) &&
+                  currentStep !== PASSWORD_STEP && (
+                    <TouchableOpacity
+                      style={styles.button}
+                      onPress={() => {
+                        handleNext(props.values);
+                      }}
+                      type="button"
+                    >
+                      <Text style={styles.buttonText}>Next</Text>
+                    </TouchableOpacity>
+                  )}
+                {(currentStep == SMS_VERIFICATION_STEP ||
+                  currentStep == EMAIL_VERIFIACTION_STEP) && (
+                  <TouchableOpacity
+                    style={styles.button}
+                    onPress={() =>
+                      sendSMSVerification(
+                        currentStep === SMS_VERIFICATION_STEP
+                          ? phoneNumber
+                          : email
+                      )
+                    }
+                    type="button"
+                    disabled={!!verified}
+                  >
+                    <Text style={styles.buttonText}>Resend Code</Text>
+                  </TouchableOpacity>
+                )}
+                {currentStep === PASSWORD_STEP && (
+                  <TouchableOpacity
+                    style={styles.button}
+                    onPress={props.handleSubmit}
+                  >
+                    <Text style={styles.buttonText}>Finish Sign Up</Text>
+                  </TouchableOpacity>
+                )}
 
-              {currentStep === PASSWORD_STEP && showSubmitError && (
-                <>
-                  <Text style={styles.errorText}>
-                    Please fix errors in fields before submitting
-                  </Text>
-                </>
-              )}
+                {currentStep === PASSWORD_STEP && showSubmitError && (
+                  <>
+                    <Text style={styles.errorText}>
+                      Please fix errors in fields before submitting
+                    </Text>
+                  </>
+                )}
+              </View>
+              <View style={styles.backToLoginContainer}>
+                <Text>Already have an account?</Text>
+                <TouchableOpacity
+                  onPress={handleBackToLogin}
+                  style={styles.loginLink}
+                >
+                  <Text style={styles.loginLink}>Log in here</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-            <View style={styles.backToLoginContainer}>
-              <Text>Already have an account?</Text>
-              <TouchableOpacity
-                onPress={handleBackToLogin}
-                style={styles.loginLink}
-              >
-                <Text style={styles.loginLink}>Log in here</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-      </Formik>
-    </ScrollView>
+          )}
+        </Formik>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

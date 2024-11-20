@@ -6,6 +6,7 @@ import {
   View,
   TouchableOpacity,
   Alert,
+  KeyboardAvoidingView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { TextInput, ScrollView } from "react-native-gesture-handler";
@@ -331,16 +332,16 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
 
           <View style={{ marginHorizontal: "10%", width: "45%" }}>
             <View style={styles.inputContainerState}>
-            <RNPickerSelect
-              placeholder={{ label: "Select A State", value: "" }}
-              value={props.values.state}
-              onValueChange={props.handleChange("state")}
-              items={
-                statesItemsObj
-                  ? statesItemsObj
-                  : [{ label: "CA", value: "California" }]
-              }
-            ></RNPickerSelect>
+              <RNPickerSelect
+                placeholder={{ label: "Select A State", value: "" }}
+                value={props.values.state}
+                onValueChange={props.handleChange("state")}
+                items={
+                  statesItemsObj
+                    ? statesItemsObj
+                    : [{ label: "CA", value: "California" }]
+                }
+              ></RNPickerSelect>
               {/* <TextInput
                 placeholder="State"
                 onChangeText={props.handleChange("state")}
@@ -462,68 +463,79 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
       onRequestClose={() => {}}
     >
       <BlurView intensity={50} style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <ScrollView>
-            <Formik
-              initialValues={{
-                addressL1: therapist.street,
-                addressL2: therapist.apartment_no,
-                city: therapist.city,
-                state: therapist.state,
-                zipcode: therapist.zipcode,
-                profession: therapist.profession,
-                services: therapist.services,
-                summary: therapist.summary,
-                hourlyRate: therapist.hourly_rate,
-                licenseUrl: therapist.license_infourl,
-                acceptsHouseCalls: therapist.accepts_house_calls ? true : false,
-                acceptsInClinic: therapist.accepts_in_clinic ? true : false,
-              }}
-              validationSchema={ReviewSchema}
-              onSubmit={async (values, actions) => {
-                Alert.alert(
-                  "Are you sure you want to submit these changes?",
-                  "By submitting changes to your recovery profile, your profile will need to be reviewed by our team and re-approved. This process may take up to 2-3 business days. You will not be able to accept bookigns at this time. (existing bookings will be unaffected)",
-                  [
-                    {
-                      text: "Cancel",
-                      style: "cancel",
-                    },
-                    {
-                      text: "Submit",
-                      onPress: async () => {
-                        try {
-                          let response = await therapists.editTherapist(
-                            therapist.therapist_id,
-                            values
-                          );
-                          if (handleError(response)) return;
-                          actions.resetForm();
-                          setVisibility(false);
-                        } catch (e) {
-                          console.warn("Error updating therapist: ", e);
-                        }
+        <KeyboardAvoidingView
+          // change padding to height for android devices  platform === ios ? padding : height
+          behavior="padding"
+          style={{ flex: 1 }}
+        >
+          <View style={styles.modalView}>
+            <ScrollView style={styles.scrollView}>
+              <Formik
+                initialValues={{
+                  addressL1: therapist.street,
+                  addressL2: therapist.apartment_no,
+                  city: therapist.city,
+                  state: therapist.state,
+                  zipcode: therapist.zipcode,
+                  profession: therapist.profession,
+                  services: therapist.services,
+                  summary: therapist.summary,
+                  hourlyRate: therapist.hourly_rate,
+                  licenseUrl: therapist.license_infourl,
+                  acceptsHouseCalls: therapist.accepts_house_calls
+                    ? true
+                    : false,
+                  acceptsInClinic: therapist.accepts_in_clinic ? true : false,
+                }}
+                validationSchema={ReviewSchema}
+                onSubmit={async (values, actions) => {
+                  Alert.alert(
+                    "Are you sure you want to submit these changes?",
+                    "By submitting changes to your recovery profile, your profile will need to be reviewed by our team and re-approved. This process may take up to 2-3 business days. You will not be able to accept bookigns at this time. (existing bookings will be unaffected)",
+                    [
+                      {
+                        text: "Cancel",
+                        style: "cancel",
                       },
-                    },
-                  ]
-                );
-              }}
-            >
-              {(props) => (
-                <>
-                  {currentStep === 1 && <ServicesStep {...props} />}
-                  {currentStep === 2 && <LicenseStep {...props} />}
-                </>
-              )}
-            </Formik>
-          </ScrollView>
-        </View>
+                      {
+                        text: "Submit",
+                        onPress: async () => {
+                          try {
+                            let response = await therapists.editTherapist(
+                              therapist.therapist_id,
+                              values
+                            );
+                            if (handleError(response)) return;
+                            actions.resetForm();
+                            setVisibility(false);
+                          } catch (e) {
+                            console.warn("Error updating therapist: ", e);
+                          }
+                        },
+                      },
+                    ]
+                  );
+                }}
+              >
+                {(props) => (
+                  <>
+                    {currentStep === 1 && <ServicesStep {...props} />}
+                    {currentStep === 2 && <LicenseStep {...props} />}
+                  </>
+                )}
+              </Formik>
+            </ScrollView>
+          </View>
+        </KeyboardAvoidingView>
       </BlurView>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    width: "100%",
+  },
   centeredView: {
     flex: 1,
     justifyContent: "center",

@@ -6,6 +6,7 @@ import {
   View,
   TouchableOpacity,
   Alert,
+  KeyboardAvoidingView,
 } from "react-native";
 import { TextInput, ScrollView } from "react-native-gesture-handler";
 import { BlurView } from "expo-blur";
@@ -166,178 +167,186 @@ function EditContactInfoModal({
       visible={visible}
       onRequestClose={() => {}}
     >
-      <BlurView intensity={50} style={styles.centeredView}>
-        <View style={isAthlete ? styles.modalViewAthlete : styles.modalView}>
-          <Text style={styles.modalText}>Edit Contact Info</Text>
-          <Formik
-            initialValues={
-              isAthlete
-                ? {
-                    email: contactInfo.email,
-                    phone: contactInfo.mobile,
-                  }
-                : {
-                    email: contactInfo.email,
-                    phone: contactInfo.mobile,
-                    addressL1: contactInfo.street,
-                    addressL2: contactInfo.apartment_no,
-                    city: contactInfo.city,
-                    state: contactInfo.state,
-                    zipcode: contactInfo.zipcode,
-                  }
-            }
-            validationSchema={editContactInfoSchema}
-            onSubmit={async (values, actions) => {
-              (await handleSubmit(values))
-                ? setVisibility(false)
-                : actions.resetForm();
-            }}
-          >
-            {(props) => (
-              <>
-                <ScrollView
-                  style={styles.scrollView}
-                  keyboardShouldPersistTaps="handled"
-                >
-                  <View style={styles.formContainer}>
-                    <View style={styles.propContainer}>
-                      <Text style={styles.labelText}>Email:</Text>
-                      <View style={styles.inputContainer}>
-                        <TextInput
-                          style={{ flex: 1, flexWrap: "wrap" }}
-                          placeholder="Email"
-                          onChangeText={props.handleChange("email")}
-                          value={props.values.email}
-                          onBlur={props.handleBlur("email")}
-                          textContentType="emailAddress"
-                          autoCapitalize="none"
-                        />
+      <KeyboardAvoidingView
+        // change padding to height for android devices  platform === ios ? padding : height
+        behavior="padding"
+        style={{ flex: 1 }}
+      >
+        <BlurView intensity={50} style={styles.centeredView}>
+          <View style={isAthlete ? styles.modalViewAthlete : styles.modalView}>
+            <Text style={styles.modalText}>Edit Contact Info</Text>
+            <Formik
+              initialValues={
+                isAthlete
+                  ? {
+                      email: contactInfo.email,
+                      phone: contactInfo.mobile,
+                    }
+                  : {
+                      email: contactInfo.email,
+                      phone: contactInfo.mobile,
+                      addressL1: contactInfo.street,
+                      addressL2: contactInfo.apartment_no,
+                      city: contactInfo.city,
+                      state: contactInfo.state,
+                      zipcode: contactInfo.zipcode,
+                    }
+              }
+              validationSchema={editContactInfoSchema}
+              onSubmit={async (values, actions) => {
+                (await handleSubmit(values))
+                  ? setVisibility(false)
+                  : actions.resetForm();
+              }}
+            >
+              {(props) => (
+                <>
+                  <ScrollView
+                    style={styles.scrollView}
+                    keyboardShouldPersistTaps="handled"
+                  >
+                    <View style={styles.formContainer}>
+                      <View style={styles.propContainer}>
+                        <Text style={styles.labelText}>Email:</Text>
+                        <View style={styles.inputContainer}>
+                          <TextInput
+                            style={{ flex: 1, flexWrap: "wrap" }}
+                            placeholder="Email"
+                            onChangeText={props.handleChange("email")}
+                            value={props.values.email}
+                            onBlur={props.handleBlur("email")}
+                            textContentType="emailAddress"
+                            autoCapitalize="none"
+                          />
+                        </View>
+                        {props.touched.email && props.errors.email && (
+                          <Text style={styles.errorText}>
+                            {props.errors.email}
+                          </Text>
+                        )}
                       </View>
-                      {props.touched.email && props.errors.email && (
-                        <Text style={styles.errorText}>
-                          {props.errors.email}
-                        </Text>
-                      )}
-                    </View>
-                    <View style={styles.propContainer}>
-                      <Text style={styles.labelText}>Phone number:</Text>
-                      <View style={styles.inputContainer}>
-                        <TextInput
-                          style={{ flex: 1, flexWrap: "wrap" }}
-                          placeholder="Phone"
-                          onChangeText={props.handleChange("phone")}
-                          value={props.values.phone}
-                          onBlur={props.handleBlur("phone")}
-                          textContentType="telephoneNumber"
-                          autoCapitalize="none"
-                        />
+                      <View style={styles.propContainer}>
+                        <Text style={styles.labelText}>Phone number:</Text>
+                        <View style={styles.inputContainer}>
+                          <TextInput
+                            style={{ flex: 1, flexWrap: "wrap" }}
+                            placeholder="Phone"
+                            onChangeText={props.handleChange("phone")}
+                            value={props.values.phone}
+                            onBlur={props.handleBlur("phone")}
+                            textContentType="telephoneNumber"
+                            autoCapitalize="none"
+                          />
+                        </View>
+                        {props.touched.phone && props.errors.phone && (
+                          <Text style={styles.errorText}>
+                            {props.errors.phone}
+                          </Text>
+                        )}
                       </View>
-                      {props.touched.phone && props.errors.phone && (
-                        <Text style={styles.errorText}>
-                          {props.errors.phone}
-                        </Text>
-                      )}
-                    </View>
 
-                    {!isAthlete && (
-                      <>
-                        <View style={styles.propContainer}>
-                          <Text style={styles.labelText}>Address:</Text>
-                          <View style={styles.inputContainer}>
-                            <TextInput
-                              style={{ flex: 1, flexWrap: "wrap" }}
-                              placeholder="Address"
-                              onChangeText={props.handleChange("addressL1")}
-                              value={props.values.addressL1}
-                              onBlur={props.handleBlur("addressL1")}
-                              textContentType="streetAddressLine1"
-                              autoCapitalize="none"
-                            />
+                      {!isAthlete && (
+                        <>
+                          <View style={styles.propContainer}>
+                            <Text style={styles.labelText}>Address:</Text>
+                            <View style={styles.inputContainer}>
+                              <TextInput
+                                style={{ flex: 1, flexWrap: "wrap" }}
+                                placeholder="Address"
+                                onChangeText={props.handleChange("addressL1")}
+                                value={props.values.addressL1}
+                                onBlur={props.handleBlur("addressL1")}
+                                textContentType="streetAddressLine1"
+                                autoCapitalize="none"
+                              />
+                            </View>
                           </View>
-                        </View>
-                        <View style={styles.propContainer}>
-                          <Text style={styles.labelText}>Address Line 2:</Text>
-                          <View style={styles.inputContainer}>
-                            <TextInput
-                              style={{ flex: 1, flexWrap: "wrap" }}
-                              placeholder="Address Line 2"
-                              onChangeText={props.handleChange("addressL2")}
-                              value={props.values.addressL2}
-                              onBlur={props.handleBlur("addressL2")}
-                              textContentType="streetAddressLine2"
-                              autoCapitalize="none"
-                            />
+                          <View style={styles.propContainer}>
+                            <Text style={styles.labelText}>
+                              Address Line 2:
+                            </Text>
+                            <View style={styles.inputContainer}>
+                              <TextInput
+                                style={{ flex: 1, flexWrap: "wrap" }}
+                                placeholder="Address Line 2"
+                                onChangeText={props.handleChange("addressL2")}
+                                value={props.values.addressL2}
+                                onBlur={props.handleBlur("addressL2")}
+                                textContentType="streetAddressLine2"
+                                autoCapitalize="none"
+                              />
+                            </View>
                           </View>
-                        </View>
-                        <View style={styles.propContainer}>
-                          <Text style={styles.labelText}>City:</Text>
-                          <View style={styles.inputContainer}>
-                            <TextInput
-                              style={{ flex: 1, flexWrap: "wrap" }}
-                              placeholder="City"
-                              onChangeText={props.handleChange("city")}
-                              value={props.values.city}
-                              onBlur={props.handleBlur("city")}
-                              textContentType="addressCity"
-                              autoCapitalize="none"
-                            />
+                          <View style={styles.propContainer}>
+                            <Text style={styles.labelText}>City:</Text>
+                            <View style={styles.inputContainer}>
+                              <TextInput
+                                style={{ flex: 1, flexWrap: "wrap" }}
+                                placeholder="City"
+                                onChangeText={props.handleChange("city")}
+                                value={props.values.city}
+                                onBlur={props.handleBlur("city")}
+                                textContentType="addressCity"
+                                autoCapitalize="none"
+                              />
+                            </View>
                           </View>
-                        </View>
-                        <View style={styles.propContainer}>
-                          <Text style={styles.labelText}>State:</Text>
-                          <View style={styles.inputContainer}>
-                            <TextInput
-                              style={{ flex: 1, flexWrap: "wrap" }}
-                              placeholder="State"
-                              onChangeText={props.handleChange("state")}
-                              value={props.values.state}
-                              onBlur={props.handleBlur("state")}
-                              textContentType="addressState"
-                              autoCapitalize="none"
-                            />
+                          <View style={styles.propContainer}>
+                            <Text style={styles.labelText}>State:</Text>
+                            <View style={styles.inputContainer}>
+                              <TextInput
+                                style={{ flex: 1, flexWrap: "wrap" }}
+                                placeholder="State"
+                                onChangeText={props.handleChange("state")}
+                                value={props.values.state}
+                                onBlur={props.handleBlur("state")}
+                                textContentType="addressState"
+                                autoCapitalize="none"
+                              />
+                            </View>
                           </View>
-                        </View>
-                        <View style={styles.propContainer}>
-                          <Text style={styles.labelText}>Zip Code:</Text>
-                          <View style={styles.inputContainer}>
-                            <TextInput
-                              style={{ flex: 1, flexWrap: "wrap" }}
-                              placeholder="Zip Code"
-                              onChangeText={props.handleChange("zipcode")}
-                              value={props.values.zipcode}
-                              onBlur={props.handleBlur("zipcode")}
-                              textContentType="postalCode"
-                              autoCapitalize="none"
-                            />
+                          <View style={styles.propContainer}>
+                            <Text style={styles.labelText}>Zip Code:</Text>
+                            <View style={styles.inputContainer}>
+                              <TextInput
+                                style={{ flex: 1, flexWrap: "wrap" }}
+                                placeholder="Zip Code"
+                                onChangeText={props.handleChange("zipcode")}
+                                value={props.values.zipcode}
+                                onBlur={props.handleBlur("zipcode")}
+                                textContentType="postalCode"
+                                autoCapitalize="none"
+                              />
+                            </View>
                           </View>
-                        </View>
-                      </>
-                    )}
+                        </>
+                      )}
+                    </View>
+                  </ScrollView>
+                  <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                      style={styles.cancelButton}
+                      onPress={() => setVisibility(false)}
+                    >
+                      <View>
+                        <Text style={styles.cancelButtonText}>Cancel</Text>
+                      </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.button}
+                      onPress={props.handleSubmit}
+                    >
+                      <View>
+                        <Text style={styles.buttonText}>Submit</Text>
+                      </View>
+                    </TouchableOpacity>
                   </View>
-                </ScrollView>
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity
-                    style={styles.cancelButton}
-                    onPress={() => setVisibility(false)}
-                  >
-                    <View>
-                      <Text style={styles.cancelButtonText}>Cancel</Text>
-                    </View>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.button}
-                    onPress={props.handleSubmit}
-                  >
-                    <View>
-                      <Text style={styles.buttonText}>Submit</Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              </>
-            )}
-          </Formik>
-        </View>
-      </BlurView>
+                </>
+              )}
+            </Formik>
+          </View>
+        </BlurView>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

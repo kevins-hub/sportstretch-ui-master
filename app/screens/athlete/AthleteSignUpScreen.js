@@ -10,6 +10,7 @@ import {
   Image,
   Alert,
   Button,
+  KeyboardAvoidingView,
 } from "react-native";
 import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as yup from "yup";
@@ -584,19 +585,25 @@ function AthleteForm(props) {
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.headerConatiner}>
-        <Image
-          source={require("../../assets/logo_crop.png")}
-          style={styles.logo}
-        />
-        <Text style={styles.headerText}>Recovery On The Go</Text>
+    <KeyboardAvoidingView
+      // change padding to height for android devices  platform === ios ? padding : height
+      behavior="padding"
+      style={{ flex: 1 }}
+    >
+      <View style={styles.container}>
+        <View style={styles.headerConatiner}>
+          <Image
+            source={require("../../assets/logo_crop.png")}
+            style={styles.logo}
+          />
+          <Text style={styles.headerText}>Recovery On The Go</Text>
+        </View>
+        {currentStep === DETAILS_STEP && <CreateAccount />}
+        {currentStep === DOB_STEP && <DobStep />}
+        {currentStep === SMS_VERIFICATION_STEP && <VerificationStep />}
+        {currentStep === EMAIL_VERIFIACTION_STEP && <VerificationStep />}
       </View>
-      {currentStep === DETAILS_STEP && <CreateAccount />}
-      {currentStep === DOB_STEP && <DobStep />}
-      {currentStep === SMS_VERIFICATION_STEP && <VerificationStep />}
-      {currentStep === EMAIL_VERIFIACTION_STEP && <VerificationStep />}
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
