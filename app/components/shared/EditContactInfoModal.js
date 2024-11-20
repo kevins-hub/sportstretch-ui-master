@@ -27,7 +27,6 @@ function EditContactInfoModal({
 }) {
   if (!visible) return null;
 
-
   const isAthlete = user.role === "athlete" ? true : false;
 
   const phoneRegExp =
@@ -47,7 +46,7 @@ function EditContactInfoModal({
 
   const initAthleteForm = () => {
     editContactInfoSchema = yup.object({
-      email: yup.string().required("Email is required").label("Email"),
+      email: yup.string().required("Email is required").email().label("Email"),
       phone: yup
         .string()
         .matches(
@@ -61,7 +60,7 @@ function EditContactInfoModal({
 
   const initAdminTherapistForm = () => {
     editContactInfoSchema = yup.object({
-      email: yup.string().required("Email is required").label("Email"),
+      email: yup.string().required("Email is required").email().label("Email"),
       phone: yup
         .string()
         .matches(phoneRegExp, "Invalid phone number")
@@ -214,6 +213,11 @@ function EditContactInfoModal({
                           autoCapitalize="none"
                         />
                       </View>
+                      {props.touched.email && props.errors.email && (
+                        <Text style={styles.errorText}>
+                          {props.errors.email}
+                        </Text>
+                      )}
                     </View>
                     <View style={styles.propContainer}>
                       <Text style={styles.labelText}>Phone number:</Text>
