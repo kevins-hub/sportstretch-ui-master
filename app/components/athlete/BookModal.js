@@ -45,6 +45,7 @@ import {
   SimpleLineIcons,
 } from "@expo/vector-icons";
 import { STRIPE_P_KEY_TEST } from "@env";
+import { useHeaderHeight } from '@react-navigation/elements'
 
 function BookModal({
   visible,
@@ -69,8 +70,8 @@ function BookModal({
   if (!visible) return null;
 
   // can modify these to be dynamic based on clinic hours
-  const openTime = 8; // 8:00 AM
-  const closeTime = 23; // 10:00 PM
+
+  const height = useHeaderHeight();
 
   let minDate = new Date();
   const statesItemsObj = Object.entries(states).map(([abbr, name]) => {
@@ -556,12 +557,6 @@ function BookModal({
             style={styles.primaryButtonText}
           >{`Book an appointment with ${therapistName}`}</Text>
         </TouchableOpacity>
-        {/* <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={openPaymentSheet}
-        >
-          <Text style={styles.primaryButtonText}>{"Open payment sheet"}</Text>
-        </TouchableOpacity> */}
       </View>
     </View>
   );
@@ -590,6 +585,11 @@ function BookModal({
           <Text style={styles.modalText}>
             Book your appointment with {therapistName}!
           </Text>
+          <KeyboardAvoidingView
+                  // change padding to height for android devices  platform === ios ? padding : height
+                  behavior="padding"
+                  style={{ flex: 1 }}
+                >
           <View style={styles.appointmentScrollViewContainer}>
             <ScrollView
               style={styles.appointmentDetailsScrollView}
@@ -696,101 +696,101 @@ function BookModal({
                 />
               </View>
               {selectedLocationOption === "2" ? (
-                <View style={styles.propContainer}>
-                  <Text style={styles.propTitle}>Your Location:</Text>
+                  <View style={styles.propContainer}>
+                    <Text style={styles.propTitle}>Your Location:</Text>
 
-                  <View style={styles.inputContainer}>
-                    <View>
-                      <FontAwesome
-                        name="address-book"
-                        size={16}
-                        color="black"
-                        style={{ paddingRight: "5%" }}
-                      />
-                    </View>
-                    <TextInput
-                      style={{ flex: 1, flexWrap: "wrap" }}
-                      placeholder="Address"
-                      onChangeText={handleChange("addressL1")}
-                      onBlur={handleBlur("addressL1")}
-                      name="addressL1"
-                      value={values.addressL1}
-                      autoCapitalize="none"
-                    />
-                  </View>
-                  {touched.addressL1 && errors.addressL1 && (
-                    <Text style={styles.errorText}>{errors.addressL1}</Text>
-                  )}
-                  <View style={styles.inputContainerAddress}>
-                    <TextInput
-                      style={{ flex: 1, flexWrap: "wrap" }}
-                      placeholder="Apt, Suite, Floor, Building"
-                      onChangeText={handleChange("addressL2")}
-                      onBlur={handleBlur("addressL2")}
-                      name="addressL2"
-                      value={values.addressL2}
-                      textContentType="streetAddressLine2"
-                    />
-                    {touched.addressL2 && errors.addressL2 && (
-                      <Text style={styles.errorText}>{errors.addressL2}</Text>
-                    )}
-                  </View>
-                  <View style={styles.inputContainerCityState}>
-                    <View style={{ width: "45%" }}>
-                      <View style={styles.inputContainerCity}>
-                        <TextInput
-                          placeholder="City"
-                          onChangeText={handleChange("city")}
-                          value={values.city}
-                          onBlur={handleBlur("city")}
-                          textContentType="addressCity"
+                    <View style={styles.inputContainer}>
+                      <View>
+                        <FontAwesome
+                          name="address-book"
+                          size={16}
+                          color="black"
+                          style={{ paddingRight: "5%" }}
                         />
                       </View>
-                      {touched.city && errors.city && (
-                        <Text style={styles.errorText}>{errors.city}</Text>
-                      )}
-                    </View>
-                    <View style={{ marginHorizontal: "10%", width: "45%" }}>
-                      <View style={styles.inputContainerState}>
-                        <RNPickerSelect
-                          placeholder={{ label: "State", value: "" }}
-                          value={values.state}
-                          onValueChange={handleChange("state")}
-                          items={
-                            statesItemsObj
-                              ? statesItemsObj
-                              : [{ label: "CA", value: "California" }]
-                          }
-                        ></RNPickerSelect>
-                      </View>
-                      {touched.state && errors.state && (
-                        <Text style={styles.errorText}>{errors.state}</Text>
-                      )}
-                    </View>
-                  </View>
-                  <View style={styles.inputContainerZip}>
-                    <View>
-                      <SimpleLineIcons
-                        name="location-pin"
-                        size={16}
-                        color="black"
-                        style={{ paddingRight: "5%" }}
+                      <TextInput
+                        style={{ flex: 1, flexWrap: "wrap" }}
+                        placeholder="Address"
+                        onChangeText={handleChange("addressL1")}
+                        onBlur={handleBlur("addressL1")}
+                        name="addressL1"
+                        value={values.addressL1}
+                        autoCapitalize="none"
                       />
                     </View>
-                    <TextInput
-                      style={{ flex: 1, flexWrap: "wrap" }}
-                      placeholder="Zipcode"
-                      onChangeText={handleChange("zipcode")}
-                      onBlur={handleBlur("zipcode")}
-                      name="zipcode"
-                      value={values.zipcode}
-                      textContentType="postalCode"
-                    />
+                    {touched.addressL1 && errors.addressL1 && (
+                      <Text style={styles.errorText}>{errors.addressL1}</Text>
+                    )}
+                    <View style={styles.inputContainerAddress}>
+                      <TextInput
+                        style={{ flex: 1, flexWrap: "wrap" }}
+                        placeholder="Apt, Suite, Floor, Building"
+                        onChangeText={handleChange("addressL2")}
+                        onBlur={handleBlur("addressL2")}
+                        name="addressL2"
+                        value={values.addressL2}
+                        textContentType="streetAddressLine2"
+                      />
+                      {touched.addressL2 && errors.addressL2 && (
+                        <Text style={styles.errorText}>{errors.addressL2}</Text>
+                      )}
+                    </View>
+                    <View style={styles.inputContainerCityState}>
+                      <View style={{ width: "45%" }}>
+                        <View style={styles.inputContainerCity}>
+                          <TextInput
+                            placeholder="City"
+                            onChangeText={handleChange("city")}
+                            value={values.city}
+                            onBlur={handleBlur("city")}
+                            textContentType="addressCity"
+                          />
+                        </View>
+                        {touched.city && errors.city && (
+                          <Text style={styles.errorText}>{errors.city}</Text>
+                        )}
+                      </View>
+                      <View style={{ marginHorizontal: "10%", width: "45%" }}>
+                        <View style={styles.inputContainerState}>
+                          <RNPickerSelect
+                            placeholder={{ label: "State", value: "" }}
+                            value={values.state}
+                            onValueChange={handleChange("state")}
+                            items={
+                              statesItemsObj
+                                ? statesItemsObj
+                                : [{ label: "CA", value: "California" }]
+                            }
+                          ></RNPickerSelect>
+                        </View>
+                        {touched.state && errors.state && (
+                          <Text style={styles.errorText}>{errors.state}</Text>
+                        )}
+                      </View>
+                    </View>
+                    <View style={styles.inputContainerZip}>
+                      <View>
+                        <SimpleLineIcons
+                          name="location-pin"
+                          size={16}
+                          color="black"
+                          style={{ paddingRight: "5%" }}
+                        />
+                      </View>
+                      <TextInput
+                        style={{ flex: 1, flexWrap: "wrap" }}
+                        placeholder="Zipcode"
+                        onChangeText={handleChange("zipcode")}
+                        onBlur={handleBlur("zipcode")}
+                        name="zipcode"
+                        value={values.zipcode}
+                        textContentType="postalCode"
+                      />
+                    </View>
+                    {touched.zipcode && errors.zipcode && (
+                      <Text style={styles.errorText}>{errors.zipcode}</Text>
+                    )}
                   </View>
-                  {touched.zipcode && errors.zipcode && (
-                    <Text style={styles.errorText}>{errors.zipcode}</Text>
-                  )}
-                </View>
               ) : (
                 <Text style={styles.clinicInfoText}>
                   Clinic address will be provided upon confirmation of
@@ -799,6 +799,7 @@ function BookModal({
               )}
             </ScrollView>
           </View>
+          </KeyboardAvoidingView>
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={styles.secondaryButton}
@@ -957,23 +958,23 @@ function BookModal({
       >
         <BlurView intensity={50} style={styles.centeredView}>
           <View style={styles.modalView}>
-            <KeyboardAvoidingView
+            {/* <KeyboardAvoidingView
               // change padding to height for android devices  platform === ios ? padding : height
               behavior="padding"
               style={{ flex: 1 }}
-            >
-              <ProgressIndicator visible={bookingProgress} />
-              <DoneIndicator visible={bookingDone} />
-              {!bookingProgress && !bookingDone && currentStep === 1 && (
-                <TherapistDetailsStep />
-              )}
-              {!bookingProgress && !bookingDone && currentStep === 2 && (
-                <AppointmentDetailsStep />
-              )}
-              {!bookingProgress && !bookingDone && currentStep === 3 && (
-                <PaymentStep />
-              )}
-            </KeyboardAvoidingView>
+            > */}
+            <ProgressIndicator visible={bookingProgress} />
+            <DoneIndicator visible={bookingDone} />
+            {!bookingProgress && !bookingDone && currentStep === 1 && (
+              <TherapistDetailsStep />
+            )}
+            {!bookingProgress && !bookingDone && currentStep === 2 && (
+              <AppointmentDetailsStep />
+            )}
+            {!bookingProgress && !bookingDone && currentStep === 3 && (
+              <PaymentStep />
+            )}
+            {/* </KeyboardAvoidingView> */}
           </View>
         </BlurView>
       </Modal>

@@ -33,6 +33,8 @@ function TherapistUpcomingPendingCard({ therapistData, loadUpcomingBookings }) {
     : "Your clinic.";
   const [declineModal, setDeclineModal] = useState(false);
 
+  const abbrevBookingMonth = booking_month.substring(0, 3);
+
   const approveBooking = async () => {
     try {
       let booking_status = await bookingsApi.approveBooking(bookings_id);
@@ -115,7 +117,7 @@ function TherapistUpcomingPendingCard({ therapistData, loadUpcomingBookings }) {
             <View style={styles.dynamicText}>
               <Text
                 style={styles.dynamicTextFontName}
-              >{`${booking_day_of_week}, ${booking_month} ${booking_day}`}</Text>
+              >{`${booking_day_of_week}, ${abbrevBookingMonth} ${booking_day}`}</Text>
             </View>
 
             {/* <View style={styles.staticText}>

@@ -29,7 +29,7 @@ function TherapistAvailability(props) {
           <Text style={styles.locationText}>
             {user.userObj.city}, {user.userObj.state}
           </Text>
-          <Text style={styles.textFont}>Athletes will connect to you </Text>
+          <Text style={styles.textFont}>Athletes can connect with you.</Text>
         </View>
       </View>
     ) : (
@@ -42,7 +42,7 @@ function TherapistAvailability(props) {
           />
         </View>
         <Text style={styles.unavailableText}>
-          You are unavailable to athletes
+          You are unavailable to athletes.
         </Text>
       </View>
     );
