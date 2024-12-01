@@ -21,7 +21,7 @@ function TherapistUpcomingCard(item) {
     : "Your clinic.";
   const status_type =
     status === "CancelledRefunded"
-      ? "Cancelled - Refunded"
+      ? "Cancelled (Refunded)"
       : status === "CancelledNoRefund"
       ? "Cancelled"
       : confirmation_status === 1
@@ -111,7 +111,7 @@ function TherapistUpcomingCard(item) {
           </View>
           <View style={styles.right}>
             <View style={styles.staticText}>
-              <Text style={styles.staticLabel}>Booking Status</Text>
+              <Text style={styles.staticLabel}>Status</Text>
             </View>
             <View style={styles.dynamicText}>
               <Text style={status_type === "Approved" ? styles.approvedText : styles.declinedText}>{status_type}</Text>

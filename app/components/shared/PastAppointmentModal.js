@@ -28,6 +28,8 @@ function PastAppointmentModal({ booking, setVisibility, visible }) {
 
   const userAuthId = user.authorization_id;
 
+  const issueMaxLength = 500;
+
   const AppointmentDetailsStep = ({}) => (
     <View style={styles.modalContent}>
       <AthleteAppointmentDetails booking={booking}></AthleteAppointmentDetails>
@@ -64,7 +66,7 @@ function PastAppointmentModal({ booking, setVisibility, visible }) {
       >
         <Text style={styles.cancelAppointmentText}>
           Please describe the issue you experienced with this appointment. We
-          will review your report and get back to you as soon as possible.
+          will review your report and email you with more details.
         </Text>
         <Formik
           initialValues={{ reportIssue: "" }}
@@ -84,8 +86,13 @@ function PastAppointmentModal({ booking, setVisibility, visible }) {
                   onBlur={handleBlur("reportIssue")}
                   placeholder="Type here"
                   multiline={true}
+                  maxLength={issueMaxLength}
                 />
+                <Text
+                  style={styles.issueCharCount}
+                >{`${values.reportIssue.length}/${issueMaxLength}`}</Text>
               </View>
+
               <View style={styles.buttonContainer}>
                 <TouchableOpacity
                   style={styles.secondaryButton}
@@ -363,6 +370,11 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: "#F6F6F6",
     height: "50%",
+  },
+  issueCharCount: {
+    textAlign: "right",
+    marginRight: "10%",
+    color: colors.grey,
   },
 });
 
