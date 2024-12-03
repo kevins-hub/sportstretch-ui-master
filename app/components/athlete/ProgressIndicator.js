@@ -12,6 +12,7 @@ function ProgressIndicator({ visible }) {
         autoSize
         loop
         source={require("../../assets/animations/BookingProgress.json")}
+        style={{ width: 150, height: 150 }} 
       />
     </View>
   );
