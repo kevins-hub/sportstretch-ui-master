@@ -13,7 +13,13 @@ import colors from "../../config/colors";
 import therapists from "../../api/therapists";
 import { stateLongToShort, stateShortToLong } from "../../lib/states";
 
-function SearchTherapist({ getTherapists, currentState="", isInModal=false, setModalVisibility, setAthleteRegion }) {
+function SearchTherapist({
+  getTherapists,
+  currentState = "",
+  isInModal = false,
+  setModalVisibility,
+  setAthleteRegion,
+}) {
   const [statesList, setStatesList] = useState(["California"]);
   const [selectedState, setSelectedState] = useState(currentState);
   const options = [];
