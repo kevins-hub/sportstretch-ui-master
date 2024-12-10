@@ -8,6 +8,7 @@ const apiClient = create({
   //baseURL: 'https://localhost:3000'
 });
 
+console.log("process.env.API_URL", process.env.API_URL);
 apiClient.addAsyncRequestTransform(async (request) => {
   const authToken = await authStorage.getToken();
   if (!authToken) return;
