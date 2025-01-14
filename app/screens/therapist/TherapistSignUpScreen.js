@@ -106,8 +106,18 @@ const ReviewSchema = yup.object({
     .label("State"),
   zipcode: yup.string().required().min(5).label("ZipCode"),
   profession: yup.string().required().label("Profession"),
-  services: yup.string().required().max(150).label("Services"),
-  summary: yup.string().required().max(250).label("Summary"),
+  services: yup
+    .string()
+    .required(
+      "Please list any additional services or enter 'n/a' if not applicable."
+    )
+    .max(150)
+    .label("Services"),
+  summary: yup
+    .string()
+    .required("Please provide a brief summary of your professional experience.")
+    .max(250)
+    .label("Summary"),
   hourlyRate: yup.number().required().label("Hourly Rate"),
   licenseUrl: yup.string().required().label("License URL"),
   acceptsHouseCalls: yup.boolean().required().label("Accepts House Calls"),
@@ -244,7 +254,7 @@ function TherapistForm(props) {
           console.warn(err);
         });
     } else if (currentStep === DOB_STEP) {
-      if (checkAge(dob)) {  
+      if (checkAge(dob)) {
         setShowAboveAgeError(false);
       } else {
         setShowAboveAgeError(true);
@@ -254,9 +264,16 @@ function TherapistForm(props) {
 
       setShowInvalidFieldError(false);
       setCurrentStep(currentStep + 1);
-    } else if (currentStep === EMAIL_VERIFIACTION_STEP) {
+    } else if (currentStep === SERVICES_STEP) {
+      if (!enableInClinic && !enableHouseCalls) {
+        setShowInvalidFieldError(true);
+        return
+      }
       Promise.all([
         ReviewSchema.validateAt("profession", values),
+        ReviewSchema.validateAt("services", values),
+        ReviewSchema.validateAt("summary", values),
+        ReviewSchema.validateAt("hourlyRate", values),
         ReviewSchema.validateAt("addressL1", values),
         ReviewSchema.validateAt("addressL2", values),
         ReviewSchema.validateAt("city", values),
@@ -269,11 +286,7 @@ function TherapistForm(props) {
         })
         .catch((err) => {
           setShowInvalidFieldError(true);
-          // console.warn(err);
         });
-    } else if (currentStep === SERVICES_STEP) {
-      setShowInvalidFieldError(false);
-      setCurrentStep(currentStep + 1);
     } else if (currentStep === BUSINESS_HOURS_STEP) {
       setShowInvalidFieldError(false);
       setCurrentStep(currentStep + 1);
@@ -651,6 +664,15 @@ function TherapistForm(props) {
         <Text style={styles.label}>
           I am open to traveling to clients for our appointments
         </Text>
+      </View>
+      <View>
+        {showInvalidFieldError && !enableInClinic && !enableHouseCalls ? (
+          <Text style={styles.errorText}>
+            Please select at least one option for appointment location
+          </Text>
+        ) : (
+          <></>
+        )}
       </View>
       <Text style={styles.subheaderText}>
         {enableInClinic ? "Clinic Address:" : "Home / Office Address:"}
