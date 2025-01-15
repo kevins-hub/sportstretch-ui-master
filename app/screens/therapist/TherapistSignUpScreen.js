@@ -56,6 +56,7 @@ const bioMaxLength = 250;
 const feesAndTaxesPercentage = 0.15;
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+const urlRegExp = /^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[a-zA-Z0-9#-_.?&=]*)*\/?$/;
 const statesItemsObj = Object.entries(states).map(([abbr, name]) => {
   return { label: abbr, value: name };
 });
@@ -106,10 +107,24 @@ const ReviewSchema = yup.object({
     .label("State"),
   zipcode: yup.string().required().min(5).label("ZipCode"),
   profession: yup.string().required().label("Profession"),
-  services: yup.string().required().max(150).label("Services"),
-  summary: yup.string().required().max(250).label("Summary"),
+  services: yup
+    .string()
+    .required(
+      "Please list any additional services or enter 'n/a' if not applicable."
+    )
+    .max(150)
+    .label("Services"),
+  summary: yup
+    .string()
+    .required("Please provide a brief summary of your professional experience.")
+    .max(250)
+    .label("Summary"),
   hourlyRate: yup.number().required().label("Hourly Rate"),
-  licenseUrl: yup.string().required().label("License URL"),
+  licenseUrl: yup
+    .string()
+    .required("Please provide a link to your professional license.")
+    .matches(urlRegExp, "Please enter a valid URL.")
+    .label("License URL"),
   acceptsHouseCalls: yup.boolean().required().label("Accepts House Calls"),
 });
 
@@ -141,11 +156,9 @@ function TherapistForm(props) {
   const [email, setEmail] = useState("");
   const [showSubmitError, setShowSubmitError] = useState(false);
   const [dob, setDob] = useState(null);
-  const [hasChangedDate, setHasChangedDate] = useState(false);
-  const [isAboveAge, setIsAboveAge] = useState(false);
+  const [showAboveAgeError, setShowAboveAgeError] = useState(false);
 
   useEffect(() => {
-    console.log("which step am i fucking on", currentStep);
     if (currentStep === SMS_VERIFICATION_STEP) {
       sendSMSVerification(phoneNumber);
     } else if (currentStep === EMAIL_VERIFIACTION_STEP) {
@@ -166,17 +179,17 @@ function TherapistForm(props) {
   };
 
   const handleDateChange = (event, selectedDate) => {
-    setHasChangedDate(true);
-
-    // convert selectedDate to local date considering time zone
-    const selectedDateLocal = new Date(
-      selectedDate.getTime() + selectedDate.getTimezoneOffset() * 60000
-    );
-    setDob(selectedDateLocal);
-    if (checkAge(selectedDateLocal)) {
-      setIsAboveAge(true);
-    } else {
-      setIsAboveAge(false);
+    if (!selectedDate) {
+      return;
+    }
+    try {
+      // convert selectedDate to local date considering time zone
+      const selectedDateLocal = new Date(
+        selectedDate.getTime() + selectedDate.getTimezoneOffset() * 60000
+      );
+      setDob(selectedDateLocal);
+    } catch (error) {
+      console.warn("Error setting date of birth: ", error);
     }
   };
 
@@ -196,6 +209,15 @@ function TherapistForm(props) {
         `New recovery specialist registered: ${values.profession}: ${values.fname} ${values.lname}, ${values.email}`
       );
     }
+  };
+
+  const isBusinessHoursEmpty = (businessHours) => {
+    for (let i = 0; i < 7; i++) {
+      if (businessHours[i].length > 0) {
+        return false;
+      }
+    }
+    return true;
   };
 
   const professionsList = [
@@ -246,15 +268,26 @@ function TherapistForm(props) {
           console.warn(err);
         });
     } else if (currentStep === DOB_STEP) {
-      if (!isAboveAge) {
+      if (checkAge(dob)) {
+        setShowAboveAgeError(false);
+      } else {
+        setShowAboveAgeError(true);
         setShowInvalidFieldError(true);
         return;
       }
+
       setShowInvalidFieldError(false);
       setCurrentStep(currentStep + 1);
-    } else if (currentStep === EMAIL_VERIFIACTION_STEP) {
+    } else if (currentStep === SERVICES_STEP) {
+      if (!enableInClinic && !enableHouseCalls) {
+        setShowInvalidFieldError(true);
+        return;
+      }
       Promise.all([
         ReviewSchema.validateAt("profession", values),
+        ReviewSchema.validateAt("services", values),
+        ReviewSchema.validateAt("summary", values),
+        ReviewSchema.validateAt("hourlyRate", values),
         ReviewSchema.validateAt("addressL1", values),
         ReviewSchema.validateAt("addressL2", values),
         ReviewSchema.validateAt("city", values),
@@ -267,12 +300,12 @@ function TherapistForm(props) {
         })
         .catch((err) => {
           setShowInvalidFieldError(true);
-          // console.warn(err);
         });
-    } else if (currentStep === SERVICES_STEP) {
-      setShowInvalidFieldError(false);
-      setCurrentStep(currentStep + 1);
     } else if (currentStep === BUSINESS_HOURS_STEP) {
+      if (isBusinessHoursEmpty(businessHours)) {
+        setShowInvalidFieldError(true);
+        return;
+      }
       setShowInvalidFieldError(false);
       setCurrentStep(currentStep + 1);
     } else if (currentStep === LICENSE_STEP) {
@@ -312,13 +345,28 @@ function TherapistForm(props) {
       setCurrentStep(currentStep - 2);
     } else if (currentStep === SERVICES_STEP) {
       setCurrentStep(currentStep - 3);
+    } else if (currentStep === LICENSE_STEP) {
+      Alert.alert(
+        "Are you sure you want to go back to availability?",
+        "You will have to re-enter your availability hours if you go back at this point.",
+        [
+          {
+            text: "Yes",
+            onPress: () => setCurrentStep(currentStep - 1),
+          },
+          {
+            text: "No",
+            onPress: () => {},
+            style: "cancel",
+          },
+        ]
+      );
     } else {
       setCurrentStep(currentStep - 1);
     }
   };
 
   const sendSMSVerification = async (value) => {
-    console.log("is this working");
     if (currentStep === SMS_VERIFICATION_STEP) {
       let code = Math.floor(100000 + Math.random() * 900000);
       setVerificationCode(code);
@@ -492,30 +540,11 @@ function TherapistForm(props) {
           shouldCloseOnSelect={false}
         />
 
-        {!!hasChangedDate && !isAboveAge && (
+        {showAboveAgeError && (
           <Text style={styles.errorText}>
             You must be at least 18 years old to use SportStretch.
           </Text>
         )}
-        {/* <View style={styles.buttonContainer}>
-          {!!isAboveAge && (
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => setCurrentStep(currentStep + 1)}
-              type="button"
-            >
-              <Text style={styles.buttonText}>Next</Text>
-            </TouchableOpacity>
-          )}
-
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => setCurrentStep(currentStep - 1)}
-            type="button"
-          >
-            <Text style={styles.buttonText}>Previous</Text>
-          </TouchableOpacity>
-        </View> */}
       </View>
     </>
   );
@@ -669,6 +698,15 @@ function TherapistForm(props) {
         <Text style={styles.label}>
           I am open to traveling to clients for our appointments
         </Text>
+      </View>
+      <View>
+        {showInvalidFieldError && !enableInClinic && !enableHouseCalls ? (
+          <Text style={styles.errorText}>
+            Please select at least one option for appointment location
+          </Text>
+        ) : (
+          <></>
+        )}
       </View>
       <Text style={styles.subheaderText}>
         {enableInClinic ? "Clinic Address:" : "Home / Office Address:"}
@@ -1034,10 +1072,16 @@ function TherapistForm(props) {
               )}
               {currentStep === SERVICES_STEP && <ServicesStep {...props} />}
               {currentStep === BUSINESS_HOURS_STEP && (
-                <TherapistBusinessHours
-                  businessHours={businessHours}
-                  setBusinessHours={setBusinessHours}
-                />
+                <>
+                  <TherapistBusinessHours
+                    businessHours={businessHours}
+                    setBusinessHours={setBusinessHours}
+                  />
+                  <Text style={styles.errorText}>
+                    {showInvalidFieldError &&
+                      "Please provide availability for at least one day."}
+                  </Text>
+                </>
               )}
               {currentStep === LICENSE_STEP && <LicenseStep {...props} />}
               {currentStep === PASSWORD_STEP && <PasswordStep {...props} />}

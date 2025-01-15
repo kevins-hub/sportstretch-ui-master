@@ -91,7 +91,7 @@ function AthleteBookNow(props) {
         let athleteLocation = await loadLocation();
         let athleteRegion = await getAthleteRegion(athleteLocation);
         let therapists = await getTherapists(athleteRegion);
-        // setSelectedTherapist(therapists[0]);
+        setSelectedTherapist(therapists[0]);
         await loadMarkers(therapists);
       } catch (err) {
         console.log("Error", err.message);
