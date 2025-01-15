@@ -56,6 +56,7 @@ const bioMaxLength = 250;
 const feesAndTaxesPercentage = 0.15;
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+const urlRegExp = /^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[a-zA-Z0-9#-_.?&=]*)*\/?$/;
 const statesItemsObj = Object.entries(states).map(([abbr, name]) => {
   return { label: abbr, value: name };
 });
@@ -119,7 +120,11 @@ const ReviewSchema = yup.object({
     .max(250)
     .label("Summary"),
   hourlyRate: yup.number().required().label("Hourly Rate"),
-  licenseUrl: yup.string().required().label("License URL"),
+  licenseUrl: yup
+    .string()
+    .required("Please provide a link to your professional license.")
+    .matches(urlRegExp, "Please enter a valid URL.")
+    .label("License URL"),
   acceptsHouseCalls: yup.boolean().required().label("Accepts House Calls"),
 });
 
@@ -206,6 +211,15 @@ function TherapistForm(props) {
     }
   };
 
+  const isBusinessHoursEmpty = (businessHours) => {
+    for (let i = 0; i < 7; i++) {
+      if (businessHours[i].length > 0) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   const professionsList = [
     { label: "Massage Therapist", value: "Massage Therapist" },
     { label: "Physical Therapist", value: "Physical Therapist" },
@@ -267,7 +281,7 @@ function TherapistForm(props) {
     } else if (currentStep === SERVICES_STEP) {
       if (!enableInClinic && !enableHouseCalls) {
         setShowInvalidFieldError(true);
-        return
+        return;
       }
       Promise.all([
         ReviewSchema.validateAt("profession", values),
@@ -288,6 +302,10 @@ function TherapistForm(props) {
           setShowInvalidFieldError(true);
         });
     } else if (currentStep === BUSINESS_HOURS_STEP) {
+      if (isBusinessHoursEmpty(businessHours)) {
+        setShowInvalidFieldError(true);
+        return;
+      }
       setShowInvalidFieldError(false);
       setCurrentStep(currentStep + 1);
     } else if (currentStep === LICENSE_STEP) {
@@ -327,6 +345,22 @@ function TherapistForm(props) {
       setCurrentStep(currentStep - 2);
     } else if (currentStep === SERVICES_STEP) {
       setCurrentStep(currentStep - 3);
+    } else if (currentStep === LICENSE_STEP) {
+      Alert.alert(
+        "Are you sure you want to go back to availability?",
+        "You will have to re-enter your availability hours if you go back at this point.",
+        [
+          {
+            text: "Yes",
+            onPress: () => setCurrentStep(currentStep - 1),
+          },
+          {
+            text: "No",
+            onPress: () => {},
+            style: "cancel",
+          },
+        ]
+      );
     } else {
       setCurrentStep(currentStep - 1);
     }
@@ -1038,10 +1072,16 @@ function TherapistForm(props) {
               )}
               {currentStep === SERVICES_STEP && <ServicesStep {...props} />}
               {currentStep === BUSINESS_HOURS_STEP && (
-                <TherapistBusinessHours
-                  businessHours={businessHours}
-                  setBusinessHours={setBusinessHours}
-                />
+                <>
+                  <TherapistBusinessHours
+                    businessHours={businessHours}
+                    setBusinessHours={setBusinessHours}
+                  />
+                  <Text style={styles.errorText}>
+                    {showInvalidFieldError &&
+                      "Please provide availability for at least one day."}
+                  </Text>
+                </>
               )}
               {currentStep === LICENSE_STEP && <LicenseStep {...props} />}
               {currentStep === PASSWORD_STEP && <PasswordStep {...props} />}
