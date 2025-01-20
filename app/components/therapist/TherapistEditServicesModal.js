@@ -12,24 +12,22 @@ import { useNavigation } from "@react-navigation/native";
 import { TextInput, ScrollView } from "react-native-gesture-handler";
 import { BlurView } from "expo-blur";
 import Constants from "expo-constants";
-import notificationsApi from "../../api/notifications";
-import AuthContext from "../../auth/context";
 import colors from "../../config/colors";
 import * as yup from "yup";
 import { Formik } from "formik";
-import contactApi from "../../api/contact";
-import contact from "../../api/contact";
 import {
   FontAwesome,
-  FontAwesome5,
   MaterialCommunityIcons,
   SimpleLineIcons,
 } from "@expo/vector-icons";
 import RNPickerSelect from "react-native-picker-select";
 import Checkbox from "expo-checkbox";
-import { stateConverter, states } from "../../lib/states";
+import { states } from "../../lib/states";
 import therapists from "../../api/therapists";
 import { handleError } from "../../lib/error";
+
+const SERVICES_STEP = 1;
+const LICENSE_STEP = 2;
 
 function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
   if (!visible) return null;
@@ -41,6 +39,9 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
   const statesItemsObj = Object.entries(states).map(([abbr, name]) => {
     return { label: abbr, value: name };
   });
+
+  const urlRegExp =
+    /^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[a-zA-Z0-9#-_.?&=]*)*\/?$/;
 
   const professionsList = [
     { label: "Massage Therapist", value: "Massage Therapist" },
@@ -100,10 +101,26 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
       .label("State"),
     zipcode: yup.string().required().min(5).label("ZipCode"),
     profession: yup.string().required().label("Profession"),
-    services: yup.string().required().max(150).label("Services"),
-    summary: yup.string().required().max(250).label("Summary"),
+    services: yup
+      .string()
+      .required(
+        "Please list any additional services or enter 'n/a' if not applicable."
+      )
+      .max(150)
+      .label("Services"),
+    summary: yup
+      .string()
+      .required(
+        "Please provide a brief summary of your professional experience."
+      )
+      .max(250)
+      .label("Summary"),
     hourlyRate: yup.number().required().label("Hourly Rate"),
-    licenseUrl: yup.string().required().label("License URL"),
+    licenseUrl: yup
+      .string()
+      .required("Please provide a link to your professional license.")
+      .matches(urlRegExp, "Please enter a valid URL.")
+      .label("License URL"),
     acceptsHouseCalls: yup.boolean().required().label("Accepts House Calls"),
     acceptsInClinic: yup.boolean().required().label("Accepts In Clinic"),
   });
@@ -114,7 +131,14 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
   };
 
   const handleNext = (values) => {
+    if (!values.acceptsHouseCalls && !values.acceptsInClinic) {
+      setShowInvalidFieldError(true);
+      return;
+    }
     Promise.all([
+      ReviewSchema.validateAt("profession", values),
+      ReviewSchema.validateAt("summary", values),
+      ReviewSchema.validateAt("services", values),
       ReviewSchema.validateAt("profession", values),
       ReviewSchema.validateAt("addressL1", values),
       ReviewSchema.validateAt("addressL2", values),
@@ -264,6 +288,17 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
           <Text style={styles.label}>
             I am open to traveling to clients for our appointments
           </Text>
+        </View>
+        <View>
+          {showInvalidFieldError &&
+          !props.values.acceptsHouseCalls &&
+          !props.values.acceptsInClinic ? (
+            <Text style={styles.errorText}>
+              Please select at least one option for appointment location
+            </Text>
+          ) : (
+            <></>
+          )}
         </View>
         <Text style={styles.subheaderText}>
           {props.values.acceptsInClinic
@@ -502,6 +537,16 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
                 validationSchema={ReviewSchema}
                 onSubmit={async (values, actions) => {
                   const servicesChanged = hasServicesChanged(therapist, values);
+                  ReviewSchema.validateAt("licenseUrl", values)
+                    .then(() => {
+                      setShowInvalidFieldError(false);
+                      setCurrentStep(currentStep + 1);
+                    })
+                    .catch((err) => {
+                      setShowInvalidFieldError(true);
+                      return;
+                    });
+
                   const editTherapistObject = {
                     ...values,
                     servicesChanged: servicesChanged,
@@ -551,8 +596,10 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
               >
                 {(props) => (
                   <>
-                    {currentStep === 1 && <ServicesStep {...props} />}
-                    {currentStep === 2 && <LicenseStep {...props} />}
+                    {currentStep === SERVICES_STEP && (
+                      <ServicesStep {...props} />
+                    )}
+                    {currentStep === LICENSE_STEP && <LicenseStep {...props} />}
                   </>
                 )}
               </Formik>
@@ -754,6 +801,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     width: "100%",
+    marginTop: "20%",
   },
 });
 
