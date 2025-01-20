@@ -74,8 +74,9 @@ function AthleteForm(props) {
   const [hasAttempted, setHasAttempted] = useState(false);
   const [verified, setVerified] = useState(false);
   const [dob, setDob] = useState(null);
-  const [hasChangedDate, setHasChangedDate] = useState(false);
   const [isAboveAge, setIsAboveAge] = useState(false);
+  const [showAboveAgeError, setShowAboveAgeError] = useState(false);
+
 
   useEffect(() => {
     if (currentStep === SMS_VERIFICATION_STEP) {
@@ -143,17 +144,17 @@ function AthleteForm(props) {
   };
 
   const handleDateChange = (event, selectedDate) => {
-    setHasChangedDate(true);
-
-    // convert selectedDate to local date considering time zone
-    const selectedDateLocal = new Date(
-      selectedDate.getTime() + selectedDate.getTimezoneOffset() * 60000
-    );
-    setDob(selectedDateLocal);
-    if (checkAge(selectedDateLocal)) {
-      setIsAboveAge(true);
-    } else {
-      setIsAboveAge(false);
+    if (!selectedDate) {
+      return;
+    }
+    try {
+      // convert selectedDate to local date considering time zone
+      const selectedDateLocal = new Date(
+        selectedDate.getTime() + selectedDate.getTimezoneOffset() * 60000
+      );
+      setDob(selectedDateLocal);
+    } catch (error) {
+      console.warn("Error setting date of birth: ", error);
     }
   };
 
@@ -216,6 +217,17 @@ function AthleteForm(props) {
     } else if (!!phoneAvailable && !!emailAvailable) {
       setAthleteForm(values);
       setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handleNextDob = async () => {
+    let aboveAge = await checkAge(dob);
+    if (aboveAge) {
+      setIsAboveAge(true);
+      setCurrentStep(currentStep + 1);
+    } else {
+      setIsAboveAge(false);
+      setShowAboveAgeError(true);
     }
   };
 
@@ -487,21 +499,19 @@ function AthleteForm(props) {
           shouldCloseOnSelect={false}
         />
 
-        {!!hasChangedDate && !isAboveAge && (
+        {showAboveAgeError && (
           <Text style={styles.errorText}>
             You must be at least 18 years old to use SportStretch.
           </Text>
         )}
         <View style={styles.buttonContainer}>
-          {!!isAboveAge && (
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => setCurrentStep(currentStep + 1)}
-              type="button"
-            >
-              <Text style={styles.buttonText}>Next</Text>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => handleNextDob()}
+            type="button"
+          >
+            <Text style={styles.buttonText}>Next</Text>
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.button}

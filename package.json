@@ -23,7 +23,6 @@
     "@twotalltotems/react-native-otp-input": "^1.3.11",
     "apisauce": "^2.1.2",
     "aws-sdk": "^2.1649.0",
-    "email-existence": "^0.1.6",
     "expo": "~50.0.20",
     "expo-app-loading": "^2.1.1",
     "expo-blur": "~12.9.2",

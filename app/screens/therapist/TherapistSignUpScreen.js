@@ -885,7 +885,7 @@ function TherapistForm(props) {
           value={props.values.password}
           keyboardType="visible-password"
           onBlur={props.handleBlur("password")}
-          textContentType="newPassword"
+          textContentType="password"
           secureTextEntry={true}
         />
       </View>
@@ -912,7 +912,7 @@ function TherapistForm(props) {
           value={props.values.confirmPassword}
           keyboardType="visible-password"
           onBlur={props.handleBlur("confirmPassword")}
-          textContentType="newPassword"
+          textContentType="password"
           secureTextEntry={true}
         />
       </View>
