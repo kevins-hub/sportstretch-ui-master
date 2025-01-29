@@ -14,7 +14,7 @@ const handleError = (response) => {
   }
   Alert.alert(
     "Error",
-    `There was an error processing your request: ${response.data}. Please try again. You have not been charged.`,
+    `There was an error processing your request: ${response.data}. Please try again.`,
     [
       {
         text: "OK",

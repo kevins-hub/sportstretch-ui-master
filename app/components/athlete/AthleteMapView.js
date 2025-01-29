@@ -75,7 +75,7 @@ function AthleteMapView({
                 longitude: marker.longitude,
               }}
             >
-              {marker.therapistId == selectedTherapist.therapist_id ? (
+              {selectedTherapist && marker.therapistId == selectedTherapist.therapist_id ? (
                 <FontAwesome5
                   name="map-marker-alt"
                   size={40}
