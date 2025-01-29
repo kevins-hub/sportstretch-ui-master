@@ -78,7 +78,6 @@ function BookModal({
   const statesItemsObj = Object.entries(states).map(([abbr, name]) => {
     return { label: abbr, value: abbr };
   });
-  console.log(statesItemsObj);
 
   const [availableDateTimes, setAvailableDateTimes] = useState([]);
   const [timeStrDateTimeMap, setTimeStrDateTimeMap] = useState({});
@@ -146,6 +145,7 @@ function BookModal({
   const getAvailableTimes = async (date, duration) => {
     // get time intervals between open and close time in 30 minnute increments that are not already booked
     let bookings = await getBookingsOnDate(date);
+    console.warn("bookings", bookings);
 
     bookings = bookings.filter(
       (booking) =>
@@ -204,7 +204,8 @@ function BookModal({
         convertDateTimeToLocalTimeStr(dateTime);
       return { key: id, text: dateTime.toISOString() };
     });
-
+    console.warn("availableDateTimeStrs", availableDateTimeStrs);
+    console.log("availableDateTimeStrs", availableDateTimeStrs);
     setAvailableDateTimes(availableDateTimeStrs);
     setTimeStrDateTimeMap(timeStrMap);
     return;
@@ -263,6 +264,7 @@ function BookModal({
   // let minDate = new Date();
 
   useEffect(() => {
+    console.log("hello");
     getAvailableTimes(selectedDateTime, appointmentDuration);
   }, [selectedDateTime, appointmentDuration]);
 
@@ -275,6 +277,7 @@ function BookModal({
   // };
 
   const handleDateChange = (event, selectedDate) => {
+    console.warn("selectedDate", selectedDate);
     setShowPicker(false); // Close the picker
     if (selectedDate) {
       setSelectedDateTime(selectedDate);
@@ -625,6 +628,7 @@ function BookModal({
                       <TouchableOpacity
                         title="Select Date"
                         onPress={() => setShowPicker(true)}
+                        onChange={handleDateChange}
                         style={styles.selectDateButton}
                       >
                         <Text style={styles.primaryButtonText}>
