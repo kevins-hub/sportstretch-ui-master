@@ -26,6 +26,10 @@
       "distribution": "internal",
       "ios": {
         "simulator": true
+      },
+      "android": {
+        "distribution": "internal",
+        "withoutCredentials": true
       }
     },
     "preview": {

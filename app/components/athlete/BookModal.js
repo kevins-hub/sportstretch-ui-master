@@ -18,6 +18,7 @@ import {
   Alert,
   Image,
   KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import Checkbox from "expo-checkbox";
 // import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -45,7 +46,7 @@ import {
   SimpleLineIcons,
 } from "@expo/vector-icons";
 import { STRIPE_P_KEY_TEST } from "@env";
-import { useHeaderHeight } from '@react-navigation/elements'
+import { useHeaderHeight } from "@react-navigation/elements";
 
 function BookModal({
   visible,
@@ -144,6 +145,7 @@ function BookModal({
   const getAvailableTimes = async (date, duration) => {
     // get time intervals between open and close time in 30 minnute increments that are not already booked
     let bookings = await getBookingsOnDate(date);
+    console.warn("bookings", bookings);
 
     bookings = bookings.filter(
       (booking) =>
@@ -202,7 +204,8 @@ function BookModal({
         convertDateTimeToLocalTimeStr(dateTime);
       return { key: id, text: dateTime.toISOString() };
     });
-
+    console.warn("availableDateTimeStrs", availableDateTimeStrs);
+    console.log("availableDateTimeStrs", availableDateTimeStrs);
     setAvailableDateTimes(availableDateTimeStrs);
     setTimeStrDateTimeMap(timeStrMap);
     return;
@@ -223,7 +226,7 @@ function BookModal({
   );
   const [selectedDateTime, setSelectedDateTime] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState(new Date());
-
+  const [showPicker, setShowPicker] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [termsAndConditionModal, setTermsAndConditionModal] = useState(false);
@@ -261,6 +264,7 @@ function BookModal({
   // let minDate = new Date();
 
   useEffect(() => {
+    console.log("hello");
     getAvailableTimes(selectedDateTime, appointmentDuration);
   }, [selectedDateTime, appointmentDuration]);
 
@@ -268,8 +272,16 @@ function BookModal({
     return timeStrDateTimeMap[dateTimeISOString];
   };
 
+  // const handleDateChange = (event, selectedDate) => {
+  //   setSelectedDateTime(selectedDate);
+  // };
+
   const handleDateChange = (event, selectedDate) => {
-    setSelectedDateTime(selectedDate);
+    console.warn("selectedDate", selectedDate);
+    setShowPicker(false); // Close the picker
+    if (selectedDate) {
+      setSelectedDateTime(selectedDate);
+    }
   };
 
   const handleNewTimeSlot = (time) => {
@@ -586,116 +598,146 @@ function BookModal({
             Book your appointment with {therapistName}!
           </Text>
           <KeyboardAvoidingView
-                  // change padding to height for android devices  platform === ios ? padding : height
-                  behavior="padding"
-                  style={{ flex: 1 }}
-                >
-          <View style={styles.appointmentScrollViewContainer}>
-            <ScrollView
-              style={styles.appointmentDetailsScrollView}
-              keyboardShouldPersistTaps="handled"
-            >
-              <View style={styles.rateContainer}>
-                <Text style={styles.propTitle}>Hourly Rate:</Text>
-                <Text style={styles.propText}>${therapistHourly}</Text>
-              </View>
-              <View style={styles.propContainer}>
-                <Text style={styles.propTitle}>Date & Time:</Text>
-                <DateTimePicker
-                  testID="dateTimePicker"
-                  value={selectedDateTime}
-                  mode="date"
-                  display="default"
-                  onChange={handleDateChange}
-                  style={styles.datePicker}
-                  minimumDate={minDate}
-                />
-                <View style={styles.timeSlotContainer}>
-                  {availableDateTimes.length > 0 ? (
-                    availableDateTimes.map((item) => {
-                      return (
-                        <TouchableOpacity
-                          key={item.key}
-                          style={
-                            selectedTime.toLocaleString() ==
-                            new Date(item.text).toLocaleString()
-                              ? styles.timeSlotButtonSelected
-                              : styles.timeSlotButton
-                          }
-                          onPress={() => {
-                            handleNewTimeSlot(new Date(item.text));
-                            // setSelectedDateTime(new Date(item.text));
-                          }}
-                        >
-                          <Text
+            // change padding to height for android devices  platform === ios ? padding : height
+            behavior="padding"
+            style={{ flex: 1 }}
+          >
+            <View style={styles.appointmentScrollViewContainer}>
+              <ScrollView
+                style={styles.appointmentDetailsScrollView}
+                keyboardShouldPersistTaps="handled"
+              >
+                <View style={styles.rateContainer}>
+                  <Text style={styles.propTitle}>Hourly Rate:</Text>
+                  <Text style={styles.propText}>${therapistHourly}</Text>
+                </View>
+                <View style={styles.propContainer}>
+                  <Text style={styles.propTitle}>Date & Time:</Text>
+                  {Platform.OS === "ios" ? (
+                    <DateTimePicker
+                      testID="dateTimePicker"
+                      value={selectedDateTime || new Date()}
+                      mode="date"
+                      display="default"
+                      onChange={handleDateChange}
+                      style={styles.datePicker}
+                      minimumDate={minDate}
+                    />
+                  ) : (
+                    <View>
+                      <TouchableOpacity
+                        title="Select Date"
+                        onPress={() => setShowPicker(true)}
+                        onChange={handleDateChange}
+                        style={styles.selectDateButton}
+                      >
+                        <Text style={styles.primaryButtonText}>
+                          {"Select Date"}
+                        </Text>
+                      </TouchableOpacity>
+
+                      {showPicker && (
+                        <DateTimePicker
+                          testID="dateTimePicker"
+                          value={selectedDateTime}
+                          mode="date"
+                          display="default"
+                          onChange={handleDateChange}
+                          style={styles.datePicker}
+                          minimumDate={new Date()} // Example minimum date
+                        />
+                      )}
+                      <Text style={styles.selectedDate}>
+                        {selectedDateTime.toLocaleDateString()}
+                      </Text>
+                    </View>
+                  )}
+                  <View style={styles.timeSlotContainer}>
+                    {availableDateTimes.length > 0 ? (
+                      availableDateTimes.map((item) => {
+                        return (
+                          <TouchableOpacity
                             key={item.key}
                             style={
                               selectedTime.toLocaleString() ==
                               new Date(item.text).toLocaleString()
-                                ? styles.timeSlotButtonSelectedText
-                                : styles.timeSlotButtonText
+                                ? styles.timeSlotButtonSelected
+                                : styles.timeSlotButton
                             }
+                            onPress={() => {
+                              handleNewTimeSlot(new Date(item.text));
+                              // setSelectedDateTime(new Date(item.text));
+                            }}
                           >
-                            {getTimeFromMap(item.text)}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })
-                  ) : (
-                    <Text>No more availability on this date.</Text>
-                  )}
+                            <Text
+                              key={item.key}
+                              style={
+                                selectedTime.toLocaleString() ==
+                                new Date(item.text).toLocaleString()
+                                  ? styles.timeSlotButtonSelectedText
+                                  : styles.timeSlotButtonText
+                              }
+                            >
+                              {getTimeFromMap(item.text)}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      })
+                    ) : (
+                      <Text>No more availability on this date.</Text>
+                    )}
+                  </View>
                 </View>
-              </View>
-              <View style={styles.propContainer}>
-                <Text style={styles.propTitle}>Duration:</Text>
-                {/* Dropdown menu */}
-                <View>
-                  <RNPickerSelect
-                    onValueChange={async (value) => {
-                      await handleDurationChange(value);
-                    }}
-                    items={
-                      appointmentDurationOptions
-                        ? appointmentDurationOptions
-                        : [
-                            { label: "1 Hour", value: 1 },
-                            { label: "2 Hours", value: 2 },
-                            { label: "3 Hours", value: 3 },
-                            { label: "4 Hours", value: 4 },
-                            { label: "5 Hours", value: 5 },
-                            { label: "6 Hours", value: 6 },
-                            { label: "7 Hours", value: 7 },
-                            { label: "8 Hours", value: 8 },
-                          ]
-                    }
-                    placeholder={{
-                      label: "Select duration for appointment",
-                      value: 0,
-                    }}
-                    value={appointmentDuration}
-                    style={styles.durationPicker}
+                <View style={styles.propContainer}>
+                  <Text style={styles.propTitle}>Duration:</Text>
+                  {/* Dropdown menu */}
+                  <View>
+                    <RNPickerSelect
+                      onValueChange={async (value) => {
+                        await handleDurationChange(value);
+                      }}
+                      items={
+                        appointmentDurationOptions
+                          ? appointmentDurationOptions
+                          : [
+                              { label: "1 Hour", value: 1 },
+                              { label: "2 Hours", value: 2 },
+                              { label: "3 Hours", value: 3 },
+                              { label: "4 Hours", value: 4 },
+                              { label: "5 Hours", value: 5 },
+                              { label: "6 Hours", value: 6 },
+                              { label: "7 Hours", value: 7 },
+                              { label: "8 Hours", value: 8 },
+                            ]
+                      }
+                      placeholder={{
+                        label: "Select duration for appointment",
+                        value: 0,
+                      }}
+                      value={appointmentDuration}
+                      style={styles.durationPicker}
+                    />
+                  </View>
+                </View>
+                <View style={styles.rateContainer}>
+                  <Text style={styles.propTitle}>Subtotal:</Text>
+                  <Text style={styles.propText}>
+                    {appointmentDuration === 0
+                      ? "(Select a duration)"
+                      : `$${subTotal}`}
+                  </Text>
+                </View>
+                <View style={styles.locationFormContainer}>
+                  <Text style={styles.propTitle}>Location:</Text>
+                  <RadioGroup
+                    radioButtons={locations}
+                    onPress={setSelectedLocationOption}
+                    flexDirection="column"
+                    selectedId={selectedLocationOption}
+                    containerStyle={styles.radioGroup}
                   />
                 </View>
-              </View>
-              <View style={styles.rateContainer}>
-                <Text style={styles.propTitle}>Subtotal:</Text>
-                <Text style={styles.propText}>
-                  {appointmentDuration === 0
-                    ? "(Select a duration)"
-                    : `$${subTotal}`}
-                </Text>
-              </View>
-              <View style={styles.locationFormContainer}>
-                <Text style={styles.propTitle}>Location:</Text>
-                <RadioGroup
-                  radioButtons={locations}
-                  onPress={setSelectedLocationOption}
-                  flexDirection="column"
-                  selectedId={selectedLocationOption}
-                  containerStyle={styles.radioGroup}
-                />
-              </View>
-              {selectedLocationOption === "2" ? (
+                {selectedLocationOption === "2" ? (
                   <View style={styles.propContainer}>
                     <Text style={styles.propTitle}>Your Location:</Text>
 
@@ -753,14 +795,20 @@ function BookModal({
                       <View style={{ marginHorizontal: "10%", width: "45%" }}>
                         <View style={styles.inputContainerState}>
                           <RNPickerSelect
-                            placeholder={{ label: "State", value: "" }}
+                            useNativeAndroidPickerStyle={false}
+                            style={{
+                              inputAndroid: {
+                                justifyContent: "center",
+                                fontSize: 15,
+                                paddingLeft: 7,
+
+                                paddingTop: 10,
+                              },
+                            }}
+                            placeholder={{ label: "State", value: null }}
                             value={values.state}
                             onValueChange={handleChange("state")}
-                            items={
-                              statesItemsObj
-                                ? statesItemsObj
-                                : [{ label: "CA", value: "California" }]
-                            }
+                            items={statesItemsObj}
                           ></RNPickerSelect>
                         </View>
                         {touched.state && errors.state && (
@@ -791,14 +839,14 @@ function BookModal({
                       <Text style={styles.errorText}>{errors.zipcode}</Text>
                     )}
                   </View>
-              ) : (
-                <Text style={styles.clinicInfoText}>
-                  Clinic address will be provided upon confirmation of
-                  appointment.
-                </Text>
-              )}
-            </ScrollView>
-          </View>
+                ) : (
+                  <Text style={styles.clinicInfoText}>
+                    Clinic address will be provided upon confirmation of
+                    appointment.
+                  </Text>
+                )}
+              </ScrollView>
+            </View>
           </KeyboardAvoidingView>
           <View style={styles.buttonContainer}>
             <TouchableOpacity
@@ -1120,10 +1168,20 @@ const styles = StyleSheet.create({
     marginTop: "5%",
   },
   inputContainerState: {
-    borderWidth: 1,
-    borderRadius: 15,
-    paddingVertical: "4%",
-    paddingHorizontal: "7%",
+    ...Platform.select({
+      ios: {
+        borderWidth: 1,
+        borderRadius: 15,
+        paddingVertical: "4%",
+        paddingHorizontal: "7%",
+      },
+      android: {
+        borderWidth: 1,
+        borderRadius: 15,
+        height: 40,
+        paddingBottom: 10,
+      },
+    }),
   },
   inputContainerZip: {
     flexDirection: "row",
@@ -1132,7 +1190,7 @@ const styles = StyleSheet.create({
     padding: "2%",
     // marginHorizontal: "10%",
     marginRight: "9%",
-    marginTop: "2%",
+    marginTop: "5%",
   },
   datePicker: {
     alignItems: "left",
@@ -1181,6 +1239,20 @@ const styles = StyleSheet.create({
     height: 30,
     margin: 5,
     marginBottom: 0,
+  },
+  selectDateButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+    height: 30,
+  },
+  selectedDate: {
+    textAlign: "center",
+    padding: 6,
+    fontWeight: "bold",
+    fontSize: 20,
   },
   previousButton: {
     backgroundColor: colors.secondary,
