@@ -29,11 +29,6 @@ export default {
         backgroundColor: "#FFFFFF",
       },
       package: "com.sportstretchusa.sportstretch",
-      config: {
-        googleMaps: {
-          apiKey: "AIzaSyA9dj4iyDXLYqs396hnJrzbxbQijVHN4UA",
-        }
-      }
     },
     
       plugins: [
