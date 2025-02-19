@@ -19,12 +19,16 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
+  UIManager,
 } from "react-native";
 import Checkbox from "expo-checkbox";
 // import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import { TextInput, ScrollView } from "react-native-gesture-handler";
-import { BlurView } from "expo-blur";
+// import { BlurView } from "expo-blur";
+// import { BlurView } from "@react-native-community/blur";
+import { BlurView as ExpoBlurView } from "expo-blur";
+import { BlurView as RNBlurView } from "@react-native-community/blur";
 import Constants from "expo-constants";
 import bookingsApi from "../../api/bookings";
 import ProgressIndicator from "./ProgressIndicator";
@@ -987,6 +991,21 @@ function BookModal({
     </View>
   );
 
+  const UnifiedBlurView = ({ children, style }) => {
+    const BlurComponent = Platform.OS === "ios" ? ExpoBlurView : RNBlurView;
+
+    return (
+      <BlurComponent
+        intensity={50}
+        blurType="light"
+        blurAmount={10}
+        style={style}
+      >
+        {children}
+      </BlurComponent>
+    );
+  };
+
   return (
     <StripeProvider
       publishableKey={
@@ -1004,7 +1023,7 @@ function BookModal({
         visible={visible}
         onRequestClose={() => {}}
       >
-        <BlurView intensity={50} style={styles.centeredView}>
+        <UnifiedBlurView style={styles.centeredView}>
           <View style={styles.modalView}>
             {/* <KeyboardAvoidingView
               // change padding to height for android devices  platform === ios ? padding : height
@@ -1024,7 +1043,7 @@ function BookModal({
             )}
             {/* </KeyboardAvoidingView> */}
           </View>
-        </BlurView>
+        </UnifiedBlurView>
       </Modal>
     </StripeProvider>
   );
