@@ -2,12 +2,18 @@ import React, { useState, useContext } from "react";
 import { Modal, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { TextInput, ScrollView } from "react-native-gesture-handler";
-import { BlurView } from "expo-blur";
 import Constants from "expo-constants";
 import colors from "../../config/colors";
 import SearchTherapist from "./SearchTherapist";
 
-function SetStateModal({ user, visible, setVisibility, getTherapists, setAthleteRegion, athleteRegion }) {
+function SetStateModal({
+  user,
+  visible,
+  setVisibility,
+  getTherapists,
+  setAthleteRegion,
+  athleteRegion,
+}) {
   if (!visible) return null;
 
   const navigation = useNavigation();
@@ -19,17 +25,23 @@ function SetStateModal({ user, visible, setVisibility, getTherapists, setAthlete
       visible={visible}
       onRequestClose={() => {}}
     >
-      <BlurView intensity={50} style={styles.centeredView}>
+      <View intensity={50} style={styles.centeredView}>
         <View style={styles.modalView}>
-          <Text style={styles.modalText}>
-            Oops!
-          </Text>
+          <Text style={styles.modalText}>Oops!</Text>
           <Text style={styles.labelText}>
-            We have detected that you currently have location services disabled. Please enable and restart app for the best experience or choose the state you are looking for treatment in.
+            We have detected that you currently have location services disabled.
+            Please enable and restart app for the best experience or choose the
+            state you are looking for treatment in.
           </Text>
-          <SearchTherapist getTherapists={getTherapists} isInModal={true} setModalVisibility={setVisibility} setAthleteRegion={setAthleteRegion} currentState={athleteRegion}></SearchTherapist>
+          <SearchTherapist
+            getTherapists={getTherapists}
+            isInModal={true}
+            setModalVisibility={setVisibility}
+            setAthleteRegion={setAthleteRegion}
+            currentState={athleteRegion}
+          ></SearchTherapist>
         </View>
-      </BlurView>
+      </View>
     </Modal>
   );
 }
@@ -43,6 +55,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: Constants.statusBarHeight,
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalView: {
     backgroundColor: "white",

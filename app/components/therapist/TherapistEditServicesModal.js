@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { TextInput, ScrollView } from "react-native-gesture-handler";
-import { BlurView } from "expo-blur";
 import Constants from "expo-constants";
 import colors from "../../config/colors";
 import * as yup from "yup";
@@ -509,7 +508,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
       visible={visible}
       onRequestClose={() => {}}
     >
-      <BlurView intensity={50} style={styles.centeredView}>
+      <View style={styles.centeredView}>
         <KeyboardAvoidingView
           // change padding to height for android devices  platform === ios ? padding : height
           behavior="padding"
@@ -606,7 +605,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
             </ScrollView>
           </View>
         </KeyboardAvoidingView>
-      </BlurView>
+      </View>
     </Modal>
   );
 }
@@ -619,7 +618,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: Constants.statusBarHeight,
+    marginTop: Constants.statusBarHeight + 100,
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalView: {
     backgroundColor: "white",

@@ -9,7 +9,6 @@ import {
   Button,
   Alert,
 } from "react-native";
-import { BlurView } from "expo-blur";
 import Constants from "expo-constants";
 import { Formik } from "formik";
 import RNPickerSelect from "react-native-picker-select";
@@ -86,12 +85,6 @@ const TherapistAppointmentDeclineModal = ({
       onRequestClose={() => setModalVisible(false)}
     >
       <View style={styles.modalContainer}>
-        <BlurView
-          style={StyleSheet.absoluteFill}
-          blurType="light"
-          blurAmount={10}
-          reducedTransparencyFallbackColor="white"
-        />
         <View style={styles.modalContent}>
           <Formik
             initialValues={{ reason: "", date: new Date(), time: new Date() }}
@@ -121,7 +114,11 @@ const TherapistAppointmentDeclineModal = ({
                       placeholder={{ label: "Select a Reason", value: "" }}
                       onValueChange={handleChange("reason")}
                       onBlur={handleBlur("reason")}
-                      items={reasonOptionsObj ? reasonOptionsObj : [{ label: "Other", value: "Other" }]}
+                      items={
+                        reasonOptionsObj
+                          ? reasonOptionsObj
+                          : [{ label: "Other", value: "Other" }]
+                      }
                       value={values.reason}
                     />
                   </View>
@@ -196,6 +193,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalContent: {
     width: 300,

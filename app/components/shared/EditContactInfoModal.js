@@ -9,7 +9,6 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import { TextInput, ScrollView } from "react-native-gesture-handler";
-import { BlurView } from "expo-blur";
 import Constants from "expo-constants";
 import colors from "../../config/colors";
 import * as yup from "yup";
@@ -172,7 +171,7 @@ function EditContactInfoModal({
         behavior="padding"
         style={{ flex: 1 }}
       >
-        <BlurView intensity={50} style={styles.centeredView}>
+        <View style={styles.centeredView}>
           <View style={isAthlete ? styles.modalViewAthlete : styles.modalView}>
             <Text style={styles.modalText}>Edit Contact Info</Text>
             <Formik
@@ -345,7 +344,7 @@ function EditContactInfoModal({
               )}
             </Formik>
           </View>
-        </BlurView>
+        </View>
       </KeyboardAvoidingView>
     </Modal>
   );
@@ -360,6 +359,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: Constants.statusBarHeight,
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalViewAthlete: {
     backgroundColor: "white",
