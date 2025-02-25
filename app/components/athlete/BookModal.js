@@ -22,7 +22,6 @@ import {
   UIManager,
 } from "react-native";
 import Checkbox from "expo-checkbox";
-// import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import { TextInput, ScrollView } from "react-native-gesture-handler";
 import Constants from "expo-constants";
