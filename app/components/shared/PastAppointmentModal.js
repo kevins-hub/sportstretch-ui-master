@@ -11,7 +11,6 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
-import { BlurView } from "expo-blur";
 import Constants from "expo-constants";
 import colors from "../../config/colors";
 import AthleteAppointmentDetails from "../athlete/AthleteAppointmentDetails";
@@ -145,12 +144,12 @@ function PastAppointmentModal({ booking, setVisibility, visible }) {
       onRequestClose={() => {}}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <BlurView intensity={50} style={styles.centeredView}>
+        <View style={styles.centeredView}>
           <View style={styles.modalView}>
             {currentStep === 1 && <AppointmentDetailsStep />}
             {currentStep === 2 && <ReportIssueStep />}
           </View>
-        </BlurView>
+        </View>
       </TouchableWithoutFeedback>
     </Modal>
   );
@@ -162,6 +161,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: Constants.statusBarHeight,
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalView: {
     backgroundColor: "white",

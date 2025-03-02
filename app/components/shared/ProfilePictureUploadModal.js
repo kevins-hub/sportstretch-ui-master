@@ -9,7 +9,6 @@ import {
   TextInput,
   Alert,
 } from "react-native";
-import { BlurView } from "expo-blur";
 import Constants from "expo-constants";
 import colors from "../../config/colors";
 import AthleteAppointmentDetails from "../athlete/AthleteAppointmentDetails";
@@ -68,7 +67,7 @@ function ProfilePictureUploadModal({
       visible={visible}
       onRequestClose={() => {}}
     >
-      <BlurView intensity={50} style={styles.centeredView}>
+      <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <ProgressIndicator visible={uploadProgress} />
           <DoneIndicator visible={uploadDone} />
@@ -100,7 +99,7 @@ function ProfilePictureUploadModal({
             </>
           )}
         </View>
-      </BlurView>
+      </View>
     </Modal>
   );
 }
@@ -111,6 +110,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: Constants.statusBarHeight,
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalView: {
     backgroundColor: "white",

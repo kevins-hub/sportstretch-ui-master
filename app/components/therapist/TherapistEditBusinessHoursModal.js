@@ -2,7 +2,6 @@ import React, { useState, useContext } from "react";
 import { Modal, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { TextInput, ScrollView } from "react-native-gesture-handler";
-import { BlurView } from "expo-blur";
 import Constants from "expo-constants";
 import notificationsApi from "../../api/notifications";
 import AuthContext from "../../auth/context";
@@ -41,7 +40,10 @@ function TherapistEditBusinessHoursModal({
 
   const handleSubmit = async () => {
     try {
-      const response = await therapists.editTherapistHours(therapistId, editedBusinessHours);
+      const response = await therapists.editTherapistHours(
+        therapistId,
+        editedBusinessHours
+      );
       if (handleError(response)) return;
       setVisibility(false);
     } catch (e) {
@@ -56,7 +58,7 @@ function TherapistEditBusinessHoursModal({
       visible={visible}
       onRequestClose={() => {}}
     >
-      <BlurView intensity={50} style={styles.centeredView}>
+      <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <TherapistBusinessHours
             businessHours={editedBusinessHours}
@@ -77,7 +79,7 @@ function TherapistEditBusinessHoursModal({
             </TouchableOpacity>
           </View>
         </View>
-      </BlurView>
+      </View>
     </Modal>
   );
 }
@@ -91,6 +93,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: Constants.statusBarHeight,
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalView: {
     backgroundColor: "white",

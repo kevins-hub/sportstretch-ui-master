@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { Modal, StyleSheet, View } from "react-native";
-import { BlurView } from "expo-blur";
 import { Text, TouchableOpacity } from "react-native";
 import colors from "../../config/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -17,7 +16,7 @@ import authStorage from "../../auth/storage";
 
 function DeleteAccountModal({ visible, setVisibility, authId }) {
   if (!visible) return null;
-  
+
   const navigation = useNavigation();
   const { user, setUser } = useContext(AuthContext);
   const onDeletePress = async (values) => {
@@ -25,16 +24,16 @@ function DeleteAccountModal({ visible, setVisibility, authId }) {
     const deleteInputText = values.delete.toLowerCase();
 
     if (deleteInputText !== "delete") {
-        return;
+      return;
     }
 
     try {
-        await registerApi.deleteAccount(authId);
-        setUser(null);
-        await authStorage.removeToken();
-        navigation.navigate("Login");
+      await registerApi.deleteAccount(authId);
+      setUser(null);
+      await authStorage.removeToken();
+      navigation.navigate("Login");
     } catch (error) {
-        console.log("Error deleting account", error);
+      console.log("Error deleting account", error);
     }
   };
 
@@ -45,46 +44,45 @@ function DeleteAccountModal({ visible, setVisibility, authId }) {
       visible={visible}
       onRequestClose={() => {}}
     >
-      <BlurView intensity={50} style={styles.centeredView}>
+      <View style={styles.centeredView}>
         <Formik
-            initialValues={
-                { delete: "" }
-            }
-            onSubmit={(values, actions) => {
-                onDeletePress(values);
-            }}>
-            {(props) => (
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalText}>
-                            Are you sure you want to delete your account?
-                            This action cannot be undone.
-                        </Text>
-                        <Text style={styles.modalText}>Type 'delete' to confirm</Text>
-                        <TextInput
-                            style={styles.input}
-                            value={props.values.delete}
-                            onChangeText={props.handleChange("delete")}
-                            onBlur={props.handleBlur("delete")}
-                            placeholder="Type here"
-                        />
-                        <View style={styles.buttonContainer}>
-                            <TouchableOpacity
-                                style={styles.cancelButton}
-                                onPress={() => setVisibility(false)}
-                            >
-                                <Text style={styles.buttonText}>Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={styles.deleteButton}
-                                onPress={props.handleSubmit}
-                            >
-                                <Text style={styles.buttonText}>Delete</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-            )}
+          initialValues={{ delete: "" }}
+          onSubmit={(values, actions) => {
+            onDeletePress(values);
+          }}
+        >
+          {(props) => (
+            <View style={styles.modalView}>
+              <Text style={styles.modalText}>
+                Are you sure you want to delete your account? This action cannot
+                be undone.
+              </Text>
+              <Text style={styles.modalText}>Type 'delete' to confirm</Text>
+              <TextInput
+                style={styles.input}
+                value={props.values.delete}
+                onChangeText={props.handleChange("delete")}
+                onBlur={props.handleBlur("delete")}
+                placeholder="Type here"
+              />
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => setVisibility(false)}
+                >
+                  <Text style={styles.buttonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={props.handleSubmit}
+                >
+                  <Text style={styles.buttonText}>Delete</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
         </Formik>
-      </BlurView>
+      </View>
     </Modal>
   );
 }
@@ -94,6 +92,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalView: {
     margin: 20,

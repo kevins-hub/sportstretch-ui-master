@@ -19,12 +19,11 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
+  UIManager,
 } from "react-native";
 import Checkbox from "expo-checkbox";
-// import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import { TextInput, ScrollView } from "react-native-gesture-handler";
-import { BlurView } from "expo-blur";
 import Constants from "expo-constants";
 import bookingsApi from "../../api/bookings";
 import ProgressIndicator from "./ProgressIndicator";
@@ -986,7 +985,6 @@ function BookModal({
       </View>
     </View>
   );
-
   return (
     <StripeProvider
       publishableKey={
@@ -1004,7 +1002,7 @@ function BookModal({
         visible={visible}
         onRequestClose={() => {}}
       >
-        <BlurView intensity={50} style={styles.centeredView}>
+        <View style={styles.centeredView}>
           <View style={styles.modalView}>
             {/* <KeyboardAvoidingView
               // change padding to height for android devices  platform === ios ? padding : height
@@ -1024,7 +1022,7 @@ function BookModal({
             )}
             {/* </KeyboardAvoidingView> */}
           </View>
-        </BlurView>
+        </View>
       </Modal>
     </StripeProvider>
   );
@@ -1036,6 +1034,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: Constants.statusBarHeight,
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalView: {
     backgroundColor: "white",
@@ -1050,7 +1049,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    height: "88%",
+    height: "80%",
     width: 300,
   },
   modalContent: {
