@@ -29,13 +29,15 @@ export default {
         backgroundColor: "#FFFFFF",
       },
       package: "com.sportstretchusa.sportstretch",
+      config: {
+        googleMaps: {
+          apiKey: process.env.GOOGLE_MAPS_API_KEY,
+        },
+      },
     },
-    
-      plugins: [
-        "expo-secure-store"
-      ],
-    
-    
+
+    plugins: ["expo-secure-store"],
+
     // plugins: [
     //   [
     //     "react-native-purchases",
@@ -55,4 +57,4 @@ export default {
     },
     owner: "kevohunch0",
   },
-}
+};
