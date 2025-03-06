@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Button } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import MapView, { Marker } from "react-native-maps";
@@ -17,6 +17,7 @@ const initMapRegion = {
 function AthleteMapView({
   markers,
   selectedTherapist,
+  setSelectedTherapist,
   userLocation,
   userRegion,
   onMarkerPress,
@@ -24,10 +25,10 @@ function AthleteMapView({
   const [region, setRegion] = useState(initMapRegion);
 
   useEffect(() => {
-    if (userLocation) {
-      if (stateShortToLong(userRegion) !== selectedTherapist.state) {
-        setRegionToTherapistRegion(selectedTherapist);
-      } else {
+    if (!!selectedTherapist) {
+      setRegionToTherapistRegion(selectedTherapist);
+    } else {
+      if (userLocation) {
         setRegion({
           latitude: userLocation.coords.latitude,
           longitude: userLocation.coords.longitude,
@@ -35,12 +36,26 @@ function AthleteMapView({
           longitudeDelta: 0.25,
         });
       }
-    } else {
-      setRegionToTherapistRegion(selectedTherapist);
     }
+    // console.log("userLocation", userLocation);
+    // if (userLocation) {
+    //   if (stateShortToLong(userRegion) !== selectedTherapist.state) {
+    //     setRegionToTherapistRegion(selectedTherapist);
+    //   } else {
+    //     setRegion({
+    //       latitude: userLocation.coords.latitude,
+    //       longitude: userLocation.coords.longitude,
+    //       latitudeDelta: 0.25,
+    //       longitudeDelta: 0.25,
+    //     });
+    //   }
+    // } else {
+    //   setRegionToTherapistRegion(selectedTherapist);
+    // }
   }, [markers, selectedTherapist]);
 
   const setRegionToTherapistRegion = async (therapist) => {
+    console.log("therapist", therapist);
     let therapistRegion = await Location.geocodeAsync(
       therapist.street + " " + therapist.city + " " + therapist.state
     );
@@ -53,11 +68,27 @@ function AthleteMapView({
       longitudeDelta: 0.25,
     });
     return;
-  }
+  };
 
+  const resetMarkerToUser = () => {
+    console.log("resetMarkerToUser");
+    setRegion({
+      latitude: userLocation.coords.latitude,
+      longitude: userLocation.coords.longitude,
+      latitudeDelta: 0.25,
+      longitudeDelta: 0.25,
+    });
+    setSelectedTherapist(null);
+  };
 
   return (
     <View style={styles.container}>
+      <View style={styles.resetButton}>
+        <Button
+          title="Reset Marker to My Location"
+          onPress={resetMarkerToUser}
+        />
+      </View>
       <MapView
         showsUserLocation
         style={styles.map}
@@ -75,7 +106,8 @@ function AthleteMapView({
                 longitude: marker.longitude,
               }}
             >
-              {selectedTherapist && marker.therapistId == selectedTherapist.therapist_id ? (
+              {selectedTherapist &&
+              marker.therapistId == selectedTherapist.therapist_id ? (
                 <FontAwesome5
                   name="map-marker-alt"
                   size={40}
@@ -105,6 +137,9 @@ const styles = StyleSheet.create({
   map: {
     width: "100%",
     flex: 1,
+  },
+  resetButton: {
+    backgroundColor: "#fff",
   },
 });
 

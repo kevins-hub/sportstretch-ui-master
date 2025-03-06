@@ -11,7 +11,6 @@ function AthleteBookNowCard({ therapist, athleteAddress, selectedTherapist }) {
   if (!therapist) return null;
   if (!therapist.hourly_rate) return null;
 
-
   const [modalVisible, setModalVisible] = useState(false);
   const { user, setUser } = useContext(AuthContext);
 
@@ -151,6 +150,7 @@ const styles = StyleSheet.create({
 
   SelectedContainer: {
     backgroundColor: colors.secondary,
+    // backgroundColor: "black",
     borderRadius: 15,
     shadowColor: "gold",
     shadowOffset: { width: 0, height: 5 },
