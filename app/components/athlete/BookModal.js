@@ -55,9 +55,9 @@ function BookModal({
   athleteLocation,
   therapistName,
   therapistHourly,
+  therapistAcceptsHouseCalls,
   therapistSummary,
   therapistServices,
-  therapistAcceptsHouseCalls,
   therapistBusinessHours,
   therapistStripeAccountId,
   therapistStreet,
@@ -84,11 +84,16 @@ function BookModal({
   const getBookingsOnDate = async (date) => {
     try {
       // convert date to local date string YYYY-MM-DD
+      console.log("date in getBookingsOnDate", date);
       const month =
         date.getMonth() + 1 < 10
           ? "0" + (date.getMonth() + 1)
           : date.getMonth() + 1;
-      const dateStr = date.getFullYear() + "-" + month + "-" + date.getDate();
+
+      const dayDate =
+        date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+      const dateStr = date.getFullYear() + "-" + month + "-" + dayDate;
+      console.log("dateStr", dateStr);
       const response = await bookingsApi.getTherapistBookingsOnDate(
         therapistId,
         dateStr
@@ -263,7 +268,7 @@ function BookModal({
   // let minDate = new Date();
 
   useEffect(() => {
-    console.log("hello");
+    console.log("hello", selectedDateTime);
     getAvailableTimes(selectedDateTime, appointmentDuration);
   }, [selectedDateTime, appointmentDuration]);
 
