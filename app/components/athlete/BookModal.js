@@ -92,7 +92,8 @@ function BookModal({
         date.getMonth() + 1 < 10
           ? "0" + (date.getMonth() + 1)
           : date.getMonth() + 1;
-      const dateStr = date.getFullYear() + "-" + month + "-" + date.getDate();
+      const formattedDay = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+      const dateStr = date.getFullYear() + "-" + month + "-" + formattedDay;
       const response = await bookingsApi.getTherapistBookingsOnDate(
         therapistId,
         dateStr
@@ -148,7 +149,6 @@ function BookModal({
   const getAvailableTimes = async (date, duration) => {
     // get time intervals between open and close time in 30 minnute increments that are not already booked
     let bookings = await getBookingsOnDate(date);
-    console.warn("bookings", bookings);
 
     bookings = bookings.filter(
       (booking) =>
@@ -158,15 +158,9 @@ function BookModal({
 
     const dateDayOfWeek = date.getDay();
 
-    // console.warn("date = ", date);
-
-    // console.warn("dateDayOfWeek = ", dateDayOfWeek);
-
     let schedule = {};
 
     const availableHours = therapistBusinessHours[dateDayOfWeek.toString()];
-
-    // console.warn("availableHours = ", availableHours);
 
     availableHours.forEach(([startTime, endTime]) => {
       getAvailableTimesInTimeSlot(date, duration, startTime, endTime, schedule);
@@ -207,8 +201,6 @@ function BookModal({
         convertDateTimeToLocalTimeStr(dateTime);
       return { key: id, text: dateTime.toISOString() };
     });
-    console.warn("availableDateTimeStrs", availableDateTimeStrs);
-    console.log("availableDateTimeStrs", availableDateTimeStrs);
     setAvailableDateTimes(availableDateTimeStrs);
     setTimeStrDateTimeMap(timeStrMap);
     return;
@@ -267,7 +259,6 @@ function BookModal({
   // let minDate = new Date();
 
   useEffect(() => {
-    console.log("hello");
     getAvailableTimes(selectedDateTime, appointmentDuration);
   }, [selectedDateTime, appointmentDuration]);
 
