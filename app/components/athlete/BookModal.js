@@ -1220,10 +1220,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   appointmentScrollViewContainer: {
-    height: "75%",
+    height: "100%",
   },
   appointmentDetailsScrollView: {
-    height: "50%",
+    height: "100%",
   },
   scrollTherapistDetails: {
     height: "34%",
@@ -1501,7 +1501,6 @@ const styles = StyleSheet.create({
   },
   modalBodyContainer: {
     padding: "5%",
-    height: "60%",
   }
 });
 
