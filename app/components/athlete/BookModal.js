@@ -92,7 +92,8 @@ function BookModal({
         date.getMonth() + 1 < 10
           ? "0" + (date.getMonth() + 1)
           : date.getMonth() + 1;
-      const formattedDay = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+      const formattedDay =
+        date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
       const dateStr = date.getFullYear() + "-" + month + "-" + formattedDay;
       const response = await bookingsApi.getTherapistBookingsOnDate(
         therapistId,
@@ -113,6 +114,20 @@ function BookModal({
     const timeString = hourInt + ":" + minute;
     const dateTimeString = date.toISOString().split("T")[0] + "T" + timeString;
     return new Date(dateTimeString);
+  };
+
+  const hoursTupleToTimeString = (hours) => {
+    // convert [9, 17] to "9:00 AM - 5:00 PM"
+    // convert [9.5, 17] to "9:30 AM - 5:00 PM"
+    let start = hours[0];
+    let end = hours[1];
+    let startStr = start % 12 === 0 ? "12" : Math.floor(start % 12).toString();
+    let endStr = end % 12 === 0 ? "12" : Math.floor(end % 12).toString();
+    let startSuffix = start >= 12 ? "PM" : "AM";
+    let endSuffix = end >= 12 ? "PM" : "AM";
+    let startMinutes = start % 1 === 0.5 ? "30" : "00";
+    let endMinutes = end % 1 === 0.5 ? "30" : "00";
+    return `${startStr}:${startMinutes} ${startSuffix} - ${endStr}:${endMinutes} ${endSuffix}`;
   };
 
   convertDateTimeToLocalTimeStr = (dateTime) => {
@@ -271,7 +286,6 @@ function BookModal({
   // };
 
   const handleDateChange = (event, selectedDate) => {
-    console.warn("selectedDate", selectedDate);
     setShowPicker(false); // Close the picker
     if (selectedDate) {
       setSelectedDateTime(selectedDate);
@@ -514,34 +528,169 @@ function BookModal({
           />
         )}
       </View>
-      <View style={styles.modalBodyContainer}>
-        <View style={styles.propContainer}>
-          <Text style={styles.propTitle}>Your Recovery Specialist:</Text>
-          <Text style={styles.propText}>{therapistName}</Text>
+      <ScrollView
+        style={styles.appointmentDetailsScrollView}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.modalBodyContainer}>
+          <View style={styles.propContainer}>
+            <Text style={styles.propTitle}>Your Recovery Specialist:</Text>
+            <Text style={styles.propText}>{therapistName}</Text>
+          </View>
+          <View style={styles.propContainer}>
+            <Text style={styles.propTitle}>Primary Discipline:</Text>
+            <Text style={styles.propText}>{therapistProfession}</Text>
+          </View>
+          <View style={styles.propContainer}>
+            <Text style={styles.propTitle}>Professional Bio:</Text>
+            <Text style={styles.propText}>{therapistSummary}</Text>
+          </View>
+          <View style={styles.propContainer}>
+            <Text style={styles.propTitle}>Additional Services Offered:</Text>
+            <Text style={styles.propText}>{therapistServices}</Text>
+          </View>
+          <View style={styles.propContainer}>
+            <Text style={styles.propTitle}>Accepts House Calls:</Text>
+            <Text style={styles.propText}>
+              {therapistAcceptsHouseCalls ? "Yes" : "No"}
+            </Text>
+          </View>
+          <View style={styles.rateContainer}>
+            <Text style={styles.propTitle}>Hourly Rate:</Text>
+            <Text style={styles.propText}>${therapistHourly}</Text>
+          </View>
+
+          <View style={styles.propContainer}>
+            <Text style={styles.propTitle}>Operating Hours:</Text>
+            <View style={styles.dayHoursContainer}>
+              <Text>Monday:</Text>
+              <View style={styles.hoursContainer}>
+                {therapistBusinessHours &&
+                therapistBusinessHours["1"] &&
+                therapistBusinessHours["1"].length > 0 ? (
+                  therapistBusinessHours["1"].map((hours) => {
+                    return (
+                      <Text style={styles.hoursText}>
+                        {hoursTupleToTimeString(hours)}
+                      </Text>
+                    );
+                  })
+                ) : (
+                  <Text style={styles.closedText}>Closed</Text>
+                )}
+              </View>
+            </View>
+            <View style={styles.dayHoursContainer}>
+              <Text>Tuesday:</Text>
+              <View style={styles.hoursContainer}>
+                {therapistBusinessHours &&
+                therapistBusinessHours["2"] &&
+                therapistBusinessHours["2"].length > 0 ? (
+                  therapistBusinessHours["2"].map((hours) => {
+                    return (
+                      <Text style={styles.hoursText}>
+                        {hoursTupleToTimeString(hours)}
+                      </Text>
+                    );
+                  })
+                ) : (
+                  <Text style={styles.closedText}>Closed</Text>
+                )}
+              </View>
+            </View>
+            <View style={styles.dayHoursContainer}>
+              <Text>Wednesday:</Text>
+              <View style={styles.hoursContainer}>
+                {therapistBusinessHours &&
+                therapistBusinessHours["3"] &&
+                therapistBusinessHours["3"].length > 0 ? (
+                  therapistBusinessHours["3"].map((hours) => {
+                    return (
+                      <Text style={styles.hoursText}>
+                        {hoursTupleToTimeString(hours)}
+                      </Text>
+                    );
+                  })
+                ) : (
+                  <Text style={styles.closedText}>Closed</Text>
+                )}
+              </View>
+            </View>
+            <View style={styles.dayHoursContainer}>
+              <Text>Thursday:</Text>
+              <View style={styles.hoursContainer}>
+                {therapistBusinessHours &&
+                therapistBusinessHours["4"] &&
+                therapistBusinessHours["4"].length > 0 ? (
+                  therapistBusinessHours["4"].map((hours) => {
+                    return (
+                      <Text style={styles.hoursText}>
+                        {hoursTupleToTimeString(hours)}
+                      </Text>
+                    );
+                  })
+                ) : (
+                  <Text style={styles.closedText}>Closed</Text>
+                )}
+              </View>
+            </View>
+            <View style={styles.dayHoursContainer}>
+              <Text>Friday:</Text>
+              <View style={styles.hoursContainer}>
+                {therapistBusinessHours &&
+                therapistBusinessHours["5"] &&
+                therapistBusinessHours["5"].length > 0 ? (
+                  therapistBusinessHours["5"].map((hours) => {
+                    return (
+                      <Text style={styles.hoursText}>
+                        {hoursTupleToTimeString(hours)}
+                      </Text>
+                    );
+                  })
+                ) : (
+                  <Text style={styles.closedText}>Closed</Text>
+                )}
+              </View>
+            </View>
+            <View style={styles.dayHoursContainer}>
+              <Text>Saturday:</Text>
+              <View style={styles.hoursContainer}>
+                {therapistBusinessHours &&
+                therapistBusinessHours["6"] &&
+                therapistBusinessHours["6"].length > 0 ? (
+                  therapistBusinessHours["6"].map((hours) => {
+                    return (
+                      <Text style={styles.hoursText}>
+                        {hoursTupleToTimeString(hours)}
+                      </Text>
+                    );
+                  })
+                ) : (
+                  <Text style={styles.closedText}>Closed</Text>
+                )}
+              </View>
+            </View>
+            <View style={styles.dayHoursContainer}>
+              <Text>Sunday:</Text>
+              <View style={styles.hoursContainer}>
+                {therapistBusinessHours &&
+                therapistBusinessHours["0"] &&
+                therapistBusinessHours["0"].length > 0 ? (
+                  therapistBusinessHours["0"].map((hours) => {
+                    return (
+                      <Text style={styles.hoursText}>
+                        {hoursTupleToTimeString(hours)}
+                      </Text>
+                    );
+                  })
+                ) : (
+                  <Text style={styles.closedText}>Closed</Text>
+                )}
+              </View>
+            </View>
+          </View>
         </View>
-        <View style={styles.propContainer}>
-          <Text style={styles.propTitle}>Primary Discipline:</Text>
-          <Text style={styles.propText}>{therapistProfession}</Text>
-        </View>
-        <View style={styles.propContainer}>
-          <Text style={styles.propTitle}>Professional Bio:</Text>
-          <Text style={styles.propText}>{therapistSummary}</Text>
-        </View>
-        <View style={styles.propContainer}>
-          <Text style={styles.propTitle}>Additional Services Offered:</Text>
-          <Text style={styles.propText}>{therapistServices}</Text>
-        </View>
-        <View style={styles.propContainer}>
-          <Text style={styles.propTitle}>Accepts House Calls:</Text>
-          <Text style={styles.propText}>
-            {therapistAcceptsHouseCalls ? "Yes" : "No"}
-          </Text>
-        </View>
-        <View style={styles.rateContainer}>
-          <Text style={styles.propTitle}>Hourly Rate:</Text>
-          <Text style={styles.propText}>${therapistHourly}</Text>
-        </View>
-      </View>
+      </ScrollView>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.secondaryButton}
@@ -1211,8 +1360,7 @@ const styles = StyleSheet.create({
     alignItems: "left",
   },
   buttonContainer: {
-    position: "absolute",
-    bottom: 0,
+    marginTop: "5%",
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "column-reverse",
@@ -1339,6 +1487,22 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 80 / 2,
   },
+  dayHoursContainer: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  hoursText: {
+    marginLeft: "5%",
+  },
+  closedText: {
+    marginLeft: "5%",
+    fontStyle: "italic",
+  },
+  modalBodyContainer: {
+    padding: "5%",
+    height: "60%",
+  }
 });
 
 export default React.memo(BookModal);
