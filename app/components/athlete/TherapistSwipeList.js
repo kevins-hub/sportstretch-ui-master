@@ -16,7 +16,6 @@ const TherapistSwipeList = ({
   setSelectedTherapist,
   selectedTherapist,
 }) => {
-
   const renderSwipeableItem = ({ item }) => {
     return (
       <TouchableOpacity onPress={() => setSelectedTherapist(item)}>

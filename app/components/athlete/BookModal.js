@@ -55,9 +55,9 @@ function BookModal({
   athleteLocation,
   therapistName,
   therapistHourly,
+  therapistAcceptsHouseCalls,
   therapistSummary,
   therapistServices,
-  therapistAcceptsHouseCalls,
   therapistBusinessHours,
   therapistStripeAccountId,
   therapistStreet,
@@ -84,6 +84,7 @@ function BookModal({
   const getBookingsOnDate = async (date) => {
     try {
       // convert date to local date string YYYY-MM-DD
+      console.log("date in getBookingsOnDate", date);
       const month =
         date.getMonth() + 1 < 10
           ? "0" + (date.getMonth() + 1)
@@ -1482,7 +1483,7 @@ const styles = StyleSheet.create({
   },
   modalBodyContainer: {
     padding: "5%",
-  }
+  },
 });
 
 export default React.memo(BookModal);

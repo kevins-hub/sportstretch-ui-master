@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, SafeAreaView } from "react-native";
 import * as Location from "expo-location";
-import AthleteBookNowCard from "../../components/athlete/AthleteBookNowCard";
 import AthleteMapView from "../../components/athlete/AthleteMapView";
 import therapistsApi from "../../api/therapists";
 import SearchTherapist from "../../components/athlete/SearchTherapist";
@@ -65,7 +64,7 @@ function AthleteBookNow(props) {
         (a, b) => Number(b.average_rating) - Number(a.average_rating)
       );
       setTherapists(therapistList);
-      setSelectedTherapist(therapistList[0]);
+      // setSelectedTherapist(therapistList[0]);
       await loadMarkers(therapistList);
       return therapistList;
     } catch (error) {
@@ -91,7 +90,7 @@ function AthleteBookNow(props) {
         let athleteLocation = await loadLocation();
         let athleteRegion = await getAthleteRegion(athleteLocation);
         let therapists = await getTherapists(athleteRegion);
-        setSelectedTherapist(therapists[0]);
+        // setSelectedTherapist(therapists[0]);
         await loadMarkers(therapists);
       } catch (err) {
         console.log("Error", err.message);
@@ -110,8 +109,14 @@ function AthleteBookNow(props) {
     };
   }, [setStateModalVisible]);
 
-  handleMarkerPress = (event) => {
-    setSelectedTherapist(therapists[event._targetInst.return.key]);
+  useEffect(() => {
+    console.log("selectedTherapist -->", selectedTherapist);
+  }, [selectedTherapist]);
+
+  const handleMarkerPress = (event) => {
+    console.log("event AthleteMapView", event);
+    console.log("hello");
+    // setSelectedTherapist(therapists[event._targetInst.return.key]);
   };
 
   return (
@@ -130,6 +135,7 @@ function AthleteBookNow(props) {
       <AthleteMapView
         markers={markers}
         selectedTherapist={selectedTherapist}
+        setSelectedTherapist={setSelectedTherapist}
         userLocation={location}
         userRegion={athleteRegion}
         onMarkerPress={handleMarkerPress}
@@ -142,12 +148,6 @@ function AthleteBookNow(props) {
           selectedTherapist={selectedTherapist}
         />
       </SafeAreaView>
-
-      {/* <AthleteBookNowCard
-        selectedTherapist={selectedTherapist}
-        athleteAddress={athleteAddress}
-      ></AthleteBookNowCard> */}
-      {/* <Payment></Payment> */}
     </View>
   );
 }
