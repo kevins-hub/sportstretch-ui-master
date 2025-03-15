@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Button } from "react-native";
+import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import MapView, { Marker } from "react-native-maps";
 import colors from "../../config/colors";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import { stateShortToLong } from "../../lib/states";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 const initMapRegion = {
   latitude: 39.129065,
@@ -37,21 +38,6 @@ function AthleteMapView({
         });
       }
     }
-    // console.log("userLocation", userLocation);
-    // if (userLocation) {
-    //   if (stateShortToLong(userRegion) !== selectedTherapist.state) {
-    //     setRegionToTherapistRegion(selectedTherapist);
-    //   } else {
-    //     setRegion({
-    //       latitude: userLocation.coords.latitude,
-    //       longitude: userLocation.coords.longitude,
-    //       latitudeDelta: 0.25,
-    //       longitudeDelta: 0.25,
-    //     });
-    //   }
-    // } else {
-    //   setRegionToTherapistRegion(selectedTherapist);
-    // }
   }, [markers, selectedTherapist]);
 
   const setRegionToTherapistRegion = async (therapist) => {
@@ -83,12 +69,18 @@ function AthleteMapView({
 
   return (
     <View style={styles.container}>
-      <View style={styles.resetButton}>
-        <Button
-          title="Reset Marker to My Location"
-          onPress={resetMarkerToUser}
+      <TouchableOpacity style={styles.resetButton} onPress={resetMarkerToUser}>
+        <MaterialCommunityIcons
+          style={styles.accountIcon}
+          name="crosshairs-gps"
+          size={30}
+          color={colors.primary}
         />
-      </View>
+        <Text style={styles.resetButtonText}>
+          {" "}
+          Reset Marker to My Location{" "}
+        </Text>
+      </TouchableOpacity>
       <MapView
         showsUserLocation
         style={styles.map}
@@ -139,7 +131,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   resetButton: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: "#fff",
+    width: "100%",
+  },
+  resetButtonText: {
+    color: colors.primary,
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

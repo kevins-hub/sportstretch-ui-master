@@ -150,11 +150,11 @@ const styles = StyleSheet.create({
 
   SelectedContainer: {
     backgroundColor: colors.secondary,
-    // backgroundColor: "black",
     borderRadius: 15,
     shadowColor: "gold",
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 1,
+    elevation: 5,
     width: "100%",
     height: 140,
     padding: 10,
