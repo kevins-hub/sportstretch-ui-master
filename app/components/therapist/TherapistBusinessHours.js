@@ -34,6 +34,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
   let newBusinessHours = businessHours;
   newBusinessHours["utc-offset"] = getUTCOffset();
 
+
   const [errorText, setErrorText] = useState("");
   // default to 9am to 5pm
   // enhanced implementation
@@ -46,6 +47,15 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
   const [sunday, setSunday] = useState([]);
   const { operatingHours, setOperatingHours } = useState(businessHours);
 
+  const mondayDayIndex= "1";
+  const tuesdayDayIndex= "2";
+  const wednesdayDayIndex= "3";
+  const thursdayDayIndex= "4";
+  const fridayDayIndex= "5";
+  const saturdayDayIndex= "6";
+  const sundayDayIndex= "0";
+
+
   const timeToHour = (time) => {
     return time.getMinutes() === 30 ? time.getHours() + 0.5 : time.getHours();
   };
@@ -57,7 +67,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
   const updateBusinessHours = (numDayOfWeek) => {
     newBusinessHours[numDayOfWeek] = [];
     switch (numDayOfWeek) {
-      case "0":
+      case mondayDayIndex:
         monday.forEach((timeSlot) => {
           newBusinessHours[numDayOfWeek].push([
             timeToHour(timeSlot[0]),
@@ -65,7 +75,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
           ]);
         });
         break;
-      case "1":
+      case tuesdayDayIndex:
         tuesday.forEach((timeSlot) => {
           newBusinessHours[numDayOfWeek].push([
             timeToHour(timeSlot[0]),
@@ -73,7 +83,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
           ]);
         });
         break;
-      case "2":
+      case wednesdayDayIndex:
         wednesday.forEach((timeSlot) => {
           newBusinessHours[numDayOfWeek].push([
             timeToHour(timeSlot[0]),
@@ -81,7 +91,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
           ]);
         });
         break;
-      case "3":
+      case thursdayDayIndex:
         thursday.forEach((timeSlot) => {
           newBusinessHours[numDayOfWeek].push([
             timeToHour(timeSlot[0]),
@@ -89,7 +99,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
           ]);
         });
         break;
-      case "4":
+      case fridayDayIndex:
         friday.forEach((timeSlot) => {
           newBusinessHours[numDayOfWeek].push([
             timeToHour(timeSlot[0]),
@@ -97,7 +107,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
           ]);
         });
         break;
-      case "5":
+      case saturdayDayIndex:
         saturday.forEach((timeSlot) => {
           newBusinessHours[numDayOfWeek].push([
             timeToHour(timeSlot[0]),
@@ -105,7 +115,7 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
           ]);
         });
         break;
-      case "6":
+      case sundayDayIndex:
         sunday.forEach((timeSlot) => {
           newBusinessHours[numDayOfWeek].push([
             timeToHour(timeSlot[0]),
@@ -119,31 +129,31 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
   };
 
   useEffect(() => {
-    updateBusinessHours("0");
+    updateBusinessHours(mondayDayIndex);
   }, [monday]);
 
   useEffect(() => {
-    updateBusinessHours("1");
+    updateBusinessHours(tuesdayDayIndex);
   }, [tuesday]);
 
   useEffect(() => {
-    updateBusinessHours("2");
+    updateBusinessHours(wednesdayDayIndex);
   }, [wednesday]);
 
   useEffect(() => {
-    updateBusinessHours("3");
+    updateBusinessHours(thursdayDayIndex);
   }, [thursday]);
 
   useEffect(() => {
-    updateBusinessHours("4");
+    updateBusinessHours(fridayDayIndex);
   }, [friday]);
 
   useEffect(() => {
-    updateBusinessHours("5");
+    updateBusinessHours(saturdayDayIndex);
   }, [saturday]);
 
   useEffect(() => {
-    updateBusinessHours("6");
+    updateBusinessHours(sundayDayIndex);
   }, [sunday]);
 
   const addTimeSlot = (dayOfWeek) => {
@@ -488,16 +498,16 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
               <View style={styles.dayContainer}>
                 <View style={styles.checkboxContainer}>
                   <Checkbox
-                    value={props.values["0"]}
+                    value={props.values[mondayDayIndex]}
                     onValueChange={(value) => {
-                      props.setFieldValue("0", value);
+                      props.setFieldValue(mondayDayIndex, value);
                       handleCheckbox("monday", value);
                     }}
                     style={styles.checkbox}
                   />
                   <Text style={styles.label}>Monday</Text>
                 </View>
-                {props.values["0"] &&
+                {props.values[mondayDayIndex] &&
                   monday.map((timeSlot, index) => (
                     <View style={styles.timeSlotContainer} key={index}>
                       <DateTimePicker
@@ -576,17 +586,17 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
               <View style={styles.dayContainer}>
                 <View style={styles.checkboxContainer}>
                   <Checkbox
-                    value={props.values["1"]}
-                    // onValueChange={(value) => props.setFieldValue("1", value)}
+                    value={props.values[tuesdayDayIndex]}
+                    // onValueChange={(value) => props.setFieldValue(tuesdayDayIndex, value)}
                     onValueChange={(value) => {
-                      props.setFieldValue("1", value);
+                      props.setFieldValue(tuesdayDayIndex, value);
                       handleCheckbox("tuesday", value);
                     }}
                     style={styles.checkbox}
                   />
                   <Text style={styles.label}>Tuesday</Text>
                 </View>
-                {props.values["1"] &&
+                {props.values[tuesdayDayIndex] &&
                   tuesday.map((timeSlot, index) => (
                     <View style={styles.timeSlotContainer} key={index}>
                       <DateTimePicker
@@ -665,16 +675,16 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
               <View style={styles.dayContainer}>
                 <View style={styles.checkboxContainer}>
                   <Checkbox
-                    value={props.values["2"]}
+                    value={props.values[wednesdayDayIndex]}
                     onValueChange={(value) => {
-                      props.setFieldValue("2", value);
+                      props.setFieldValue(wednesdayDayIndex, value);
                       handleCheckbox("wednesday", value);
                     }}
                     style={styles.checkbox}
                   />
                   <Text style={styles.label}>Wednesday</Text>
                 </View>
-                {props.values["2"] &&
+                {props.values[wednesdayDayIndex] &&
                   wednesday.map((timeSlot, index) => (
                     <View style={styles.timeSlotContainer} key={index}>
                       <DateTimePicker
@@ -754,16 +764,16 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
               <View style={styles.dayContainer}>
                 <View style={styles.checkboxContainer}>
                   <Checkbox
-                    value={props.values["3"]}
+                    value={props.values[thursdayDayIndex]}
                     onValueChange={(value) => {
-                      props.setFieldValue("3", value);
+                      props.setFieldValue(thursdayDayIndex, value);
                       handleCheckbox("thursday", value);
                     }}
                     style={styles.checkbox}
                   />
                   <Text style={styles.label}>Thursday</Text>
                 </View>
-                {props.values["3"] &&
+                {props.values[thursdayDayIndex] &&
                   thursday.map((timeSlot, index) => (
                     <View style={styles.timeSlotContainer} key={index}>
                       <DateTimePicker
@@ -841,16 +851,16 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
               <View style={styles.dayContainer}>
                 <View style={styles.checkboxContainer}>
                   <Checkbox
-                    value={props.values["4"]}
+                    value={props.values[fridayDayIndex]}
                     onValueChange={(value) => {
-                      props.setFieldValue("4", value);
+                      props.setFieldValue(fridayDayIndex, value);
                       handleCheckbox("friday", value);
                     }}
                     style={styles.checkbox}
                   />
                   <Text style={styles.label}>Friday</Text>
                 </View>
-                {props.values["4"] &&
+                {props.values[fridayDayIndex] &&
                   friday.map((timeSlot, index) => (
                     <View style={styles.timeSlotContainer} key={index}>
                       <DateTimePicker
@@ -929,16 +939,16 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
               <View style={styles.dayContainer}>
                 <View style={styles.checkboxContainer}>
                   <Checkbox
-                    value={props.values["5"]}
+                    value={props.values[saturdayDayIndex]}
                     onValueChange={(value) => {
-                      props.setFieldValue("5", value);
+                      props.setFieldValue(saturdayDayIndex, value);
                       handleCheckbox("saturday", value);
                     }}
                     style={styles.checkbox}
                   />
                   <Text style={styles.label}>Saturday</Text>
                 </View>
-                {props.values["5"] &&
+                {props.values[saturdayDayIndex] &&
                   saturday.map((timeSlot, index) => (
                     <View style={styles.timeSlotContainer} key={index}>
                       <DateTimePicker
@@ -1017,16 +1027,16 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
               <View style={styles.dayContainer}>
                 <View style={styles.checkboxContainer}>
                   <Checkbox
-                    value={props.values["6"]}
+                    value={props.values[sundayDayIndex]}
                     onValueChange={(value) => {
-                      props.setFieldValue("6", value);
+                      props.setFieldValue(sundayDayIndex, value);
                       handleCheckbox("sunday", value);
                     }}
                     style={styles.checkbox}
                   />
                   <Text style={styles.label}>Sunday</Text>
                 </View>
-                {props.values["6"] &&
+                {props.values[sundayDayIndex] &&
                   sunday.map((timeSlot, index) => (
                     <View style={styles.timeSlotContainer} key={index}>
                       <DateTimePicker

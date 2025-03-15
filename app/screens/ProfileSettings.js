@@ -716,24 +716,6 @@ function ProfileSettings({ route }) {
                     <Text>Monday:</Text>
                     <View style={styles.hoursContainer}>
                       {businessHours &&
-                      businessHours["0"] &&
-                      businessHours["0"].length > 0 ? (
-                        businessHours["0"].map((hours) => {
-                          return (
-                            <Text style={styles.hoursText}>
-                              {hoursTupleToTimeString(hours)}
-                            </Text>
-                          );
-                        })
-                      ) : (
-                        <Text style={styles.closedText}>Closed</Text>
-                      )}
-                    </View>
-                  </View>
-                  <View style={styles.dayHoursContainer}>
-                    <Text>Tuesday:</Text>
-                    <View style={styles.hoursContainer}>
-                      {businessHours &&
                       businessHours["1"] &&
                       businessHours["1"].length > 0 ? (
                         businessHours["1"].map((hours) => {
@@ -749,7 +731,7 @@ function ProfileSettings({ route }) {
                     </View>
                   </View>
                   <View style={styles.dayHoursContainer}>
-                    <Text>Wednesday:</Text>
+                    <Text>Tuesday:</Text>
                     <View style={styles.hoursContainer}>
                       {businessHours &&
                       businessHours["2"] &&
@@ -767,7 +749,7 @@ function ProfileSettings({ route }) {
                     </View>
                   </View>
                   <View style={styles.dayHoursContainer}>
-                    <Text>Thursday:</Text>
+                    <Text>Wednesday:</Text>
                     <View style={styles.hoursContainer}>
                       {businessHours &&
                       businessHours["3"] &&
@@ -785,7 +767,7 @@ function ProfileSettings({ route }) {
                     </View>
                   </View>
                   <View style={styles.dayHoursContainer}>
-                    <Text>Friday:</Text>
+                    <Text>Thursday:</Text>
                     <View style={styles.hoursContainer}>
                       {businessHours &&
                       businessHours["4"] &&
@@ -803,7 +785,7 @@ function ProfileSettings({ route }) {
                     </View>
                   </View>
                   <View style={styles.dayHoursContainer}>
-                    <Text>Saturday:</Text>
+                    <Text>Friday:</Text>
                     <View style={styles.hoursContainer}>
                       {businessHours &&
                       businessHours["5"] &&
@@ -821,12 +803,30 @@ function ProfileSettings({ route }) {
                     </View>
                   </View>
                   <View style={styles.dayHoursContainer}>
-                    <Text>Sunday:</Text>
+                    <Text>Saturday:</Text>
                     <View style={styles.hoursContainer}>
                       {businessHours &&
                       businessHours["6"] &&
                       businessHours["6"].length > 0 ? (
                         businessHours["6"].map((hours) => {
+                          return (
+                            <Text style={styles.hoursText}>
+                              {hoursTupleToTimeString(hours)}
+                            </Text>
+                          );
+                        })
+                      ) : (
+                        <Text style={styles.closedText}>Closed</Text>
+                      )}
+                    </View>
+                  </View>
+                  <View style={styles.dayHoursContainer}>
+                    <Text>Sunday:</Text>
+                    <View style={styles.hoursContainer}>
+                      {businessHours &&
+                      businessHours["0"] &&
+                      businessHours["0"].length > 0 ? (
+                        businessHours["0"].map((hours) => {
                           return (
                             <Text style={styles.hoursText}>
                               {hoursTupleToTimeString(hours)}
