@@ -13,9 +13,8 @@ function AdminTherapistsScreen(props) {
   }, [allTherapists]);
 
   useEffect(() => {
-      loadAllTherapists();
+    loadAllTherapists();
   }, []);
-
 
   const loadAllTherapists = async () => {
     const response = await therapistsApi.getAllTherapists();
@@ -33,24 +32,28 @@ function AdminTherapistsScreen(props) {
       }}
     >
       <FlatList
-        data={allTherapists.sort((a, b) =>
-          Number(a.therapist_id) - Number(b.therapist_id)
+        data={allTherapists.sort(
+          (a, b) => Number(a.therapist_id) - Number(b.therapist_id)
         )}
         keyExtractor={(message) => message.therapist_id.toString()}
-        renderItem={({ item }) => (
-          <AdminTherapistCard
-            FirstName={item.first_name}
-            LastName={item.last_name}
-            Mobile={item.mobile}
-            City={item.city}
-            State={item.state}
-            therapist_id={item.therapist_id}
-            AverageRating={item.average_rating}
-            Email={item.email}
-            Enabled={item.enabled == 0 ? false : true}
-            License={item.license_infourl}
-          />
-        )}
+        renderItem={({ item }) => {
+          return (
+            <AdminTherapistCard
+              FirstName={item.first_name}
+              LastName={item.last_name}
+              Mobile={item.mobile}
+              City={item.city}
+              State={item.state}
+              therapist_id={item.therapist_id}
+              AverageRating={item.average_rating}
+              Email={item.email}
+              Enabled={item.enabled == 0 ? false : true}
+              License={item.license_infourl}
+              Services={item.services}
+              Bio={item.summary}
+            />
+          );
+        }}
       />
     </View>
   );
