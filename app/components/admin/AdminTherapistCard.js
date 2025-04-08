@@ -28,6 +28,8 @@ export default function AdminTherapistCard({
   AverageRating,
   Email,
   License,
+  Services,
+  Bio,
 }) {
   var rating = parseFloat(AverageRating).toFixed(1);
   const [isEnabled, setIsEnabled] = useState(Enabled);
@@ -136,21 +138,34 @@ export default function AdminTherapistCard({
 
           <View>
             <Text style={{ fontSize: 17, fontWeight: "200", color: "#5F5F5F" }}>
-              {Email}
+              Email: {Email}
             </Text>
           </View>
 
           <View>
             <Text style={{ fontSize: 17, fontWeight: "200", color: "#5F5F5F" }}>
-              {Mobile}
+              Phone Number: {Mobile}
             </Text>
           </View>
 
           <View>
             <Text style={{ fontSize: 17, fontWeight: "300", color: "#777777" }}>
-              {City + ", " + State}
+              Location: {City + ", " + State}
             </Text>
           </View>
+
+          <View>
+            <Text style={{ fontSize: 17, fontWeight: "200", color: "#5F5F5F" }}>
+              Bio: {Bio}
+            </Text>
+          </View>
+
+          <View>
+            <Text style={{ fontSize: 17, fontWeight: "200", color: "#5F5F5F" }}>
+              Services: {Services}
+            </Text>
+          </View>
+          
           <View>
             {/* clickable link to license */}
             <TouchableOpacity onPress={() => openURL(License)}>
