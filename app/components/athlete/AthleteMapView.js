@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import MapView, { Marker } from "react-native-maps";
@@ -69,24 +75,26 @@ function AthleteMapView({
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.resetButton} onPress={resetMarkerToUser}>
-        <MaterialCommunityIcons
-          style={styles.accountIcon}
-          name="crosshairs-gps"
-          size={30}
-          color={colors.primary}
-        />
-        <Text style={styles.resetButtonText}>
-          {" "}
-          Reset Marker to My Location{" "}
-        </Text>
-      </TouchableOpacity>
       <MapView
         showsUserLocation
         style={styles.map}
         region={region}
         onRegionChangeComplete={(region) => setRegion(region)}
       >
+        {Platform.OS === "ios" && (
+          <TouchableOpacity
+            style={styles.resetButton}
+            onPress={resetMarkerToUser}
+          >
+            <MaterialCommunityIcons
+              style={styles.accountIcon}
+              name="crosshairs-gps"
+              size={30}
+              color={colors.primary}
+            />
+          </TouchableOpacity>
+        )}
+
         {markers &&
           markers.map((marker, index) => (
             <Marker
@@ -131,11 +139,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   resetButton: {
-    display: "flex",
-    flexDirection: "row",
+    position: "absolute",
+    top: 13,
+    right: 13,
+    backgroundColor: "#F2F0EF",
+    height: 40,
+    width: 40,
     alignItems: "center",
-    backgroundColor: "#fff",
-    width: "100%",
+    justifyContent: "center",
+    // display: "flex",
+    // // flexDirection: "row",
+    // alignItems: "center",
+    // backgroundColor: "#fff",
+    // width: 30,
   },
   resetButtonText: {
     color: colors.primary,
