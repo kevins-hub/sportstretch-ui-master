@@ -26,6 +26,7 @@ export default function AdminApprovalsCard({
   Address,
   Profession,
   Services,
+  Bio
 }) {
   async function approveTherapist(id) {
     let approve = await therapistsApi.approveTherapist(id);
@@ -77,7 +78,7 @@ export default function AdminApprovalsCard({
           <Text
             style={{ fontSize: 15, fontWeight: "normal", color: "#5F5F5F" }}
           >
-            {Email}
+            Email: {Email}
           </Text>
         </View>
 
@@ -85,28 +86,35 @@ export default function AdminApprovalsCard({
           <Text
             style={{ fontSize: 15, fontWeight: "normal", color: "#5F5F5F" }}
           >
-            {Mobile}
+            Phone Number: {Mobile}
           </Text>
         </View>
         <View>
           <Text
             style={{ fontSize: 15, fontWeight: "normal", color: "#5F5F5F" }}
           >
-            {Profession}
+            Profession: {Profession}
           </Text>
         </View>
         <View>
           <Text
             style={{ fontSize: 15, fontWeight: "normal", color: "#5F5F5F" }}
           >
-            {Services}
+            Bio: {Bio}
           </Text>
         </View>
         <View>
           <Text
             style={{ fontSize: 15, fontWeight: "normal", color: "#5F5F5F" }}
           >
-            {Address}
+            Services: {Services}
+          </Text>
+        </View>
+        <View>
+          <Text
+            style={{ fontSize: 15, fontWeight: "normal", color: "#5F5F5F" }}
+          >
+            Address: {Address}
           </Text>
         </View>
         <View>

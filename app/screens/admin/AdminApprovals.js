@@ -41,6 +41,7 @@ function AdminApprovals(props) {
 
           const address = item.street + ' ' + item.apartment_no + ", " + item.city + ", " + item.state;
 
+
           return <AdminApprovalsCard
             FirstName={item.first_name}
             LastName={item.last_name}
@@ -52,6 +53,7 @@ function AdminApprovals(props) {
             Address={address}
             Profession={item.profession}
             Services={item.services}
+            Bio={item.summary}
 
           />
         }}

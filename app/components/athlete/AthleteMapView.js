@@ -75,6 +75,18 @@ function AthleteMapView({
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity style={styles.resetButton} onPress={resetMarkerToUser}>
+        <MaterialCommunityIcons
+          style={styles.accountIcon}
+          name="crosshairs-gps"
+          size={30}
+          color={colors.primary}
+        />
+        <Text style={styles.resetButtonText}>
+          {" "}
+          Reset Marker to My Location{" "}
+        </Text>
+      </TouchableOpacity>
       <MapView
         showsUserLocation
         style={styles.map}
