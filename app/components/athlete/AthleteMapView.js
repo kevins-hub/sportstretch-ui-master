@@ -159,11 +159,6 @@ const styles = StyleSheet.create({
     width: 40,
     alignItems: "center",
     justifyContent: "center",
-    // display: "flex",
-    // // flexDirection: "row",
-    // alignItems: "center",
-    // backgroundColor: "#fff",
-    // width: 30,
   },
   resetButtonText: {
     color: colors.primary,
