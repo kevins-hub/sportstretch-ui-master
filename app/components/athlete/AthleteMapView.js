@@ -30,8 +30,10 @@ function AthleteMapView({
   onMarkerPress,
 }) {
   const [region, setRegion] = useState(initMapRegion);
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
+    console.log("markers", markers);
     if (!!selectedTherapist) {
       setRegionToTherapistRegion(selectedTherapist);
     } else {
@@ -42,12 +44,15 @@ function AthleteMapView({
           latitudeDelta: 0.25,
           longitudeDelta: 0.25,
         });
+      } else {
+        setRegionToTherapistRegion(selectedTherapist);
       }
     }
+    setCount(count + 1);
   }, [markers, selectedTherapist]);
 
   const setRegionToTherapistRegion = async (therapist) => {
-    console.log("therapist", therapist);
+    // console.log("therapist", therapist);
     let therapistRegion = await Location.geocodeAsync(
       therapist.street + " " + therapist.city + " " + therapist.state
     );
@@ -75,35 +80,26 @@ function AthleteMapView({
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.resetButton} onPress={resetMarkerToUser}>
-        <MaterialCommunityIcons
-          style={styles.accountIcon}
-          name="crosshairs-gps"
-          size={30}
-          color={colors.primary}
-        />
-        <Text style={styles.resetButtonText}>
-          {" "}
-          Reset Marker to My Location{" "}
-        </Text>
-      </TouchableOpacity>
       <MapView
         showsUserLocation
         style={styles.map}
         region={region}
         onRegionChangeComplete={(region) => setRegion(region)}
       >
-        {Platform.OS === "ios" && (
+        {/* conditional render only if the users location is on */}
+        {Platform.OS === "ios" && !!userLocation && (
           <TouchableOpacity
             style={styles.resetButton}
             onPress={resetMarkerToUser}
           >
-            <MaterialCommunityIcons
-              style={styles.accountIcon}
-              name="crosshairs-gps"
-              size={30}
-              color={colors.primary}
-            />
+            <View style={styles.iconWrapper}>
+              <MaterialCommunityIcons
+                style={styles.resetIcon}
+                name="crosshairs-gps"
+                size={30}
+                color={colors.primary}
+              />
+            </View>
           </TouchableOpacity>
         )}
 
@@ -152,18 +148,23 @@ const styles = StyleSheet.create({
   },
   resetButton: {
     position: "absolute",
-    top: 13,
-    right: 13,
-    backgroundColor: "#F2F0EF",
-    height: 40,
-    width: 40,
-    alignItems: "center",
+    top: 35,
+    right: 20,
+    backgroundColor: "white",
+    padding: 12,
+    borderRadius: 25,
     justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
   },
-  resetButtonText: {
-    color: colors.primary,
-    fontSize: 16,
-    fontWeight: "bold",
+  iconWrapper: {
+    iconWrapper: {
+      justifyContent: "center",
+      alignItems: "center",
+    },
   },
 });
 
