@@ -1483,7 +1483,7 @@ const styles = StyleSheet.create({
   },
   modalBodyContainer: {
     padding: "5%",
-  }
+  },
 });
 
 export default React.memo(BookModal);

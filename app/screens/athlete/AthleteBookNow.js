@@ -18,6 +18,7 @@ function AthleteBookNow(props) {
 
   const loadLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
+    console.log("status", status);
     if (status !== "granted") {
       setStateModalVisible(true);
       return;
@@ -109,13 +110,12 @@ function AthleteBookNow(props) {
     };
   }, [setStateModalVisible]);
 
-  useEffect(() => {
-    console.log("selectedTherapist -->", selectedTherapist);
-  }, [selectedTherapist]);
+  // useEffect(() => {
+  //   console.log("selectedTherapist -->", selectedTherapist);
+  // }, [selectedTherapist]);
 
   const handleMarkerPress = (event) => {
     console.log("event AthleteMapView", event);
-    console.log("hello");
     // setSelectedTherapist(therapists[event._targetInst.return.key]);
   };
 
