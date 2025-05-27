@@ -1,37 +1,62 @@
-# SportStretch
+## SportStretch
 
 ## Description
-SportStretch On The Go is envisioned as a mobile application that will connect professional athletes (NFL, NBA, UFC etc.) with legitimate bodywork professionals in their area. Athletes travel a lot for events and might be in need of specialized massage services during their travel, to help them recover from the previous event or training session and be prepared for the next. The objective of the app is to enable athletes to avail the services of Licensed Massage Therapists (LMT's), Sports Chiropractors, Sports Acupuncturists etc.
+SportStretch On The Go is a mobile app designed to connect professional athletes—such as those in the NFL, NBA, UFC, and more—with licensed bodywork specialists while traveling. Whether recovering from a recent game or preparing for an upcoming event, athletes can easily book services from trusted professionals including Licensed Massage Therapists (LMTs), Physical Therapists, Sports Chiropractors, and Acupuncturists. The app streamlines the process of finding and scheduling high-quality recovery services—anytime, anywhere.
 
 <pre>
 Tech Stack: <b>React Native, Node.js, PostgreSQL</b>
 </pre>
 
-Backend code: https://github.com/jaindx/sportstretch-api
+Backend code: https://github.com/kevins-hub/sportstretch-api-master
 
-Watch the [demo](#watch-the-demo).
+## Product Functions
 
-### Product Functions
-● Authenticate and authorize the 3 different kinds of users of the app - therapists, athletes and admin.
+● Authenticate and authorize the 3 different kinds of users of the app:
+1. Reovery Specialists
+2. Athletes
+3. Administrators
 
-● Therapists can register and request for approval, following which they’ll be listed in the app.
+● Recovery Specialists can register profiles and request for approval, following which they’ll be listed in the app and be able to accept booking requests. 
 
-● Allow the LMTs to indicate their availability, marking them as online/offline.
+● Allow the recovery specialists to indicate their availability, marking them as online/offline.
 
-● Allow the athletes to view available appointments for the LMTs in their area through the Map locator.
+● Allow the athletes to view available appointments for the recovery specialists in their area through the map view.
 
 ● Athletes can register, book appointments, view and rate past bookings.
 
-● Notify the LMT of an incoming booking request, allow them to accept or reject, and notify the athlete accordingly.
+● Notify recovery specialists of an incoming booking request, allow them to accept or reject, and notify the athlete accordingly.
 
 ● Admin can review the registration request by the LMT and approve or reject the request.
 
 ● Admin can view the ratings and mark an LMT available/unavailable.
 
+## Running the application locally
 
-## Watch the demo
+In Project root: 
 
-https://user-images.githubusercontent.com/14270270/155196741-22d34892-1839-4a6a-b6bf-a4d73aa0b40b.mp4
+  npm run start
+
+## Accessing the database (requires access in Heroku)
+ Prod:
+    URL: https://dashboard.heroku.com/apps/sportstretch-prod
+
+    heroku pg:psql --app sportstretch-prod
+
+ QA:
+    URL: https://dashboard.heroku.com/apps/sportstretch-api
+
+    heroku pg:psql --app sportstretch-api
+
+## AWS Access for S3 (image store)
+
+## Viewing server logs
+
+Prod:
+  heroku logs -tail --app sportstretch-prod
+
+QA:
+  heroku logs -tail --app sportstretch-api
+
 
 ## Screenshots
 
