@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import Constants from "expo-constants";
 import { Formik } from "formik";
-import RNPickerSelect from "react-native-picker-select";
+// import RNPickerSelect from "react-native-picker-select";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import notificationsApi from "../../api/notifications";
 import bookingsApi from "../../api/bookings";
@@ -109,7 +109,7 @@ const TherapistAppointmentDeclineModal = ({
                     Reason for Declining
                   </Text>
                   <View style={{ marginBottom: 10 }}>
-                    <RNPickerSelect
+                    {/* <RNPickerSelect
                       style={styles.reasonSelect}
                       placeholder={{ label: "Select a Reason", value: "" }}
                       onValueChange={handleChange("reason")}
@@ -120,7 +120,7 @@ const TherapistAppointmentDeclineModal = ({
                           : [{ label: "Other", value: "Other" }]
                       }
                       value={values.reason}
-                    />
+                    /> */}
                   </View>
                   {values.reason === "Not available at that time" ? (
                     <View>

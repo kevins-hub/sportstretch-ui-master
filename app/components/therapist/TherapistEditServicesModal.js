@@ -19,7 +19,6 @@ import {
   MaterialCommunityIcons,
   SimpleLineIcons,
 } from "@expo/vector-icons";
-import RNPickerSelect from "react-native-picker-select";
 import Checkbox from "expo-checkbox";
 import { states } from "../../lib/states";
 import therapists from "../../api/therapists";
@@ -167,7 +166,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
               style={{ paddingRight: "5%" }}
             />
           </View>
-          <RNPickerSelect
+          {/* <RNPickerSelect
             onValueChange={props.handleChange("profession")}
             items={
               professionsList
@@ -179,7 +178,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
               value: null,
             }}
             value={props.values.profession}
-          />
+          /> */}
         </View>
         {props.touched.profession && props.errors.profession && (
           <Text style={styles.errorText}>{props.errors.profession}</Text>
@@ -325,10 +324,6 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
         {props.touched.addressL1 && props.errors.addressL1 && (
           <Text style={styles.errorText}>{props.errors.addressL1}</Text>
         )}
-        {/* <Text style={styles.errorText}>
-        {" "}
-        {props.touched.addressL1 && props.errors.addressL1}
-    </Text> */}
 
         <View style={styles.inputContainerAddress}>
           <TextInput
@@ -343,10 +338,6 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
         {props.touched.addressL2 && props.errors.addressL2 && (
           <Text style={styles.errorText}>{props.errors.addressL2}</Text>
         )}
-        {/* <Text style={styles.errorText}>
-        {" "}
-        {props.touched.addressL2 && props.errors.addressL2}
-    </Text> */}
 
         <View style={styles.inputContainerCityState}>
           <View style={{ width: "45%" }}>
@@ -378,7 +369,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
 
           <View style={{ marginHorizontal: "10%", width: "45%" }}>
             <View style={styles.inputContainerState}>
-              <RNPickerSelect
+              {/* <RNPickerSelect
                 placeholder={{ label: "Select A State", value: "" }}
                 value={props.values.state}
                 onValueChange={props.handleChange("state")}
@@ -387,14 +378,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
                     ? statesItemsObj
                     : [{ label: "CA", value: "California" }]
                 }
-              ></RNPickerSelect>
-              {/* <TextInput
-                placeholder="State"
-                onChangeText={props.handleChange("state")}
-                value={props.values.state}
-                onBlur={props.handleBlur("state")}
-                textContentType="addressState"
-              /> */}
+              ></RNPickerSelect> */}
             </View>
             {props.touched.state && props.errors.state && (
               <Text style={styles.errorTextCityState}>

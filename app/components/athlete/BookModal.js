@@ -19,7 +19,8 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
-  UIManager,
+  Animated,
+  Dimensions,
 } from "react-native";
 import Checkbox from "expo-checkbox";
 import { useNavigation } from "@react-navigation/native";
@@ -35,7 +36,6 @@ import RadioGroup from "react-native-radio-buttons-group";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useStripe } from "@stripe/stripe-react-native";
 import paymentApi from "../../api/payment";
-import RNPickerSelect from "react-native-picker-select";
 import { StripeProvider } from "@stripe/stripe-react-native";
 import TermsAndConditions from "../shared/TermsAndConditions";
 import { states } from "../../lib/states";
@@ -46,6 +46,8 @@ import {
 } from "@expo/vector-icons";
 import { STRIPE_P_KEY_TEST } from "@env";
 import { useHeaderHeight } from "@react-navigation/elements";
+
+const { height: screenHeight } = Dimensions.get("window");
 
 function BookModal({
   visible,
@@ -81,6 +83,8 @@ function BookModal({
   const [availableDateTimes, setAvailableDateTimes] = useState([]);
   const [timeStrDateTimeMap, setTimeStrDateTimeMap] = useState({});
   const [paymentIntentId, setPaymentIntentId] = useState("");
+
+  const slideAnim = useRef(new Animated.Value(screenHeight)).current;
   const getBookingsOnDate = async (date) => {
     try {
       // convert date to local date string YYYY-MM-DD
@@ -238,6 +242,7 @@ function BookModal({
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [termsAndConditionModal, setTermsAndConditionModal] = useState(false);
   const [termsAndCondition, setTermsAndCondition] = useState(false);
+  const [statesModalVisible, setStatesModalVisible] = useState(false);
   const refDateTime = useRef();
   const refDate = useRef();
   const locationSchema = () =>
@@ -291,6 +296,33 @@ function BookModal({
 
   const handleNewTimeSlot = (time) => {
     setSelectedTime(time);
+  };
+
+  const handleStatesSelect = (state) => {
+    console.log("Selected state:", state);
+    if (!state) return;
+    // setSelectedState(state);
+
+    closeStatesModal();
+  };
+
+  const openStatesModal = () => {
+    setStatesModalVisible(true);
+    Animated.timing(slideAnim, {
+      toValue: screenHeight / 2,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const closeStatesModal = () => {
+    Animated.timing(slideAnim, {
+      toValue: screenHeight,
+      duration: 300,
+      useNativeDriver: false,
+    }).start(() => {
+      setStatesModalVisible(false);
+    });
   };
 
   const appointmentDurationOptions = [
@@ -832,7 +864,7 @@ function BookModal({
                   <Text style={styles.propTitle}>Duration:</Text>
                   {/* Dropdown menu */}
                   <View>
-                    <RNPickerSelect
+                    {/* <RNPickerSelect
                       onValueChange={async (value) => {
                         await handleDurationChange(value);
                       }}
@@ -856,7 +888,7 @@ function BookModal({
                       }}
                       value={appointmentDuration}
                       style={styles.durationPicker}
-                    />
+                    /> */}
                   </View>
                 </View>
                 <View style={styles.rateContainer}>
@@ -934,22 +966,43 @@ function BookModal({
                       </View>
                       <View style={{ marginHorizontal: "10%", width: "45%" }}>
                         <View style={styles.inputContainerState}>
-                          <RNPickerSelect
-                            useNativeAndroidPickerStyle={false}
-                            style={{
-                              inputAndroid: {
-                                justifyContent: "center",
-                                fontSize: 15,
-                                paddingLeft: 7,
+                          <TouchableOpacity
+                            style={styles.selector}
+                            onPress={openStatesModal}
+                          >
+                            <Text style={styles.addressStateInput}>
+                              {"State"}
+                            </Text>
+                          </TouchableOpacity>
 
-                                paddingTop: 10,
-                              },
-                            }}
-                            placeholder={{ label: "State", value: null }}
-                            value={values.state}
-                            onValueChange={handleChange("state")}
-                            items={statesItemsObj}
-                          ></RNPickerSelect>
+                          <Modal
+                            transparent
+                            visible={statesModalVisible}
+                            animationType="none"
+                          >
+                            <TouchableOpacity
+                              style={styles.backdrop}
+                              activeOpacity={1}
+                              onPress={closeStatesModal}
+                            />
+                            <Animated.View
+                              style={[styles.sheet, { top: slideAnim }]}
+                            >
+                              <ScrollView>
+                                {statesItemsObj.map((opt) => (
+                                  <TouchableOpacity
+                                    key={opt.label}
+                                    onPress={() =>
+                                      handleStatesSelect(opt.value)
+                                    }
+                                    style={styles.option}
+                                  >
+                                    <Text>{opt.label}</Text>
+                                  </TouchableOpacity>
+                                ))}
+                              </ScrollView>
+                            </Animated.View>
+                          </Modal>
                         </View>
                         {touched.state && errors.state && (
                           <Text style={styles.errorText}>{errors.state}</Text>
@@ -1483,7 +1536,33 @@ const styles = StyleSheet.create({
   },
   modalBodyContainer: {
     padding: "5%",
-  }
+  },
+  backdrop: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  sheet: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    height: screenHeight / 2,
+    backgroundColor: "white",
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    padding: 20,
+  },
+  option: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderColor: "#eee",
+  },
+  addressStateInput: {
+    color: "lightgrey",
+  },
 });
 
 export default React.memo(BookModal);

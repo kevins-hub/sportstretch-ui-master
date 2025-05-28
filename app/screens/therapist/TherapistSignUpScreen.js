@@ -56,7 +56,8 @@ const bioMaxLength = 250;
 const feesAndTaxesPercentage = 0.15;
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
-const urlRegExp = /^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[a-zA-Z0-9#-_.?&=]*)*\/?$/;
+const urlRegExp =
+  /^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[a-zA-Z0-9#-_.?&=]*)*\/?$/;
 const statesItemsObj = Object.entries(states).map(([abbr, name]) => {
   return { label: abbr, value: name };
 });
@@ -785,7 +786,7 @@ function TherapistForm(props) {
 
         <View style={{ marginHorizontal: "10%", width: "45%" }}>
           <View style={styles.inputContainerState}>
-            <RNPickerSelect
+            {/* <RNPickerSelect
               placeholder={{ label: "Select A State", value: "" }}
               value={props.values.state}
               onValueChange={props.handleChange("state")}
@@ -794,7 +795,7 @@ function TherapistForm(props) {
                   ? statesItemsObj
                   : [{ label: "CA", value: "California" }]
               }
-            ></RNPickerSelect>
+            ></RNPickerSelect> */}
           </View>
           {props.touched.state && props.errors.state && (
             <Text style={styles.errorTextCityState}>{props.errors.state}</Text>
