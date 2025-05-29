@@ -47,40 +47,19 @@ In Project root:
 
     heroku pg:psql --app sportstretch-api
 
-## AWS Access for S3 (image store)
+## AWS Access for S3 (image store) (requires IAM Access in AWS)
 
-## Viewing server logs
+Prod:
+https://us-west-1.console.aws.amazon.com/s3/buckets/sportstretch-prod-uploads?region=us-west-1&tab=objects&bucketType=general
+
+QA:
+
+https://us-west-1.console.aws.amazon.com/s3/buckets/sportstretch-dev-uploads?region=us-west-1&tab=objects&bucketType=general
+
+## Viewing server logs  (requires heroku access)
 
 Prod:
   heroku logs -tail --app sportstretch-prod
 
 QA:
   heroku logs -tail --app sportstretch-api
-
-
-## Screenshots
-
-<table>
-  <tr>
-    <td>Athlete Dashboard</td>
-    <td>Past Bookings</td>
-  </tr>
-  <tr>
-    <td><img width="356" alt="Athlete Dashboard" src="https://user-images.githubusercontent.com/14270270/155195711-d7e75c4f-43b1-489c-91ca-4181d803537f.png"></td>
-    <td><img width="351" alt="Past Bookings" src="https://user-images.githubusercontent.com/14270270/155195861-c48ab953-c7e4-4ffb-9e58-8be572cf8461.png"></td>
-  </tr>
-  <tr>
-    <td>Confirm Location</td>
-    <td>Booking Confirmed</td>
-  </tr>
-  <tr>
-    <td><img width="353" alt="Confirm Location" src="https://user-images.githubusercontent.com/14270270/155196798-ede0b2be-385d-4be7-a41a-432ac4fd875c.png"></td>
-    <td><img width="357" alt="Booking Confirmed" src="https://user-images.githubusercontent.com/14270270/155196816-17e44031-3021-4cad-b4fd-e8d57a6c9cc6.png"></td>
-  </tr>
-  <tr>
-    <td>Upcoming Bookings</td>
-  </tr>
-  <tr>
-    <td><img width="354" alt="Upcoming Bookings" src="https://user-images.githubusercontent.com/14270270/155196826-ba8b4b5a-ba6c-4c48-843a-44231538807d.png"></td>
-  </tr>
- </table>
