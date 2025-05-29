@@ -9,6 +9,7 @@ import {
   Image,
   AppState,
   Alert,
+  Platform,
 } from "react-native";
 import LogOutButton from "../components/shared/LogOutButton";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -29,6 +30,10 @@ import * as Location from "expo-location";
 import payment from "../api/payment";
 import ProfilePictureUploadModal from "../components/shared/ProfilePictureUploadModal";
 import profilePicture from "../api/profilePicture";
+import TherapistEditSubscriptionModal from "../components/therapist/TherapistEditSubscriptionModal";
+// import { getOfferings } from "../api/revenuecatService";
+// import Purchases from "react-native-purchases";
+// import { REVENUE_CAT_IOS_KEY } from "@env";
 
 function ProfileSettings({ route }) {
   const [editContactInfoModalVisible, setEditContactInfoModalVisible] =
@@ -37,6 +42,8 @@ function ProfileSettings({ route }) {
     editTherapistServicesModalVisible,
     setEditTherapistServicesModalVisible,
   ] = useState(false);
+  const [editSubscriptionModalVisible, setEditSubscriptionModalVisible] =
+    useState(false);
   const [editBillingInfoModalVisible, setEditBillingInfoModalVisible] =
     useState(false);
   const [changePasswordModalVisible, setChangePasswordModalVisible] =
@@ -211,6 +218,10 @@ function ProfileSettings({ route }) {
     getTherapist();
   }, [editTherapistServicesModalVisible]);
 
+  // useEffect(() => {
+  //   const offerings = getOfferings();
+  //   console.log("offerings", offerings);
+  // }, []);
 
   const handleModalClose = () => {
     setEditContactInfoModalVisible(false);
@@ -232,6 +243,13 @@ function ProfileSettings({ route }) {
         setVisibility={setEditContactInfoModalVisible}
         setContactObj={setContactObj}
         onClose={handleModalClose}
+      />
+      <TherapistEditSubscriptionModal
+        user={user}
+        visible={editSubscriptionModalVisible}
+        setVisibility={setEditSubscriptionModalVisible}
+        subscription={userObj.subscription}
+        onClose={() => setEditSubscriptionModalVisible(false)}
       />
       <TherapistEditServicesModal
         therapist={therapist}
@@ -328,8 +346,7 @@ function ProfileSettings({ route }) {
                 <View style={styles.cardInnerContainer}>
                   <View style={styles.cardContent}>
                     <View style={styles.paymentStatusContainer}>
-                      {user.role === "therapist" &&
-                      therapist.enabled !== 1 ? (
+                      {user.role === "therapist" && therapist.enabled !== 1 ? (
                         <>
                           <MaterialCommunityIcons
                             name="alert"
@@ -523,7 +540,9 @@ function ProfileSettings({ route }) {
             {user.role === "therapist" && (
               <View style={styles.cardOutterContainer}>
                 <View style={styles.cardInnerContainer}>
-                  <Text style={styles.cardTitle}>Recovery Specialist Profile</Text>
+                  <Text style={styles.cardTitle}>
+                    Recovery Specialist Profile
+                  </Text>
                   <TouchableOpacity
                     style={styles.button}
                     onPress={() => {
@@ -542,7 +561,7 @@ function ProfileSettings({ route }) {
                             },
                           },
                         ]
-                      )
+                      );
                     }}
                   >
                     <View>
@@ -550,12 +569,14 @@ function ProfileSettings({ route }) {
                     </View>
                   </TouchableOpacity>
                   <View style={styles.cardContent}>
-                     <View style={styles.propContainer}>
+                    <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>Primary Discipline:</Text>
                       <Text>{therapist.profession}</Text>
                     </View>
                     <View style={styles.propContainer}>
-                      <Text style={styles.propLabel}>Additional Services Offered:</Text>
+                      <Text style={styles.propLabel}>
+                        Additional Services Offered:
+                      </Text>
                       <Text>{therapist.services}</Text>
                     </View>
                     <View style={styles.propContainer}>
@@ -862,50 +883,40 @@ function ProfileSettings({ route }) {
                     <Text style={styles.propLabel}>Email: </Text>
                     <Text>{contactObj.email}</Text>
                   </View>
-                  {/* {user.role !== "athlete" && (
-                    <View style={styles.propContainer}>
-                      <Text style={styles.propLabel}>Address: </Text>
-                      <Text>
-                        {contactObj.street} {contactObj.apartment_no}
-                      </Text>
-                      <Text>
-                        {contactObj.city}, {contactObj.state}{" "}
-                        {contactObj.zipcode}
-                      </Text>
-                    </View>
-                  )} */}
                 </View>
               </View>
             </View>
-          </View>
+            <View style={styles.cardOutterContainer}>
+              <View style={styles.cardInnerContainer}>
+                <Text style={styles.cardTitle}>Subscription</Text>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => setEditSubscriptionModalVisible(true)}
+                >
+                  <View>
+                    <Text style={styles.buttonText}>Edit</Text>
+                  </View>
+                </TouchableOpacity>
 
-          {/* 
-              <ScrollView contentContainerStyle={styles.profileSummaryContainer}> */}
-          {/* <View style={styles.propContainer}>
-                  <Text style={styles.propLabel}>Account Type:</Text>
-                  <Text>{user.role === 'therapist' ? 'Recovery Specialist' : user.role.charAt(0).toUpperCase() + user.role.slice(1)}</Text>
+                <View>
+                  <Text>
+                    Based on the data, we should check to see what the users
+                    subscription is
+                  </Text>
+                </View>
+                {/* <View style={styles.cardContent}>
+                  <View style={styles.propContainer}>
+                    <Text style={styles.propLabel}>Phone number:</Text>
+                    <Text>{contactObj.mobile}</Text>
+                  </View>
+                  <View style={styles.propContainer}>
+                    <Text style={styles.propLabel}>Email: </Text>
+                    <Text>{contactObj.email}</Text>
+                  </View>
                 </View> */}
-          {/* <View style={styles.propContainer}>
-                  <Text style={styles.propLabel}>Subscription:</Text>
-                  <Text>Free</Text>
-                </View>
-                <View style={styles.propContainer}>
-                  <Text style={styles.propLabel}>Location:</Text>
-                  <Text>California</Text>
-                </View>
-                <View style={styles.propContainer}>
-                  <Text style={styles.propLabel}>Phone number:</Text>
-                  <Text>{user.userObj.mobile}</Text>
-                </View>
-                <View style={styles.propContainer}>
-                  <Text style={styles.propLabel}>Email: </Text>
-                  <Text>placeholder@email.com</Text>
-                </View>
-                <View style={styles.propContainer}>
-                  <Text style={styles.propLabel}>Payment Method: </Text>
-                  <Text>XXXX-XXXX-XXXX-1234</Text>
-                </View>
-              </ScrollView> */}
+              </View>
+            </View>
+          </View>
           <View style={styles.buttonContainer}>
             <LogOutButton />
             <TouchableOpacity
