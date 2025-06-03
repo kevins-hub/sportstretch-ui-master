@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef } from "react";
 import {
   Modal,
   StyleSheet,
@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Alert,
   KeyboardAvoidingView,
+  Animated,
+  Dimensions,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { TextInput, ScrollView } from "react-native-gesture-handler";
@@ -26,6 +28,7 @@ import { handleError } from "../../lib/error";
 
 const SERVICES_STEP = 1;
 const LICENSE_STEP = 2;
+const { height: screenHeight } = Dimensions.get("window");
 
 function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
   if (!visible) return null;
@@ -33,6 +36,10 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
   const navigation = useNavigation();
   const [currentStep, setCurrentStep] = useState(1);
   const [showInvalidFieldError, setShowInvalidFieldError] = useState(false);
+  const [professionModalVisible, setProfessionModalVisible] = useState(false);
+  const [stateModalVisible, setStateModalVisible] = useState(false);
+
+  const slideAnim = useRef(new Animated.Value(screenHeight)).current;
 
   const statesItemsObj = Object.entries(states).map(([abbr, name]) => {
     return { label: abbr, value: name };
@@ -152,6 +159,25 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
         setShowInvalidFieldError(true);
         // console.warn(err);
       });
+  };
+
+  const openStateModal = () => {
+    setStateModalVisible(true);
+    Animated.timing(slideAnim, {
+      toValue: screenHeight / 2,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const closeStateModal = () => {
+    Animated.timing(slideAnim, {
+      toValue: screenHeight,
+      duration: 300,
+      useNativeDriver: false,
+    }).start(() => {
+      setStateModalVisible(false);
+    });
   };
 
   const ServicesStep = (props) => (
@@ -379,6 +405,37 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
                     : [{ label: "CA", value: "California" }]
                 }
               ></RNPickerSelect> */}
+              <TouchableOpacity
+                style={styles.selector}
+                onPress={openStateModal}
+              >
+                <Text>{props.values.state || "Select an option"}</Text>
+              </TouchableOpacity>
+
+              <Modal
+                transparent
+                visible={stateModalVisible}
+                animationType="none"
+              >
+                <TouchableOpacity
+                  style={styles.backdrop}
+                  activeOpacity={1}
+                  onPress={closeStateModal}
+                />
+                <Animated.View style={[styles.sheet, { top: slideAnim }]}>
+                  <ScrollView>
+                    {statesItemsObj.map((opt) => (
+                      <TouchableOpacity
+                        key={opt.label}
+                        onPress={() => handleSelect(opt.value)}
+                        style={styles.option}
+                      >
+                        <Text>{opt.label}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </Animated.View>
+              </Modal>
             </View>
             {props.touched.state && props.errors.state && (
               <Text style={styles.errorTextCityState}>
@@ -786,6 +843,32 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: "100%",
     marginTop: "20%",
+  },
+  selector: {
+    padding: 10,
+  },
+  backdrop: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  sheet: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    height: screenHeight / 2,
+    backgroundColor: "white",
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    padding: 20,
+  },
+  option: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderColor: "#eee",
   },
 });
 
