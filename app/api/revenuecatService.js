@@ -8,34 +8,40 @@ import { REVENUECAT_IOS_KEY } from "@env";
 //   android: 'your_revenuecat_android_key',
 // };
 
-export const initRevenueCat = () => {
+export const InitRevenueCat = () => {
+  console.warn("Initializing RevenueCat...");
   if (Platform.OS === "ios") {
+    console.warn("configuring purchases for ios");
     Purchases.configure({
-      apiKey: REVENUECAT_IOS_KEY,
+      apiKey: 'appl_JleRblwotkDjKkwYKZozPqcIfkT',
     });
   }
-  Purchases.getOfferings()
-    .then((offerings) => {
-      console.log("Offerings: ", offerings);
-    })
-    .catch((e) => {
-      console.warn("Error fetching offerings", e);
-    });
+
+  getOfferings();
+  // Purchases.getOfferings()
+  //   .then((offerings) => {
+  //     console.log("Offerings: ", offerings);
+  //   })
+  //   .catch((e) => {
+  //     console.warn("Error fetching offerings", e);
+  //   });
   //   Purchases.setLogLevel(LOG_LEVEL.DEBUG);
 };
 
-// export const getOfferings = async () => {
-//   try {
-//     const offerings = await Purchases.getOfferings();
-//     console.log("offerings", offerings);
-//     return offerings;
-//   } catch (e) {
-//     console.warn("Error fetching offerings", e);
-//     return null;
-//   }
-// };
 
-export const purchasePackage = async (pkg) => {
+
+export const getOfferings = async () => {
+  try {
+    const offerings = await Purchases.getOfferings();
+    console.log("offerings", offerings);
+    return offerings;
+  } catch (e) {
+    console.warn("Error fetching offerings", e);
+    return null;
+  }
+};
+
+export const PurchasePackage = async (pkg) => {
   try {
     const { customerInfo } = await Purchases.purchasePackage(pkg);
     const isPro = customerInfo.entitlements.active.pro !== undefined;
