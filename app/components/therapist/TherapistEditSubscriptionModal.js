@@ -7,11 +7,50 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
+import { getOfferings } from "../../api/revenuecatService";
 
 const productIds = ["pro_upgrade"];
 
-export default function TherapistEditSubscriptionModal({ visible, onClose }) {
+export default function TherapistEditSubscriptionModal({
+  visible,
+  setVisibility,
+  onClose,
+}) {
   const [selectedPlan, setSelectedPlan] = useState(null); // 'basic' or 'pro'
+  const [basicPackages, setBasicPackages] = useState([]);
+  const [proPackages, setProPackages] = useState([]);
+
+  useEffect(() => {
+    const fetchOfferings = async () => {
+      const offering = await getOfferings();
+      if (!offering) {
+        Alert.alert(
+          "Error",
+          "Failed to fetch offerings. Please try again later."
+        );
+        return;
+      }
+      console.warn(typeof offering);
+      console.warn(typeof offering.all);
+
+      const availableBasicPackages =
+        offering?.all["Basic Recovery Specialist Subscription"]
+          ?.availablePackages ?? [];
+      const availableProPackages =
+        offering?.all["Pro Recovery Specialist Subscription"]
+          ?.availablePackages ?? [];
+      if (availableBasicPackages.length > 0) {
+        setBasicPackages(availableBasicPackages);
+      }
+      if (availableProPackages.length > 0) {
+        setProPackages(availableProPackages);
+      }
+
+      setLoading(false);
+    };
+
+    fetchOfferings();
+  }, []);
 
   return (
     <Modal visible={visible} transparent animationType="slide">
@@ -19,7 +58,48 @@ export default function TherapistEditSubscriptionModal({ visible, onClose }) {
         <View style={styles.modalContent}>
           <Text style={styles.title}>Choose Your Plan</Text>
 
+          {basicPackages.map((pkg) => (
+            <>
+              <TouchableOpacity
+                style={[
+                  styles.option,
+                  selectedPlan === "basic" && styles.selected,
+                ]}
+                onPress={() => setSelectedPlan("basic")}
+              >
+                <Text style={styles.optionTitle}>{pkg.product.title}</Text>
+                <Text>{pkg.product.priceString}</Text>
+              </TouchableOpacity>
+            </>
+          ))}
+
+          {proPackages.map((pkg) => (
+            <>
+              <TouchableOpacity
+                style={[
+                  styles.option,
+                  selectedPlan === "pro" && styles.selected,
+                ]}
+                onPress={() => setSelectedPlan("pro")}
+              >
+                <Text style={styles.optionTitle}>{pkg.product.title}</Text>
+                <Text>{pkg.product.priceString}</Text>
+              </TouchableOpacity>
+            </>
+          ))}
+
           <TouchableOpacity
+            style={styles.subscribeButton}
+            // onPress={handleSubscribe}
+          >
+            <Text style={styles.subscribeText}>Continue</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => setVisibility(false)}>
+            <Text style={styles.closeText}>Cancel</Text>
+          </TouchableOpacity>
+
+          {/* <TouchableOpacity
             style={[styles.option, selectedPlan === "basic" && styles.selected]}
             onPress={() => setSelectedPlan("basic")}
           >
@@ -32,7 +112,7 @@ export default function TherapistEditSubscriptionModal({ visible, onClose }) {
             onPress={() => setSelectedPlan("pro")}
           >
             <Text style={styles.optionTitle}>Pro</Text>
-            <Text>$20 one-time upgrade</Text>
+            <Text>$20 monthly</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -42,9 +122,9 @@ export default function TherapistEditSubscriptionModal({ visible, onClose }) {
             <Text style={styles.subscribeText}>Continue</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={onClose}>
+          <TouchableOpacity onPress={() => setVisibility(false)}>
             <Text style={styles.closeText}>Cancel</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
     </Modal>

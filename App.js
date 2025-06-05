@@ -7,7 +7,7 @@ import authStorage from "./app/auth/storage";
 import AppContainer from "./app/screens/AppContainer";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as SplashScreen from "expo-splash-screen";
-import { initRevenueCat } from "./app/api/revenuecatService";
+import { InitRevenueCat } from "./app/api/revenuecatService";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -21,7 +21,7 @@ function App() {
   // };
 
   useEffect(() => {
-    initRevenueCat(); // Initialize RevenueCat once
+    InitRevenueCat(); // Initialize RevenueCat once
   }, []);
 
   useEffect(() => {
