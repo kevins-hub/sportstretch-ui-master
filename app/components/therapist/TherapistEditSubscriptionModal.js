@@ -16,7 +16,7 @@ export default function TherapistEditSubscriptionModal({
   setVisibility,
   onClose,
 }) {
-  const [selectedPlan, setSelectedPlan] = useState(null); // 'basic' or 'pro'
+  const [selectedPlan, setSelectedPlan] = useState('pro'); // 'basic' or 'pro'
   const [basicPackages, setBasicPackages] = useState([]);
   const [proPackages, setProPackages] = useState([]);
 
