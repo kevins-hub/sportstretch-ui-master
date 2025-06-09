@@ -16,24 +16,13 @@ export const InitRevenueCat = () => {
       apiKey: 'appl_JleRblwotkDjKkwYKZozPqcIfkT',
     });
   }
-
   getOfferings();
-  // Purchases.getOfferings()
-  //   .then((offerings) => {
-  //     console.log("Offerings: ", offerings);
-  //   })
-  //   .catch((e) => {
-  //     console.warn("Error fetching offerings", e);
-  //   });
-  //   Purchases.setLogLevel(LOG_LEVEL.DEBUG);
 };
-
 
 
 export const getOfferings = async () => {
   try {
     const offerings = await Purchases.getOfferings();
-    console.log("offerings", offerings);
     return offerings;
   } catch (e) {
     console.warn("Error fetching offerings", e);
