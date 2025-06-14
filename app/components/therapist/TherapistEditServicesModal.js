@@ -180,6 +180,25 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
     });
   };
 
+  const openProfessionModal = () => {
+    setProfessionModalVisible(true);
+    Animated.timing(slideAnim, {
+      toValue: screenHeight / 2,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const closeProfessionModal = () => {
+    Animated.timing(slideAnim, {
+      toValue: screenHeight,
+      duration: 300,
+      useNativeDriver: false,
+    }).start(() => {
+      setProfessionModalVisible(false);
+    });
+  };
+
   const ServicesStep = (props) => (
     <>
       <View style={styles.propsContainer}>
@@ -192,19 +211,39 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
               style={{ paddingRight: "5%" }}
             />
           </View>
-          {/* <RNPickerSelect
-            onValueChange={props.handleChange("profession")}
-            items={
-              professionsList
-                ? professionsList
-                : [{ label: "Massage Therapist", value: "Massage Therapist" }]
-            }
-            placeholder={{
-              label: "Choose your Primary Discipline",
-              value: null,
-            }}
-            value={props.values.profession}
-          /> */}
+          <TouchableOpacity onPress={openProfessionModal}>
+            <Text style={!props.values.profession ? styles.noSelectText : {}}>
+              {props.values.profession ? props.values.profession : "Profession"}
+            </Text>
+          </TouchableOpacity>
+
+          <Modal
+            transparent
+            visible={professionModalVisible}
+            animationType="none"
+          >
+            <TouchableOpacity
+              style={styles.backdrop}
+              activeOpacity={1}
+              onPress={closeProfessionModal}
+            />
+            <Animated.View style={[styles.sheet, { top: slideAnim }]}>
+              <ScrollView>
+                {professionsList.map((opt) => (
+                  <TouchableOpacity
+                    key={opt.label}
+                    onPress={() => {
+                      props.setFieldValue("profession", opt.label);
+                      closeProfessionModal(); // optionally close the modal
+                    }}
+                    style={styles.option}
+                  >
+                    <Text>{opt.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </Animated.View>
+          </Modal>
         </View>
         {props.touched.profession && props.errors.profession && (
           <Text style={styles.errorText}>{props.errors.profession}</Text>
@@ -427,7 +466,10 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
                     {statesItemsObj.map((opt) => (
                       <TouchableOpacity
                         key={opt.label}
-                        onPress={() => handleSelect(opt.value)}
+                        onPress={() => {
+                          props.setFieldValue("state", opt.label);
+                          closeStateModal(); // optionally close the modal
+                        }}
                         style={styles.option}
                       >
                         <Text>{opt.label}</Text>
@@ -844,9 +886,6 @@ const styles = StyleSheet.create({
     width: "100%",
     marginTop: "20%",
   },
-  selector: {
-    padding: 10,
-  },
   backdrop: {
     position: "absolute",
     top: 0,
@@ -869,6 +908,9 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderColor: "#eee",
+  },
+  noSelectText: {
+    color: colors.grey,
   },
 });
 

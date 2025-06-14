@@ -282,6 +282,8 @@ const styles = StyleSheet.create({
   },
   selector: {
     padding: 10,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 8,
   },
   backdrop: {
     position: "absolute",
