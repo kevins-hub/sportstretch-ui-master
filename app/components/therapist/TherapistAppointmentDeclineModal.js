@@ -1,27 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Modal,
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
-  TextInput,
-  Button,
   Alert,
+  Animated,
+  Dimensions,
+  ScrollView,
 } from "react-native";
 import Constants from "expo-constants";
 import { Formik } from "formik";
-import RNPickerSelect from "react-native-picker-select";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import notificationsApi from "../../api/notifications";
 import bookingsApi from "../../api/bookings";
 import { handleError } from "../../lib/error";
+
+const { height: screenHeight } = Dimensions.get("window");
 
 const TherapistAppointmentDeclineModal = ({
   item,
   visible,
   handleDeclineModal,
 }) => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const slideAnim = useRef(new Animated.Value(screenHeight)).current;
+
+  const resasonFormValues = { reason: "", date: new Date(), time: new Date() };
+
   const reasonOptions = [
     "Location out of range",
     "Not available at that time",
@@ -77,6 +84,29 @@ const TherapistAppointmentDeclineModal = ({
     return dateTime.toLocaleTimeString("en-US", options);
   };
 
+  const handleSelect = (reason) => {
+    closeModal();
+  };
+
+  const openModal = () => {
+    setModalVisible(true);
+    Animated.timing(slideAnim, {
+      toValue: screenHeight / 2,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const closeModal = () => {
+    Animated.timing(slideAnim, {
+      toValue: screenHeight,
+      duration: 300,
+      useNativeDriver: false,
+    }).start(() => {
+      setModalVisible(false);
+    });
+  };
+
   return (
     <Modal
       animationType="slide"
@@ -86,10 +116,7 @@ const TherapistAppointmentDeclineModal = ({
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Formik
-            initialValues={{ reason: "", date: new Date(), time: new Date() }}
-            onSubmit={handleSubmit}
-          >
+          <Formik initialValues={resasonFormValues} onSubmit={handleSubmit}>
             {({
               handleChange,
               handleBlur,
@@ -109,18 +136,40 @@ const TherapistAppointmentDeclineModal = ({
                     Reason for Declining
                   </Text>
                   <View style={{ marginBottom: 10 }}>
-                    <RNPickerSelect
-                      style={styles.reasonSelect}
-                      placeholder={{ label: "Select a Reason", value: "" }}
-                      onValueChange={handleChange("reason")}
-                      onBlur={handleBlur("reason")}
-                      items={
-                        reasonOptionsObj
-                          ? reasonOptionsObj
-                          : [{ label: "Other", value: "Other" }]
-                      }
-                      value={values.reason}
-                    />
+                    <TouchableOpacity
+                      style={styles.selector}
+                      onPress={openModal}
+                    >
+                      <Text>{values.reason || "Select a reason"}</Text>
+                    </TouchableOpacity>
+
+                    <Modal
+                      transparent
+                      visible={modalVisible}
+                      animationType="none"
+                    >
+                      <TouchableOpacity
+                        style={styles.backdrop}
+                        activeOpacity={1}
+                        onPress={closeModal}
+                      />
+                      <Animated.View style={[styles.sheet, { top: slideAnim }]}>
+                        <ScrollView>
+                          {reasonOptions.map((opt) => (
+                            <TouchableOpacity
+                              key={opt}
+                              onPress={() => {
+                                handleSelect(opt);
+                                setFieldValue("reason", opt);
+                              }}
+                              style={styles.option}
+                            >
+                              <Text>{opt}</Text>
+                            </TouchableOpacity>
+                          ))}
+                        </ScrollView>
+                      </Animated.View>
+                    </Modal>
                   </View>
                   {values.reason === "Not available at that time" ? (
                     <View>
@@ -230,6 +279,34 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 10,
     borderTopLeftRadius: 10,
     borderBottomEndRadius: 10,
+  },
+  selector: {
+    padding: 10,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 8,
+  },
+  backdrop: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  sheet: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    height: screenHeight / 2,
+    backgroundColor: "white",
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    padding: 20,
+  },
+  option: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderColor: "#eee",
   },
 });
 

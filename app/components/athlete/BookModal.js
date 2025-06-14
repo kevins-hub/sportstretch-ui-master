@@ -6,7 +6,7 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { Formik } from "formik";
+import { Formik, useFormikContext } from "formik";
 import * as yup from "yup";
 import {
   Modal,
@@ -19,7 +19,8 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
-  UIManager,
+  Animated,
+  Dimensions,
 } from "react-native";
 import Checkbox from "expo-checkbox";
 import { useNavigation } from "@react-navigation/native";
@@ -35,7 +36,6 @@ import RadioGroup from "react-native-radio-buttons-group";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useStripe } from "@stripe/stripe-react-native";
 import paymentApi from "../../api/payment";
-import RNPickerSelect from "react-native-picker-select";
 import { StripeProvider } from "@stripe/stripe-react-native";
 import TermsAndConditions from "../shared/TermsAndConditions";
 import { states } from "../../lib/states";
@@ -46,6 +46,8 @@ import {
 } from "@expo/vector-icons";
 import { STRIPE_P_KEY_TEST } from "@env";
 import { useHeaderHeight } from "@react-navigation/elements";
+
+const { height: screenHeight } = Dimensions.get("window");
 
 function BookModal({
   visible,
@@ -81,6 +83,9 @@ function BookModal({
   const [availableDateTimes, setAvailableDateTimes] = useState([]);
   const [timeStrDateTimeMap, setTimeStrDateTimeMap] = useState({});
   const [paymentIntentId, setPaymentIntentId] = useState("");
+
+  const slideAnim = useRef(new Animated.Value(screenHeight)).current;
+
   const getBookingsOnDate = async (date) => {
     try {
       // convert date to local date string YYYY-MM-DD
@@ -238,6 +243,9 @@ function BookModal({
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [termsAndConditionModal, setTermsAndConditionModal] = useState(false);
   const [termsAndCondition, setTermsAndCondition] = useState(false);
+  const [statesModalVisible, setStatesModalVisible] = useState(false);
+  const [appointmentDurationModalVisible, setAppointmentDurationModalVisible] =
+    useState(false);
   const refDateTime = useRef();
   const refDate = useRef();
   const locationSchema = () =>
@@ -291,6 +299,52 @@ function BookModal({
 
   const handleNewTimeSlot = (time) => {
     setSelectedTime(time);
+  };
+
+  const handleStatesSelect = (state) => {
+    console.log("Selected state:", state);
+    if (!state) return;
+    // setSelectedState(state);
+
+    closeStatesModal();
+  };
+
+  const openStatesModal = () => {
+    setStatesModalVisible(true);
+    Animated.timing(slideAnim, {
+      toValue: screenHeight / 2,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const closeStatesModal = () => {
+    Animated.timing(slideAnim, {
+      toValue: screenHeight,
+      duration: 300,
+      useNativeDriver: false,
+    }).start(() => {
+      setStatesModalVisible(false);
+    });
+  };
+
+  const openAppointmentDurationModal = () => {
+    setAppointmentDurationModalVisible(true);
+    Animated.timing(slideAnim, {
+      toValue: screenHeight / 2,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const closeAppointmentDurationModal = () => {
+    Animated.timing(slideAnim, {
+      toValue: screenHeight,
+      duration: 300,
+      useNativeDriver: false,
+    }).start(() => {
+      setAppointmentDurationModalVisible(false);
+    });
   };
 
   const appointmentDurationOptions = [
@@ -442,6 +496,7 @@ function BookModal({
     const subTotalAmount = value * therapistHourly;
     paymentObj.amount = subTotalAmount;
     setSubTotal(subTotalAmount);
+    closeAppointmentDurationModal();
   };
 
   // const handleSubmit = async () => {
@@ -713,310 +768,329 @@ function BookModal({
     </View>
   );
 
-  const AppointmentDetailsStep = React.memo(() => (
-    <Formik
-      initialValues={{
-        addressL1: "",
-        addressL2: "",
-        city: "",
-        state: "",
-        zipcode: "",
-      }}
-      validationSchema={locationSchema}
-      onSubmit={(values) => proceedToReview(values)}
-    >
-      {({
-        handleChange,
-        handleBlur,
-        handleSubmit,
-        values,
-        errors,
-        touched,
-      }) => (
-        <View style={styles.modalContent}>
-          <Text style={styles.modalText}>
-            Book your appointment with {therapistName}!
-          </Text>
-          <KeyboardAvoidingView
-            // change padding to height for android devices  platform === ios ? padding : height
-            behavior="padding"
-            style={{ flex: 1 }}
+  const AppointmentDetailsStep = (props) => (
+    <View style={styles.modalContent}>
+      <Text style={styles.modalText}>
+        Book your appointment with {therapistName}!
+      </Text>
+      <KeyboardAvoidingView
+        // change padding to height for android devices  platform === ios ? padding : height
+        behavior="padding"
+        style={{ flex: 1 }}
+      >
+        <View style={styles.appointmentScrollViewContainer}>
+          <ScrollView
+            style={styles.appointmentDetailsScrollView}
+            keyboardShouldPersistTaps="handled"
           >
-            <View style={styles.appointmentScrollViewContainer}>
-              <ScrollView
-                style={styles.appointmentDetailsScrollView}
-                keyboardShouldPersistTaps="handled"
-              >
-                <View style={styles.rateContainer}>
-                  <Text style={styles.propTitle}>Hourly Rate:</Text>
-                  <Text style={styles.propText}>${therapistHourly}</Text>
-                </View>
-                <View style={styles.propContainer}>
-                  <Text style={styles.propTitle}>Date & Time:</Text>
-                  {Platform.OS === "ios" ? (
+            <View style={styles.rateContainer}>
+              <Text style={styles.propTitle}>Hourly Rate:</Text>
+              <Text style={styles.propText}>${therapistHourly}</Text>
+            </View>
+            <View style={styles.propContainer}>
+              <Text style={styles.propTitle}>Date & Time:</Text>
+              {Platform.OS === "ios" ? (
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  value={selectedDateTime || new Date()}
+                  mode="date"
+                  display="default"
+                  onChange={handleDateChange}
+                  style={styles.datePicker}
+                  minimumDate={minDate}
+                />
+              ) : (
+                <View>
+                  <TouchableOpacity
+                    title="Select Date"
+                    onPress={() => setShowPicker(true)}
+                    onChange={handleDateChange}
+                    style={styles.selectDateButton}
+                  >
+                    <Text style={styles.primaryButtonText}>
+                      {"Select Date"}
+                    </Text>
+                  </TouchableOpacity>
+
+                  {showPicker && (
                     <DateTimePicker
                       testID="dateTimePicker"
-                      value={selectedDateTime || new Date()}
+                      value={selectedDateTime}
                       mode="date"
                       display="default"
                       onChange={handleDateChange}
                       style={styles.datePicker}
-                      minimumDate={minDate}
+                      minimumDate={new Date()} // Example minimum date
                     />
-                  ) : (
-                    <View>
+                  )}
+                  <Text style={styles.selectedDate}>
+                    {selectedDateTime.toLocaleDateString()}
+                  </Text>
+                </View>
+              )}
+              <View style={styles.timeSlotContainer}>
+                {availableDateTimes.length > 0 ? (
+                  availableDateTimes.map((item) => {
+                    return (
                       <TouchableOpacity
-                        title="Select Date"
-                        onPress={() => setShowPicker(true)}
-                        onChange={handleDateChange}
-                        style={styles.selectDateButton}
+                        key={item.key}
+                        style={
+                          selectedTime.toLocaleString() ==
+                          new Date(item.text).toLocaleString()
+                            ? styles.timeSlotButtonSelected
+                            : styles.timeSlotButton
+                        }
+                        onPress={() => {
+                          handleNewTimeSlot(new Date(item.text));
+                          // setSelectedDateTime(new Date(item.text));
+                        }}
                       >
-                        <Text style={styles.primaryButtonText}>
-                          {"Select Date"}
+                        <Text
+                          key={item.key}
+                          style={
+                            selectedTime.toLocaleString() ==
+                            new Date(item.text).toLocaleString()
+                              ? styles.timeSlotButtonSelectedText
+                              : styles.timeSlotButtonText
+                          }
+                        >
+                          {getTimeFromMap(item.text)}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })
+                ) : (
+                  <Text>No more availability on this date.</Text>
+                )}
+              </View>
+            </View>
+            <View style={styles.propContainer}>
+              <Text style={styles.propTitle}>Duration:</Text>
+              {/* Dropdown menu */}
+              <View>
+                <TouchableOpacity
+                  style={styles.selector}
+                  onPress={openAppointmentDurationModal}
+                >
+                  <Text style={!appointmentDuration ? styles.noSelectText : {}}>
+                    {appointmentDuration
+                      ? appointmentDuration
+                      : "Appointment Duration"}
+                  </Text>
+                </TouchableOpacity>
+
+                <Modal
+                  transparent
+                  visible={appointmentDurationModalVisible}
+                  animationType="none"
+                >
+                  <TouchableOpacity
+                    style={styles.backdrop}
+                    activeOpacity={1}
+                    onPress={closeAppointmentDurationModal}
+                  />
+                  <Animated.View style={[styles.sheet, { top: slideAnim }]}>
+                    <ScrollView>
+                      {appointmentDurationOptions.map((opt) => (
+                        <TouchableOpacity
+                          key={opt.label}
+                          onPress={() => {
+                            handleDurationChange(opt.value);
+                          }}
+                          style={styles.option}
+                        >
+                          <Text>{opt.label}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </Animated.View>
+                </Modal>
+              </View>
+            </View>
+            <View style={styles.rateContainer}>
+              <Text style={styles.propTitle}>Subtotal:</Text>
+              <Text style={styles.propText}>
+                {appointmentDuration === 0
+                  ? "(Select a duration)"
+                  : `$${subTotal}`}
+              </Text>
+            </View>
+            <View style={styles.locationFormContainer}>
+              <Text style={styles.propTitle}>Location:</Text>
+              <RadioGroup
+                radioButtons={locations}
+                onPress={setSelectedLocationOption}
+                flexDirection="column"
+                selectedId={selectedLocationOption}
+                containerStyle={styles.radioGroup}
+              />
+            </View>
+            {selectedLocationOption === "2" ? (
+              <View style={styles.propContainer}>
+                <Text style={styles.propTitle}>Your Location:</Text>
+
+                <View style={styles.inputContainer}>
+                  <View>
+                    <FontAwesome
+                      name="address-book"
+                      size={16}
+                      color="black"
+                      style={{ paddingRight: "5%" }}
+                    />
+                  </View>
+                  <TextInput
+                    style={{ flex: 1, flexWrap: "wrap" }}
+                    placeholder="Address"
+                    onChangeText={props.handleChange("addressL1")}
+                    onBlur={props.handleBlur("addressL1")}
+                    name="addressL1"
+                    value={props.values.addressL1}
+                    autoCapitalize="none"
+                  />
+                </View>
+                {props.touched.addressL1 && props.errors.addressL1 && (
+                  <Text style={styles.errorText}>{props.errors.addressL1}</Text>
+                )}
+                <View style={styles.inputContainerAddress}>
+                  <TextInput
+                    style={{ flex: 1, flexWrap: "wrap" }}
+                    placeholder="Apt, Suite, Floor, Building"
+                    onChangeText={props.handleChange("addressL2")}
+                    onBlur={props.handleBlur("addressL2")}
+                    name="addressL2"
+                    value={props.values.addressL2}
+                    textContentType="streetAddressLine2"
+                  />
+                  {props.touched.addressL2 && props.errors.addressL2 && (
+                    <Text style={styles.errorText}>
+                      {props.errors.addressL2}
+                    </Text>
+                  )}
+                </View>
+                <View style={styles.inputContainerCityState}>
+                  <View style={{ width: "45%" }}>
+                    <View style={styles.inputContainerCity}>
+                      <TextInput
+                        placeholder="City"
+                        onChangeText={props.handleChange("city")}
+                        value={props.values.city}
+                        onBlur={props.handleBlur("city")}
+                        textContentType="addressCity"
+                      />
+                    </View>
+                    {props.touched.city && props.errors.city && (
+                      <Text style={styles.errorText}>{props.errors.city}</Text>
+                    )}
+                  </View>
+                  <View style={{ marginHorizontal: "10%", width: "45%" }}>
+                    <View style={styles.inputContainerState}>
+                      <TouchableOpacity
+                        style={styles.selector}
+                        onPress={openStatesModal}
+                      >
+                        <Text
+                          style={!props.values.state ? styles.noSelectText : {}}
+                        >
+                          {props.values.state ? props.values.state : "State"}
                         </Text>
                       </TouchableOpacity>
 
-                      {showPicker && (
-                        <DateTimePicker
-                          testID="dateTimePicker"
-                          value={selectedDateTime}
-                          mode="date"
-                          display="default"
-                          onChange={handleDateChange}
-                          style={styles.datePicker}
-                          minimumDate={new Date()} // Example minimum date
+                      <Modal
+                        transparent
+                        visible={statesModalVisible}
+                        animationType="none"
+                      >
+                        <TouchableOpacity
+                          style={styles.backdrop}
+                          activeOpacity={1}
+                          onPress={closeStatesModal}
                         />
-                      )}
-                      <Text style={styles.selectedDate}>
-                        {selectedDateTime.toLocaleDateString()}
-                      </Text>
+                        <Animated.View
+                          style={[styles.sheet, { top: slideAnim }]}
+                        >
+                          <ScrollView>
+                            {statesItemsObj.map((opt) => (
+                              <TouchableOpacity
+                                key={opt.label}
+                                onPress={() => {
+                                  console.log("opt", opt);
+                                  props.setFieldValue("state", opt.value); // <-- this updates Formik
+                                  closeStatesModal(); // optionally close the modal
+                                }}
+                                style={styles.option}
+                              >
+                                <Text>{opt.label}</Text>
+                              </TouchableOpacity>
+                            ))}
+                          </ScrollView>
+                        </Animated.View>
+                      </Modal>
                     </View>
-                  )}
-                  <View style={styles.timeSlotContainer}>
-                    {availableDateTimes.length > 0 ? (
-                      availableDateTimes.map((item) => {
-                        return (
-                          <TouchableOpacity
-                            key={item.key}
-                            style={
-                              selectedTime.toLocaleString() ==
-                              new Date(item.text).toLocaleString()
-                                ? styles.timeSlotButtonSelected
-                                : styles.timeSlotButton
-                            }
-                            onPress={() => {
-                              handleNewTimeSlot(new Date(item.text));
-                              // setSelectedDateTime(new Date(item.text));
-                            }}
-                          >
-                            <Text
-                              key={item.key}
-                              style={
-                                selectedTime.toLocaleString() ==
-                                new Date(item.text).toLocaleString()
-                                  ? styles.timeSlotButtonSelectedText
-                                  : styles.timeSlotButtonText
-                              }
-                            >
-                              {getTimeFromMap(item.text)}
-                            </Text>
-                          </TouchableOpacity>
-                        );
-                      })
-                    ) : (
-                      <Text>No more availability on this date.</Text>
+
+                    {props.touched.state && props.errors.state && (
+                      <Text style={styles.errorText}>{props.errors.state}</Text>
                     )}
                   </View>
                 </View>
-                <View style={styles.propContainer}>
-                  <Text style={styles.propTitle}>Duration:</Text>
-                  {/* Dropdown menu */}
+                <View style={styles.inputContainerZip}>
                   <View>
-                    <RNPickerSelect
-                      onValueChange={async (value) => {
-                        await handleDurationChange(value);
-                      }}
-                      items={
-                        appointmentDurationOptions
-                          ? appointmentDurationOptions
-                          : [
-                              { label: "1 Hour", value: 1 },
-                              { label: "2 Hours", value: 2 },
-                              { label: "3 Hours", value: 3 },
-                              { label: "4 Hours", value: 4 },
-                              { label: "5 Hours", value: 5 },
-                              { label: "6 Hours", value: 6 },
-                              { label: "7 Hours", value: 7 },
-                              { label: "8 Hours", value: 8 },
-                            ]
-                      }
-                      placeholder={{
-                        label: "Select duration for appointment",
-                        value: 0,
-                      }}
-                      value={appointmentDuration}
-                      style={styles.durationPicker}
+                    <SimpleLineIcons
+                      name="location-pin"
+                      size={16}
+                      color="black"
+                      style={{ paddingRight: "5%" }}
                     />
                   </View>
-                </View>
-                <View style={styles.rateContainer}>
-                  <Text style={styles.propTitle}>Subtotal:</Text>
-                  <Text style={styles.propText}>
-                    {appointmentDuration === 0
-                      ? "(Select a duration)"
-                      : `$${subTotal}`}
-                  </Text>
-                </View>
-                <View style={styles.locationFormContainer}>
-                  <Text style={styles.propTitle}>Location:</Text>
-                  <RadioGroup
-                    radioButtons={locations}
-                    onPress={setSelectedLocationOption}
-                    flexDirection="column"
-                    selectedId={selectedLocationOption}
-                    containerStyle={styles.radioGroup}
+                  <TextInput
+                    style={{ flex: 1, flexWrap: "wrap" }}
+                    placeholder="Zipcode"
+                    onChangeText={props.handleChange("zipcode")}
+                    onBlur={props.handleBlur("zipcode")}
+                    name="zipcode"
+                    value={props.values.zipcode}
+                    textContentType="postalCode"
                   />
                 </View>
-                {selectedLocationOption === "2" ? (
-                  <View style={styles.propContainer}>
-                    <Text style={styles.propTitle}>Your Location:</Text>
-
-                    <View style={styles.inputContainer}>
-                      <View>
-                        <FontAwesome
-                          name="address-book"
-                          size={16}
-                          color="black"
-                          style={{ paddingRight: "5%" }}
-                        />
-                      </View>
-                      <TextInput
-                        style={{ flex: 1, flexWrap: "wrap" }}
-                        placeholder="Address"
-                        onChangeText={handleChange("addressL1")}
-                        onBlur={handleBlur("addressL1")}
-                        name="addressL1"
-                        value={values.addressL1}
-                        autoCapitalize="none"
-                      />
-                    </View>
-                    {touched.addressL1 && errors.addressL1 && (
-                      <Text style={styles.errorText}>{errors.addressL1}</Text>
-                    )}
-                    <View style={styles.inputContainerAddress}>
-                      <TextInput
-                        style={{ flex: 1, flexWrap: "wrap" }}
-                        placeholder="Apt, Suite, Floor, Building"
-                        onChangeText={handleChange("addressL2")}
-                        onBlur={handleBlur("addressL2")}
-                        name="addressL2"
-                        value={values.addressL2}
-                        textContentType="streetAddressLine2"
-                      />
-                      {touched.addressL2 && errors.addressL2 && (
-                        <Text style={styles.errorText}>{errors.addressL2}</Text>
-                      )}
-                    </View>
-                    <View style={styles.inputContainerCityState}>
-                      <View style={{ width: "45%" }}>
-                        <View style={styles.inputContainerCity}>
-                          <TextInput
-                            placeholder="City"
-                            onChangeText={handleChange("city")}
-                            value={values.city}
-                            onBlur={handleBlur("city")}
-                            textContentType="addressCity"
-                          />
-                        </View>
-                        {touched.city && errors.city && (
-                          <Text style={styles.errorText}>{errors.city}</Text>
-                        )}
-                      </View>
-                      <View style={{ marginHorizontal: "10%", width: "45%" }}>
-                        <View style={styles.inputContainerState}>
-                          <RNPickerSelect
-                            useNativeAndroidPickerStyle={false}
-                            style={{
-                              inputAndroid: {
-                                justifyContent: "center",
-                                fontSize: 15,
-                                paddingLeft: 7,
-
-                                paddingTop: 10,
-                              },
-                            }}
-                            placeholder={{ label: "State", value: null }}
-                            value={values.state}
-                            onValueChange={handleChange("state")}
-                            items={statesItemsObj}
-                          ></RNPickerSelect>
-                        </View>
-                        {touched.state && errors.state && (
-                          <Text style={styles.errorText}>{errors.state}</Text>
-                        )}
-                      </View>
-                    </View>
-                    <View style={styles.inputContainerZip}>
-                      <View>
-                        <SimpleLineIcons
-                          name="location-pin"
-                          size={16}
-                          color="black"
-                          style={{ paddingRight: "5%" }}
-                        />
-                      </View>
-                      <TextInput
-                        style={{ flex: 1, flexWrap: "wrap" }}
-                        placeholder="Zipcode"
-                        onChangeText={handleChange("zipcode")}
-                        onBlur={handleBlur("zipcode")}
-                        name="zipcode"
-                        value={values.zipcode}
-                        textContentType="postalCode"
-                      />
-                    </View>
-                    {touched.zipcode && errors.zipcode && (
-                      <Text style={styles.errorText}>{errors.zipcode}</Text>
-                    )}
-                  </View>
-                ) : (
-                  <Text style={styles.clinicInfoText}>
-                    Clinic address will be provided upon confirmation of
-                    appointment.
-                  </Text>
+                {props.touched.zipcode && props.errors.zipcode && (
+                  <Text style={styles.errorText}>{props.errors.zipcode}</Text>
                 )}
-              </ScrollView>
-            </View>
-          </KeyboardAvoidingView>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.secondaryButton}
-              onPress={() => {
-                setVisibility(false);
-              }}
-            >
-              <Text style={styles.cancelButtonText}>{"Cancel"}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.previousButton}
-              onPress={() => {
-                setCurrentStep(1);
-              }}
-            >
-              <Text style={styles.cancelButtonText}>{"Previous"}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.primaryButton}
-              // onPress={proceedToReview}
-              onPress={handleSubmit}
-            >
-              <Text style={styles.primaryButtonText}>{"Review & Pay"}</Text>
-            </TouchableOpacity>
-          </View>
+              </View>
+            ) : (
+              <Text style={styles.clinicInfoText}>
+                Clinic address will be provided upon confirmation of
+                appointment.
+              </Text>
+            )}
+          </ScrollView>
         </View>
-      )}
-    </Formik>
-  ));
+      </KeyboardAvoidingView>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={() => {
+            setVisibility(false);
+          }}
+        >
+          <Text style={styles.cancelButtonText}>{"Cancel"}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.previousButton}
+          onPress={() => {
+            setCurrentStep(1);
+          }}
+        >
+          <Text style={styles.cancelButtonText}>{"Previous"}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.primaryButton}
+          // onPress={proceedToReview}
+          onPress={props.handleSubmit}
+        >
+          <Text style={styles.primaryButtonText}>{"Review & Pay"}</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 
   const PaymentStep = ({}) => (
     <View style={styles.modalContent}>
@@ -1128,45 +1202,61 @@ function BookModal({
   );
 
   return (
-    <StripeProvider
-      publishableKey={
-        process.env.ENVIRONMENT === "prod"
-          ? process.env.STRIPE_P_KEY_LIVE
-          : process.env.STRIPE_P_KEY_TEST
-          ? process.env.STRIPE_P_KEY_TEST
-          : STRIPE_P_KEY_TEST
-      }
-      stripeAccountId={therapistStripeAccountId}
+    <Formik
+      initialValues={{
+        addressL1: "",
+        addressL2: "",
+        city: "",
+        state: "",
+        zipcode: "",
+      }}
+      validationSchema={locationSchema}
+      onSubmit={(values) => proceedToReview(values)}
+      enableReinitialize={false}
     >
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={visible}
-        onRequestClose={() => {}}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            {/* <KeyboardAvoidingView
+      {(props) => (
+        <StripeProvider
+          publishableKey={
+            process.env.ENVIRONMENT === "prod"
+              ? process.env.STRIPE_P_KEY_LIVE
+              : process.env.STRIPE_P_KEY_TEST
+              ? process.env.STRIPE_P_KEY_TEST
+              : STRIPE_P_KEY_TEST
+          }
+          stripeAccountId={therapistStripeAccountId}
+        >
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={visible}
+            onRequestClose={() => {}}
+          >
+            <View style={styles.centeredView}>
+              <View style={styles.modalView}>
+                {/* <KeyboardAvoidingView
               // change padding to height for android devices  platform === ios ? padding : height
               behavior="padding"
               style={{ flex: 1 }}
             > */}
-            <ProgressIndicator visible={bookingProgress} />
-            <DoneIndicator visible={bookingDone} />
-            {!bookingProgress && !bookingDone && currentStep === 1 && (
-              <TherapistDetailsStep />
-            )}
-            {!bookingProgress && !bookingDone && currentStep === 2 && (
-              <AppointmentDetailsStep />
-            )}
-            {!bookingProgress && !bookingDone && currentStep === 3 && (
-              <PaymentStep />
-            )}
-            {/* </KeyboardAvoidingView> */}
-          </View>
-        </View>
-      </Modal>
-    </StripeProvider>
+                <ProgressIndicator visible={bookingProgress} />
+                <DoneIndicator visible={bookingDone} />
+                {!bookingProgress && !bookingDone && currentStep === 1 && (
+                  <TherapistDetailsStep />
+                )}
+                {!bookingProgress && !bookingDone && currentStep === 2 && (
+                  <AppointmentDetailsStep {...props} />
+                )}
+
+                {!bookingProgress && !bookingDone && currentStep === 3 && (
+                  <PaymentStep />
+                )}
+                {/* </KeyboardAvoidingView> */}
+              </View>
+            </View>
+          </Modal>
+        </StripeProvider>
+      )}
+    </Formik>
   );
 }
 
@@ -1483,7 +1573,33 @@ const styles = StyleSheet.create({
   },
   modalBodyContainer: {
     padding: "5%",
-  }
+  },
+  backdrop: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  sheet: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    height: screenHeight / 2,
+    backgroundColor: "white",
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    padding: 20,
+  },
+  option: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderColor: "#eee",
+  },
+  noSelectText: {
+    color: colors.grey,
+  },
 });
 
-export default React.memo(BookModal);
+export default BookModal;
