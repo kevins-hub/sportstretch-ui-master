@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import MapView, { Marker } from "react-native-maps";
@@ -69,7 +75,7 @@ function AthleteMapView({
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.resetButton} onPress={resetMarkerToUser}>
+      {/* <TouchableOpacity style={styles.resetButton} onPress={resetMarkerToUser}>
         <MaterialCommunityIcons
           style={styles.accountIcon}
           name="crosshairs-gps"
@@ -80,7 +86,7 @@ function AthleteMapView({
           {" "}
           Reset Marker to My Location{" "}
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <MapView
         showsUserLocation
         style={styles.map}
@@ -115,6 +121,21 @@ function AthleteMapView({
             </Marker>
           ))}
       </MapView>
+      {Platform.OS === "ios" && !!userLocation && (
+        <TouchableOpacity
+          style={styles.resetButton}
+          onPress={resetMarkerToUser}
+        >
+          <View style={styles.iconWrapper}>
+            <MaterialCommunityIcons
+              style={styles.resetIcon}
+              name="crosshairs-gps"
+              size={30}
+              color={colors.primary}
+            />
+          </View>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -137,10 +158,24 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     width: "100%",
   },
-  resetButtonText: {
-    color: colors.primary,
-    fontSize: 16,
-    fontWeight: "bold",
+  resetButton: {
+    position: "absolute",
+    top: 35,
+    right: 20,
+    backgroundColor: "white",
+    padding: 12,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    zIndex: 10, // Ensure it's on top
+  },
+  iconWrapper: {
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Formik } from "formik";
 import {
   Modal,
@@ -12,6 +12,8 @@ import {
   Button,
   Alert,
   KeyboardAvoidingView,
+  Animated,
+  Dimensions,
 } from "react-native";
 import {
   FontAwesome,
@@ -26,7 +28,6 @@ import colors from "../../config/colors";
 import { useNavigation } from "@react-navigation/native";
 import registerApi from "../../api/register";
 import { states } from "../../lib/states";
-import RNPickerSelect from "react-native-picker-select";
 import Checkbox from "expo-checkbox";
 import TherapistBusinessHours from "../../components/therapist/TherapistBusinessHours";
 import payment from "../../api/payment";
@@ -56,11 +57,13 @@ const bioMaxLength = 250;
 const feesAndTaxesPercentage = 0.15;
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
-const urlRegExp = /^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[a-zA-Z0-9#-_.?&=]*)*\/?$/;
+const urlRegExp =
+  /^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/[a-zA-Z0-9#-_.?&=]*)*\/?$/;
 const statesItemsObj = Object.entries(states).map(([abbr, name]) => {
   return { label: abbr, value: name };
 });
 const addressRegExp = /^[a-zA-Z0-9\s,'.-]*$/;
+const { height: screenHeight } = Dimensions.get("window");
 
 const ReviewSchema = yup.object({
   fname: yup.string().required().min(1).label("First Name"),
@@ -157,6 +160,10 @@ function TherapistForm(props) {
   const [showSubmitError, setShowSubmitError] = useState(false);
   const [dob, setDob] = useState(null);
   const [showAboveAgeError, setShowAboveAgeError] = useState(false);
+  const [statesModalVisible, setStatesModalVisible] = useState(false);
+  const [professionModalVisible, setProfessionModalVisible] = useState(false);
+
+  const slideAnim = useRef(new Animated.Value(screenHeight)).current;
 
   useEffect(() => {
     if (currentStep === SMS_VERIFICATION_STEP) {
@@ -259,7 +266,8 @@ function TherapistForm(props) {
           setShowInvalidFieldError(false);
           setShowEmailExistsError(false);
           setShowPhoneExistsError(false);
-          setCurrentStep(currentStep + 1);
+          // setCurrentStep(currentStep + 1);
+          setCurrentStep(5);
           setPhoneNumber(values.phone);
           setEmail(values.email);
         })
@@ -370,6 +378,7 @@ function TherapistForm(props) {
     if (currentStep === SMS_VERIFICATION_STEP) {
       let code = Math.floor(100000 + Math.random() * 900000);
       setVerificationCode(code);
+      console.log("code", code);
       const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
 
       const body = new URLSearchParams({
@@ -392,6 +401,7 @@ function TherapistForm(props) {
           body: body.toString(),
         });
         const data = await response.json();
+        console.log("data", data);
       } catch (error) {
         console.error("Error sending SMS:", error);
       }
@@ -425,6 +435,44 @@ function TherapistForm(props) {
       setVerified(true);
       setTimeout(resetVerificationStep, 2000);
     }
+  };
+
+  const openStatesModal = () => {
+    setStatesModalVisible(true);
+    Animated.timing(slideAnim, {
+      toValue: screenHeight / 2,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const closeStateModal = () => {
+    Animated.timing(slideAnim, {
+      toValue: screenHeight,
+      duration: 300,
+      useNativeDriver: false,
+    }).start(() => {
+      setStatesModalVisible(false);
+    });
+  };
+
+  const openProfessionModal = () => {
+    setProfessionModalVisible(true);
+    Animated.timing(slideAnim, {
+      toValue: screenHeight / 2,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const closeProfessionModal = () => {
+    Animated.timing(slideAnim, {
+      toValue: screenHeight,
+      duration: 300,
+      useNativeDriver: false,
+    }).start(() => {
+      setProfessionModalVisible(false);
+    });
   };
 
   const ContactStep = (props) => (
@@ -589,12 +637,39 @@ function TherapistForm(props) {
             style={{ paddingRight: "5%" }}
           />
         </View>
-        <RNPickerSelect
-          onValueChange={props.handleChange("profession")}
-          items={professionsList ? professionsList : ["Massage Therapist"]}
-          placeholder={{ label: "Choose your Primary Discipline", value: "" }}
-          value={props.values.profession}
-        />
+        <TouchableOpacity style={styles.selector} onPress={openProfessionModal}>
+          <Text style={!props.values.profession ? styles.noSelectText : {}}>
+            {props.values.profession ? props.values.profession : "Profession"}
+          </Text>
+        </TouchableOpacity>
+
+        <Modal
+          transparent
+          visible={professionModalVisible}
+          animationType="none"
+        >
+          <TouchableOpacity
+            style={styles.backdrop}
+            activeOpacity={1}
+            onPress={closeProfessionModal}
+          />
+          <Animated.View style={[styles.sheet, { top: slideAnim }]}>
+            <ScrollView>
+              {professionsList.map((opt) => (
+                <TouchableOpacity
+                  key={opt.label}
+                  onPress={() => {
+                    props.setFieldValue("profession", opt.label);
+                    closeProfessionModal(); // optionally close the modal
+                  }}
+                  style={styles.option}
+                >
+                  <Text>{opt.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </Animated.View>
+        </Modal>
       </View>
       {props.touched.profession && props.errors.profession && (
         <Text style={styles.errorText}>{props.errors.profession}</Text>
@@ -785,16 +860,40 @@ function TherapistForm(props) {
 
         <View style={{ marginHorizontal: "10%", width: "45%" }}>
           <View style={styles.inputContainerState}>
-            <RNPickerSelect
-              placeholder={{ label: "Select A State", value: "" }}
-              value={props.values.state}
-              onValueChange={props.handleChange("state")}
-              items={
-                statesItemsObj
-                  ? statesItemsObj
-                  : [{ label: "CA", value: "California" }]
-              }
-            ></RNPickerSelect>
+            <TouchableOpacity style={styles.selector} onPress={openStatesModal}>
+              <Text style={!props.values.state ? styles.noSelectText : {}}>
+                {props.values.state ? props.values.state : "State"}
+              </Text>
+            </TouchableOpacity>
+
+            <Modal
+              transparent
+              visible={statesModalVisible}
+              animationType="none"
+            >
+              <TouchableOpacity
+                style={styles.backdrop}
+                activeOpacity={1}
+                onPress={closeStateModal}
+              />
+              <Animated.View style={[styles.sheet, { top: slideAnim }]}>
+                <ScrollView>
+                  {statesItemsObj.map((opt) => (
+                    <TouchableOpacity
+                      key={opt.label}
+                      onPress={() => {
+                        console.log("opt", opt);
+                        props.setFieldValue("state", opt.label);
+                        closeStateModal(); // optionally close the modal
+                      }}
+                      style={styles.option}
+                    >
+                      <Text>{opt.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </Animated.View>
+            </Modal>
           </View>
           {props.touched.state && props.errors.state && (
             <Text style={styles.errorTextCityState}>{props.errors.state}</Text>
@@ -1385,15 +1484,10 @@ const styles = StyleSheet.create({
   },
 
   verificationInputField: {
-    // width: 30,
-    // height: 45,
-    // borderWidth: 0,
-    // borderBottomWidth: 1,
     color: "#000",
   },
 
   verificationHighlightField: {
-    // borderColor: "#03DAC6",
     borderColor: "#000",
   },
   datePicker: {
@@ -1410,6 +1504,32 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-around",
+  },
+  backdrop: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  sheet: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    height: screenHeight / 2,
+    backgroundColor: "white",
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    padding: 20,
+  },
+  option: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderColor: "#eee",
+  },
+  noSelectText: {
+    color: colors.grey,
   },
 });
 
