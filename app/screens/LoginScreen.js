@@ -40,8 +40,10 @@ function LoginScreen(props) {
             : result.data
         );
       setErrorText("");
+      console.warn("result.data = ", result.data);
       const user = jwtDecode(result.data);
       authContext.setUser(user);
+      console.warn("user at log in = ", user);
       authStorage.storeToken(result.data);
     } catch (error) {
       setErrorText("Error when logging in. Please try again.");

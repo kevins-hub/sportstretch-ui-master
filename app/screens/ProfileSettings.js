@@ -66,7 +66,10 @@ function ProfileSettings({ route }) {
 
   const { user } = route.params;
 
+  console.warn("user = ", user);
+
   let userObj = user.userObj;
+  console.warn("userObj = ", userObj);
 
   const [therapist, setTherapist] = useState(
     user.role === "therapist" ? userObj : {}

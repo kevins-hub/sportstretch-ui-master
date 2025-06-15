@@ -32,4 +32,20 @@ const removeToken = async () => {
   }
 };
 
-export default { getToken, getUser, removeToken, storeToken };
+const storeEmail = async (email) => {
+  try {
+    await SecureStore.setItemAsync("userEmail", email);
+  } catch (error) {
+    console.log("Error storing the user email", error);
+  }
+}
+
+const getEmail = async () => {
+  try {
+    return await SecureStore.getItemAsync("userEmail");
+  } catch (error) {
+    console.log("Error getting the user email", error);
+  }
+};
+
+export default { getToken, getUser, removeToken, storeToken, storeEmail, getEmail };
