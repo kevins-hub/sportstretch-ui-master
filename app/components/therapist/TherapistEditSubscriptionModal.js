@@ -14,6 +14,7 @@ const productIds = ["pro_upgrade"];
 export default function TherapistEditSubscriptionModal({
   visible,
   setVisibility,
+  setSubscribed,
 }) {
   const [selectedPlan, setSelectedPlan] = useState("pro"); // 'basic' or 'pro'
   const [basicPackages, setBasicPackages] = useState([]);
@@ -81,6 +82,7 @@ export default function TherapistEditSubscriptionModal({
       .then((result) => {
         console.warn("Purchase result:", result);
         if (result.success) {
+          setSubscribed(true);
           setVisibility(false);
         }
       })

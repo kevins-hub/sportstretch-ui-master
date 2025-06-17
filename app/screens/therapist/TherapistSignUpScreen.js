@@ -163,9 +163,10 @@ function TherapistForm(props) {
   const [showAboveAgeError, setShowAboveAgeError] = useState(false);
   const [statesModalVisible, setStatesModalVisible] = useState(false);
   const [professionModalVisible, setProfessionModalVisible] = useState(false);
+  const [subscribed, setSubscribed] = useState(false);
 
   const slideAnim = useRef(new Animated.Value(screenHeight)).current;
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(true); // true for testing only, should be false
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false); // true for testing only, should be false
 
   useEffect(() => {
     if (currentStep === SMS_VERIFICATION_STEP) {
@@ -201,6 +202,17 @@ function TherapistForm(props) {
       console.warn("Error setting date of birth: ", error);
     }
   };
+
+  // const setSubscription = () => {
+  //   return new Promise(resolve => {
+  //     const interval = setInterval(() => {
+  //       if (!showSubscriptionModal) {
+  //         clearInterval(interval);
+  //         resolve();
+  //       }
+  //     }, 100); // Check every 100ms
+  //   });
+  // }
 
   const register_therapist = async (values) => {
     let registerSuccess = false;
@@ -268,14 +280,16 @@ function TherapistForm(props) {
           setShowInvalidFieldError(false);
           setShowEmailExistsError(false);
           setShowPhoneExistsError(false);
-          // setCurrentStep(currentStep + 1);
-          setCurrentStep(5);
+          // console.warn("current Step = ", currentStep);
+          setCurrentStep(currentStep + 1);
+          // console.warn("current Step = ", currentStep);
+          // setCurrentStep(5);
           setPhoneNumber(values.phone);
           setEmail(values.email);
         })
         .catch((err) => {
           setShowInvalidFieldError(true);
-          console.warn(err);
+          console.warn("err: ", err);
         });
     } else if (currentStep === DOB_STEP) {
       if (checkAge(dob)) {
@@ -413,6 +427,7 @@ function TherapistForm(props) {
       console.warn("email step");
       try {
         const code = Math.floor(100000 + Math.random() * 900000);
+        console.warn("email code = ", code);
         setVerificationCode(code);
         let emailVerificationCode = { email: email, token: code };
         let res = await register.verifyEmail(emailVerificationCode);
@@ -1071,6 +1086,7 @@ function TherapistForm(props) {
       <TherapistEditSubscriptionModal
         visible={showSubscriptionModal}
         setVisibility={setShowSubscriptionModal}
+        setSubscribed={setSubscribed}
       />
       <KeyboardAvoidingView
         // change padding to height for android devices  platform === ios ? padding : height
@@ -1142,6 +1158,20 @@ function TherapistForm(props) {
               values.businessHours = businessHours;
               values.dob = dob;
 
+              // try {
+              //   setShowSubscriptionModal(true);
+              //   await setSubscription();
+              //   if (!subscribed) {
+              //     setShowSubmitError(true);
+              //     return;
+              //   }
+              // } catch (error) {
+              //   console.warn("Error setting subscription: ", error);
+              //   setShowSubmitError(true);
+              //   return;
+              // }
+              
+
               try {
                 const registerStripeResponse =
                   await payment.registerStripeAccount({
@@ -1157,17 +1187,8 @@ function TherapistForm(props) {
                 console.warn("Error registering stripe account: ", error);
               }
 
-              // subscription step
-              
-
               try {
                 await register_therapist(values);
-
-                // once registration succeeds, show subscription modal 
-                // if they choose pro and it succeeds, proceed
-                // if it fails, then display a message saying something went wrong, and they can upgrade later
-                // if they choose basic (no purchase), proceed
-                setShowSubscriptionModal(true);
               } catch (error) {
                 console.warn("Error registering therapist: ", error);
                 setShowSubmitError(true);
