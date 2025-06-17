@@ -33,8 +33,7 @@ export const getOfferings = async () => {
 export const PurchasePackage = async (pkg) => {
   try {
     const { customerInfo } = await Purchases.purchasePackage(pkg);
-    const isPro = customerInfo.entitlements.active.pro !== undefined;
-    return { success: isPro, customerInfo };
+    return { success: true, customerInfo };
   } catch (e) {
     console.warn("Purchase error", e);
     return { success: false, error: e };

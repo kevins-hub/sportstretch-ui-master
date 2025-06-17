@@ -14,30 +14,27 @@ const productIds = ["pro_upgrade"];
 export default function TherapistEditSubscriptionModal({
   visible,
   setVisibility,
-  onClose,
 }) {
   const [selectedPlan, setSelectedPlan] = useState("pro"); // 'basic' or 'pro'
   const [basicPackages, setBasicPackages] = useState([]);
   const [proPackages, setProPackages] = useState([]);
   const [selectedPackage, setSelectedPackage] = useState(null);
-  
 
-// - Create a professional bio for athletes to find
-// - View and Accept or Decline booking requests for services
-// - Set business / operating hours
-
+  // - Create a professional bio for athletes to find
+  // - View and Accept or Decline booking requests for services
+  // - Set business / operating hours
 
   const basicFeatures = [
-    "Create a professional bio for athletes to find",
+    "Professional bio (up to 100 characters)",
     "View and accept or decline booking requests for services",
     "Set business / operating hours",
-    "Manage bookings and appointments"
-  ]
+    "Manage bookings and appointments",
+  ];
 
   const proFeatures = [
-    "Set custom profile picture for your business", 
-    "Larger character allowance for bio"
-  ]
+    "Professional bio (up to 500 characters)",
+    "Set custom profile picture for your business",
+  ];
 
   useEffect(() => {
     const fetchOfferings = async () => {
@@ -71,33 +68,38 @@ export default function TherapistEditSubscriptionModal({
     fetchOfferings();
   }, []);
 
-
   const handleSubmit = async () => {
-    if (selectedPlan == "basic") {
-      Alert.alert("Basic Membership", "You have selected the Basic Membership. You will be able to upgrade to Pro at any time in the Profile tab.");
-      setVisibility(false);
-      onClose();
-      return;
-    }
+    // if (selectedPlan == "basic") {
+    //   Alert.alert(
+    //     "Basic Membership",
+    //     "You have selected the Basic Membership. You will be able to upgrade to Pro at any time in the Profile tab."
+    //   );
+    //   setVisibility(false);
+    //   return;
+    // }
     PurchasePackage(selectedPackage)
       .then((result) => {
+        console.warn("Purchase result:", result);
         if (result.success) {
-          Alert.alert("Success", "You have successfully subscribed to the Pro plan.");
           setVisibility(false);
-          onClose();
         }
       })
       .catch((error) => {
         console.warn("Purchase error:", error);
-        Alert.alert("Error", "An error occurred while processing your purchase. Please try again later.");
+        Alert.alert(
+          "Error",
+          "An error occurred while processing your purchase. Please try again later."
+        );
       });
-  }
+  };
 
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.container}>
         <View style={styles.modalContent}>
           <Text style={styles.title}>Choose Your Plan</Text>
+          <Text style={styles.optionTitle}>Your first month is on us!</Text>
+          <Text>Cancel / downgrade any time.</Text>
 
           {/* {basicPackages.map((pkg) => (
             <TouchableOpacity
@@ -128,23 +130,69 @@ export default function TherapistEditSubscriptionModal({
             >
               <View style={styles.titlePriceContainer}>
                 <Text style={styles.optionTitle}>{pkg.product.title}</Text>
-                <Text>{pkg.product.priceString}/month</Text>
+                <View>
+                  <Text style={styles.promoText}>First month free</Text>
+                  <Text style={styles.priceText}>
+                    {pkg.product.priceString}/month
+                  </Text>
+                  <Text>after</Text>
+                </View>
               </View>
               <Text>{pkg.product.description}</Text>
 
-              <Text style={{ marginTop: 10, fontWeight: "bold" }}>Pro Features:</Text>
+              <Text style={{ marginTop: 10, fontWeight: "bold" }}>
+                Pro Features:
+              </Text>
               <Text style={{ marginLeft: 4 }}>
                 {"All basic membership features PLUS:"}
               </Text>
               {proFeatures.map((feature, index) => (
-                <Text key={index} style={{ marginLeft: 12, fontWeight: "bold" }}>
-                  {'\u2022'} {feature}
+                <Text
+                  key={index}
+                  style={{ marginLeft: 12, fontWeight: "bold" }}
+                >
+                  {"\u2022"} {feature}
                 </Text>
               ))}
             </TouchableOpacity>
           ))}
 
+          {basicPackages.map((pkg) => (
+            <TouchableOpacity
+              key={pkg.identifier}
+              style={[
+                styles.option,
+                selectedPlan === "basic" && styles.selected,
+              ]}
+              onPress={() => {
+                setSelectedPlan("basic");
+                setSelectedPackage(pkg);
+              }}
+            >
+              <View style={styles.titlePriceContainer}>
+                <Text style={styles.optionTitle}>{pkg.product.title}</Text>
+                <View>
+                  <Text style={styles.promoText}>First month free</Text>
+                  <Text style={styles.priceText}>
+                    {pkg.product.priceString}/month
+                  </Text>
+                  <Text>after</Text>
+                </View>
+              </View>
+              <Text>{pkg.product.description}</Text>
 
+              <Text style={{ marginTop: 10, fontWeight: "bold" }}>
+                Basic Features:
+              </Text>
+              {basicFeatures.map((feature, index) => (
+                <Text key={index} style={{ marginLeft: 12 }}>
+                  {"\u2022"} {feature}
+                </Text>
+              ))}
+            </TouchableOpacity>
+          ))}
+
+          {/* 
           <TouchableOpacity
               style={[
                 styles.option,
@@ -166,9 +214,7 @@ export default function TherapistEditSubscriptionModal({
                   {'\u2022'} {feature}
                 </Text>
               ))}
-            </TouchableOpacity>
-
-
+            </TouchableOpacity> */}
 
           <TouchableOpacity
             style={styles.subscribeButton}
@@ -182,7 +228,6 @@ export default function TherapistEditSubscriptionModal({
           <TouchableOpacity onPress={() => setVisibility(false)}>
             <Text style={styles.closeText}>Cancel</Text>
           </TouchableOpacity>
-
 
           {/* <TouchableOpacity
             style={[styles.option, selectedPlan === "basic" && styles.selected]}
@@ -273,5 +318,15 @@ const styles = StyleSheet.create({
   closeText: {
     marginTop: 15,
     color: "#666",
+  },
+  promoText: {
+    fontSize: 10,
+    color: "#ff5722",
+    fontWeight: "bold",
+  },
+  priceText: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginTop: 4,
   },
 });

@@ -1157,6 +1157,9 @@ function TherapistForm(props) {
                 console.warn("Error registering stripe account: ", error);
               }
 
+              // subscription step
+              
+
               try {
                 await register_therapist(values);
 
