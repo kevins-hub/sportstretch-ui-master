@@ -169,12 +169,18 @@ function TherapistForm(props) {
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false); // true for testing only, should be false
 
   useEffect(() => {
-    if (currentStep === SMS_VERIFICATION_STEP) {
-      sendSMSVerification(phoneNumber);
-    } else if (currentStep === EMAIL_VERIFIACTION_STEP) {
-      setVerified(false);
-      sendSMSVerification(email);
+    try {
+      if (currentStep === SMS_VERIFICATION_STEP) {
+        sendSMSVerification(phoneNumber);
+      } else if (currentStep === EMAIL_VERIFIACTION_STEP) {
+        setVerified(false);
+        sendSMSVerification(email);
+      }
+    } catch (e) {
+      console.warn("Error sending verification code: ", e);
+      Alert.alert("Error", "Failed to send verification code. Please try again.");
     }
+
   }, [currentStep]);
 
   const checkAge = (dob) => {
@@ -203,16 +209,16 @@ function TherapistForm(props) {
     }
   };
 
-  // const setSubscription = () => {
-  //   return new Promise(resolve => {
-  //     const interval = setInterval(() => {
-  //       if (!showSubscriptionModal) {
-  //         clearInterval(interval);
-  //         resolve();
-  //       }
-  //     }, 100); // Check every 100ms
-  //   });
-  // }
+  const setSubscription = () => {
+    return new Promise(resolve => {
+      const interval = setInterval(() => {
+        if (!showSubscriptionModal) {
+          clearInterval(interval);
+          resolve();
+        }
+      }, 100); // Check every 100ms
+    });
+  }
 
   const register_therapist = async (values) => {
     let registerSuccess = false;
@@ -270,6 +276,7 @@ function TherapistForm(props) {
         setShowPhoneExistsError(true);
         return;
       }
+      console.warn("email and phone available");
       Promise.all([
         ReviewSchema.validateAt("fname", values),
         ReviewSchema.validateAt("lname", values),
@@ -281,11 +288,12 @@ function TherapistForm(props) {
           setShowEmailExistsError(false);
           setShowPhoneExistsError(false);
           // console.warn("current Step = ", currentStep);
+          setPhoneNumber(values.phone);
+          setEmail(values.email);
           setCurrentStep(currentStep + 1);
           // console.warn("current Step = ", currentStep);
           // setCurrentStep(5);
-          setPhoneNumber(values.phone);
-          setEmail(values.email);
+
         })
         .catch((err) => {
           setShowInvalidFieldError(true);
@@ -1158,18 +1166,18 @@ function TherapistForm(props) {
               values.businessHours = businessHours;
               values.dob = dob;
 
-              // try {
-              //   setShowSubscriptionModal(true);
-              //   await setSubscription();
-              //   if (!subscribed) {
-              //     setShowSubmitError(true);
-              //     return;
-              //   }
-              // } catch (error) {
-              //   console.warn("Error setting subscription: ", error);
-              //   setShowSubmitError(true);
-              //   return;
-              // }
+              try {
+                setShowSubscriptionModal(true);
+                await setSubscription();
+                if (!subscribed) {
+                  setShowSubmitError(true);
+                  return;
+                }
+              } catch (error) {
+                console.warn("Error setting subscription: ", error);
+                setShowSubmitError(true);
+                return;
+              }
               
 
               try {
