@@ -15,6 +15,10 @@ export default function TherapistEditSubscriptionModal({
   visible,
   setVisibility,
   setSubscribed,
+  // setRcCustomerId,
+  onClose,
+  // signUpValues,
+  isSignUp = false,
 }) {
   const [selectedPlan, setSelectedPlan] = useState("pro"); // 'basic' or 'pro'
   const [basicPackages, setBasicPackages] = useState([]);
@@ -40,6 +44,7 @@ export default function TherapistEditSubscriptionModal({
   useEffect(() => {
     const fetchOfferings = async () => {
       const offering = await getOfferings();
+      console.warn("Offering fetched:", offering);
       if (!offering) {
         Alert.alert(
           "Error",
@@ -56,6 +61,11 @@ export default function TherapistEditSubscriptionModal({
       const availableProPackages =
         offering?.all["Pro Recovery Specialist Subscription"]
           ?.availablePackages ?? [];
+      setSelectedPackage(
+        availableProPackages.length > 0
+          ? availableProPackages[0]
+          : availableBasicPackages[0] || null
+      );
       if (availableBasicPackages.length > 0) {
         setBasicPackages(availableBasicPackages);
       }
@@ -78,11 +88,16 @@ export default function TherapistEditSubscriptionModal({
     //   setVisibility(false);
     //   return;
     // }
+    console.warn("selectedPackage = ", selectedPackage);
     PurchasePackage(selectedPackage)
       .then((result) => {
         console.warn("Purchase result:", result);
         if (result.success) {
           setSubscribed(true);
+          const rcCustId = result.customerInfo?.originalAppUserId;
+          if (isSignUp) {
+            onClose(rcCustId);
+          }
           setVisibility(false);
         }
       })
@@ -123,7 +138,7 @@ export default function TherapistEditSubscriptionModal({
 
           {proPackages.map((pkg) => (
             <TouchableOpacity
-              key={pkg.identifier}
+              key={pkg.offeringIdentifier}
               style={[styles.option, selectedPlan === "pro" && styles.selected]}
               onPress={() => {
                 setSelectedPlan("pro");
@@ -161,7 +176,7 @@ export default function TherapistEditSubscriptionModal({
 
           {basicPackages.map((pkg) => (
             <TouchableOpacity
-              key={pkg.identifier}
+              key={pkg.offeringIdentifier}
               style={[
                 styles.option,
                 selectedPlan === "basic" && styles.selected,

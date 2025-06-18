@@ -167,6 +167,10 @@ function TherapistForm(props) {
 
   const slideAnim = useRef(new Animated.Value(screenHeight)).current;
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false); // true for testing only, should be false
+  const [rcCustomerId, setRcCustomerId] = useState(null);
+  const [signUpValues, setSignUpValues] = useState(null);
+  const signUpValuesRef = useRef(signUpValues);
+
 
   useEffect(() => {
     try {
@@ -182,6 +186,10 @@ function TherapistForm(props) {
     }
 
   }, [currentStep]);
+
+  useEffect(() => {
+    signUpValuesRef.current = signUpValues;
+  }, [signUpValues]);
 
   const checkAge = (dob) => {
     const today = new Date();
@@ -209,18 +217,30 @@ function TherapistForm(props) {
     }
   };
 
-  const setSubscription = () => {
-    return new Promise(resolve => {
-      const interval = setInterval(() => {
-        if (!showSubscriptionModal) {
-          clearInterval(interval);
-          resolve();
-        }
-      }, 100); // Check every 100ms
-    });
-  }
+  // const setSubscription = () => {
+  //   return new Promise(resolve => {
+  //     const interval = setInterval(() => {
+  //       if (!showSubscriptionModal) {
+  //         clearInterval(interval);
+  //         resolve();
+  //       }
+  //     }, 100); // Check every 100ms
+  //   });
+  // }
+
+  // const addRcCustomerIdToSignUpValues = (rcCustId) => {
+  //   console.warn("Adding RC Customer ID to signUpValues: ", rcCustId);
+  //   const updated = {
+  //     ...signUpValuesRef.current,
+  //     rcCustomerId: rcCustId,
+  //   };
+  //   setRcCustomerId(rcCustId);
+  //   setSignUpValues(updated);
+  //   console.warn("signUpValues updated: ", updated);
+  // }
 
   const register_therapist = async (values) => {
+    console.warn("values = ", values);
     let registerSuccess = false;
     try {
       let register_response = await registerApi.registerTherapist(values);
@@ -502,6 +522,35 @@ function TherapistForm(props) {
       setProfessionModalVisible(false);
     });
   };
+
+  const registerTherapist = async (rcCustId) => {
+    const values = signUpValues;
+    values.rcCustomerId = rcCustId;
+    console.warn("signUpValues = ", values);
+    try {
+      console.warn("stripe register");
+      const registerStripeResponse =
+        await payment.registerStripeAccount({
+          email: values.email.toLowerCase(),
+        });
+      if (handleError(registerStripeResponse)) return;
+      if (registerStripeResponse.status === 200) {
+        const stripeAccountId =
+          registerStripeResponse.data.account.id;
+        values.stripeAccountId = stripeAccountId;
+      }
+    } catch (error) {
+      console.warn("Error registering stripe account: ", error);
+    }
+
+    try {
+      console.warn("therapist register");
+      await register_therapist(values);
+    } catch (error) {
+      console.warn("Error registering therapist: ", error);
+      setShowSubmitError(true);
+    }
+  }  
 
   const ContactStep = (props) => (
     // contact details
@@ -1095,6 +1144,9 @@ function TherapistForm(props) {
         visible={showSubscriptionModal}
         setVisibility={setShowSubscriptionModal}
         setSubscribed={setSubscribed}
+        onClose={registerTherapist}
+        isSignUp={true}
+        
       />
       <KeyboardAvoidingView
         // change padding to height for android devices  platform === ios ? padding : height
@@ -1166,13 +1218,18 @@ function TherapistForm(props) {
               values.businessHours = businessHours;
               values.dob = dob;
 
+              setSignUpValues(values);
+
               try {
                 setShowSubscriptionModal(true);
-                await setSubscription();
-                if (!subscribed) {
-                  setShowSubmitError(true);
-                  return;
-                }
+                // await setSubscription();
+                // console.warn("subscribed = ", subscribed);
+                // console.warn("rcCustomerId = ", rcCustomerId);
+                // if (subscribed === false) {
+                //   setShowSubmitError(true);
+                //   return;
+                // }
+                // values.rcCustomerId = rcCustomerId;
               } catch (error) {
                 console.warn("Error setting subscription: ", error);
                 setShowSubmitError(true);
@@ -1180,27 +1237,29 @@ function TherapistForm(props) {
               }
               
 
-              try {
-                const registerStripeResponse =
-                  await payment.registerStripeAccount({
-                    email: values.email.toLowerCase(),
-                  });
-                if (handleError(registerStripeResponse)) return;
-                if (registerStripeResponse.status === 200) {
-                  const stripeAccountId =
-                    registerStripeResponse.data.account.id;
-                  values.stripeAccountId = stripeAccountId;
-                }
-              } catch (error) {
-                console.warn("Error registering stripe account: ", error);
-              }
+              // try {
+              //   console.warn("stripe register");
+              //   const registerStripeResponse =
+              //     await payment.registerStripeAccount({
+              //       email: values.email.toLowerCase(),
+              //     });
+              //   if (handleError(registerStripeResponse)) return;
+              //   if (registerStripeResponse.status === 200) {
+              //     const stripeAccountId =
+              //       registerStripeResponse.data.account.id;
+              //     values.stripeAccountId = stripeAccountId;
+              //   }
+              // } catch (error) {
+              //   console.warn("Error registering stripe account: ", error);
+              // }
 
-              try {
-                await register_therapist(values);
-              } catch (error) {
-                console.warn("Error registering therapist: ", error);
-                setShowSubmitError(true);
-              }
+              // try {
+              //   console.warn("therapist register");
+              //   await register_therapist(values);
+              // } catch (error) {
+              //   console.warn("Error registering therapist: ", error);
+              //   setShowSubmitError(true);
+              // }
             }}
           >
             {(props) => (
