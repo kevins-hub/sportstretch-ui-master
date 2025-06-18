@@ -8,6 +8,8 @@ import { REVENUECAT_IOS_KEY } from "@env";
 //   android: 'your_revenuecat_android_key',
 // };
 
+const PRO_ENTITLEMENT = "Pro access";
+
 export const InitRevenueCat = async () => {
   try{
     console.warn("Initializing RevenueCat...");
@@ -60,5 +62,23 @@ export const PurchasePackage = async (pkg) => {
   } catch (e) {
     console.warn("Purchase error", e);
     return { success: false, error: e };
+  }
+};
+
+export const checkProEntitlement = async () => {
+  try {
+    const customerInfo = await Purchases.getCustomerInfo();
+    console.warn("customerInfo = ", customerInfo);
+
+    if (
+      customerInfo.entitlements.active[PRO_ENTITLEMENT]
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (e) {
+    console.error("Failed to fetch entitlements", e);
+    return false;
   }
 };

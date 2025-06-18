@@ -34,6 +34,7 @@ import TherapistEditSubscriptionModal from "../components/therapist/TherapistEdi
 // import { getOfferings } from "../api/revenuecatService";
 // import Purchases from "react-native-purchases";
 // import { REVENUE_CAT_IOS_KEY } from "@env";
+import { checkProEntitlement } from "../api/revenuecatService";
 
 function ProfileSettings({ route }) {
   const [editContactInfoModalVisible, setEditContactInfoModalVisible] =
@@ -61,10 +62,13 @@ function ProfileSettings({ route }) {
   const [profilePictureUrl, setProfilePictureUrl] = useState("");
   const [appState, setAppState] = useState(AppState.currentState);
   const [stripeSetupStarted, setStripeSetupStarted] = useState(false);
+  const [hasProEntitlement, setHasProEntitlement] = useState(false);
 
   let athleteLocation;
 
   const { user } = route.params;
+
+  
 
   console.warn("user = ", user);
 
@@ -80,6 +84,20 @@ function ProfileSettings({ route }) {
 
   const [stripeOnboardLink, setStripeOnboardLink] = useState("");
 
+
+  useEffect(() => {
+    // wait 30 seconds minute before calling the function
+    if (user.role === "therapist") {
+       checkForProEntitlement()
+    }
+  }, []);
+
+  const checkForProEntitlement = async () => {
+    checkProEntitlement().then((res) => {
+      console.warn("checkProEntitlement res = ", res);
+      setHasProEntitlement(res);
+    });
+  }
   const getStripeOnboardLink = async () => {
     const response = await payment.getStripeOnboardLink(userObj.therapist_id);
     await setStripeOnboardLink(response.data.url.toString());
@@ -252,7 +270,7 @@ function ProfileSettings({ route }) {
         visible={editSubscriptionModalVisible}
         setVisibility={setEditSubscriptionModalVisible}
         subscription={userObj.subscription}
-        onClose={() => setEditSubscriptionModalVisible(false)}
+        onClose={checkForProEntitlement}
         isSignUp={false}
       />
       <TherapistEditServicesModal
@@ -285,7 +303,29 @@ function ProfileSettings({ route }) {
               </View> */}
           <View style={styles.keyPropsContainer}>
             <TouchableOpacity
-              onPress={() => setProfilePictureModalVisible(true)}
+              onPress={() => {
+                if (hasProEntitlement) {
+                  setProfilePictureModalVisible(true)
+                } else {
+                  Alert.alert(
+                    "Upgrade to Pro",
+                    "Profile picture upload is only available for Pro users. Upgrade to Pro to access this feature.",
+                    [
+                      {
+                        text: "Cancel",
+                        style: "cancel",
+                      },
+                      {
+                        text: "Upgrade",
+                        onPress: () => {
+                          setEditSubscriptionModalVisible(true);
+                        },
+                      },
+                    ]
+                  );
+                }
+
+              }}
             >
               {/* <MaterialCommunityIcons
                   style={styles.accountIcon}
@@ -890,7 +930,9 @@ function ProfileSettings({ route }) {
                 </View>
               </View>
             </View>
-            <View style={styles.cardOutterContainer}>
+            { /* only display if therapist */}
+            {user.role === "therapist" ? (
+              <View style={styles.cardOutterContainer}>
               <View style={styles.cardInnerContainer}>
                 <Text style={styles.cardTitle}>Subscription</Text>
                 <TouchableOpacity
@@ -901,13 +943,25 @@ function ProfileSettings({ route }) {
                     <Text style={styles.buttonText}>Edit</Text>
                   </View>
                 </TouchableOpacity>
-
-                <View>
+                {hasProEntitlement ? (
+                  <View>
+                    <Text>
+                      Pro subscription is active. You have access to all features.
+                    </Text>
+                  </View>
+                ): (
+                  <View>
+                  <Text>
+                    You are currently on the basic subscription. Upgrade to Pro to access additional features.
+                  </Text>
+                </View>
+                )}
+                {/* <View>
                   <Text>
                     Based on the data, we should check to see what the users
                     subscription is
                   </Text>
-                </View>
+                </View> */}
                 {/* <View style={styles.cardContent}>
                   <View style={styles.propContainer}>
                     <Text style={styles.propLabel}>Phone number:</Text>
@@ -920,6 +974,7 @@ function ProfileSettings({ route }) {
                 </View> */}
               </View>
             </View>
+            ): <></>}
           </View>
           <View style={styles.buttonContainer}>
             <LogOutButton />

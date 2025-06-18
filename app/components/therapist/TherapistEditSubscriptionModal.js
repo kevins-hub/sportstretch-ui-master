@@ -114,6 +114,8 @@ export default function TherapistEditSubscriptionModal({
               onClose(formattedId);
             }
             );
+          } else {
+            onClose();
           }
           
           setVisibility(false);
