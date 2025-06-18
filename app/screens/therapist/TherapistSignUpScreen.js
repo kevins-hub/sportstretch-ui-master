@@ -42,6 +42,7 @@ import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } from "@env";
 import notifications from "../../api/notifications";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import TherapistEditSubscriptionModal from "../../components/therapist/TherapistEditSubscriptionModal";
+import { handleLogin } from "../../api/revenuecatService";
 
 const CONTACT_STEP = 1;
 const DOB_STEP = 2;
@@ -237,6 +238,21 @@ function TherapistForm(props) {
   //   setSignUpValues(updated);
   //   console.warn("signUpValues updated: ", updated);
   // }
+
+
+  const mergeRCUser = async (rcCustomerId) => {
+    try {
+      console.warn("Merging RevenueCat user with ID:", rcCustomerId);
+      await handleLogin(rcCustomerId);
+      console.warn("User merged successfully");
+    } catch (e) {
+      console.warn("Error merging user", e);
+      Alert.alert(
+        "Error",
+        "An error occurred while merging your account. Please try again later."
+      );
+    }
+  };
 
   const register_therapist = async (values) => {
     console.warn("values = ", values);

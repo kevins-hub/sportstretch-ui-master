@@ -8,17 +8,40 @@ import { REVENUECAT_IOS_KEY } from "@env";
 //   android: 'your_revenuecat_android_key',
 // };
 
-export const InitRevenueCat = () => {
-  console.warn("Initializing RevenueCat...");
-  if (Platform.OS === "ios") {
-    console.warn("configuring purchases for ios");
-    Purchases.configure({
-      apiKey: 'appl_JleRblwotkDjKkwYKZozPqcIfkT',
-    });
+export const InitRevenueCat = async () => {
+  try{
+    console.warn("Initializing RevenueCat...");
+    if (Platform.OS === "ios") {
+      console.warn("configuring purchases for ios");
+      Purchases.configure({
+        apiKey: 'appl_JleRblwotkDjKkwYKZozPqcIfkT',
+      });
+    }
+    await getOfferings();
+  } catch (e) {
+    console.error("Failed to initialize RevenueCat", e);
   }
-  getOfferings();
+}
+
+export const handleLogin = async (rcCustomerId) => {
+  try {
+    console.warn("Logging in user with RevenueCat ID:", rcCustomerId);
+    await Purchases.logIn(rcCustomerId);
+    console.warn("User logged in successfully (RevenueCat)");
+  } catch (e) {
+    console.warn("Error logging in user (RevenueCat)", e);
+  }
 };
 
+export const handleLogout = async () => {
+  try {
+    console.warn("Logging out user...");
+    await Purchases.logOut();
+    console.warn("User logged out successfully (RevenueCat)");
+  } catch (e) {
+    console.warn("Error logging out user (RevenueCat)", e);
+  }
+}
 
 export const getOfferings = async () => {
   try {

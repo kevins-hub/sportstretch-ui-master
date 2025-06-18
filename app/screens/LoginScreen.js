@@ -19,6 +19,7 @@ import * as yup from "yup";
 import "yup-phone";
 import Constants from "expo-constants";
 import colors from "../config/colors";
+import { handleLogin } from "../api/revenuecatService";
 
 const ReviewSchema = yup.object({
   email: yup.string().required().email().label("Email"),
@@ -44,7 +45,12 @@ function LoginScreen(props) {
       const user = jwtDecode(result.data);
       authContext.setUser(user);
       console.warn("user at log in = ", user);
+      console.warn("user.userObj = ", user.userObj);
       authStorage.storeToken(result.data);
+      if (user.role === "therapist" && user.userObj.rc_customer_id) {
+        // If the user is a therapist, handle RevenueCat subscription
+        await handleLogin(user.userObj.rc_customer_id);
+      }
     } catch (error) {
       setErrorText("Error when logging in. Please try again.");
     }

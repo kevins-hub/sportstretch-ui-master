@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import { getOfferings, PurchasePackage } from "../../api/revenuecatService";
+import { getOfferings, handleLogin, PurchasePackage } from "../../api/revenuecatService";
 
 const productIds = ["pro_upgrade"];
 
@@ -76,6 +76,20 @@ export default function TherapistEditSubscriptionModal({
     fetchOfferings();
   }, []);
 
+  // const mergeRCUser = async (rcCustomerId) => {
+  //   try {
+  //     console.warn("Merging RevenueCat user with ID:", rcCustomerId);
+  //     await handleLogin(rcCustomerId);
+  //     console.warn("User merged successfully");
+  //   } catch (e) {
+  //     console.warn("Error merging user", e);
+  //     Alert.alert(
+  //       "Error",
+  //       "An error occurred while merging your account. Please try again later."
+  //     );
+  //   }
+  // };
+
   const handleSubmit = async () => {
     // if (selectedPlan == "basic") {
     //   Alert.alert(
@@ -91,9 +105,17 @@ export default function TherapistEditSubscriptionModal({
         console.warn("Purchase result:", result);
         if (result.success) {
           const rcCustId = result.customerInfo?.originalAppUserId;
+          const formattedId = rcCustId.startsWith("$RCAnonymousID:") ? rcCustId.replace("$RCAnonymousID:", "") : rcCustId;
+          console.warn("RevenueCat Customer ID:", formattedId);
+
           if (isSignUp) {
-            onClose(rcCustId);
+            handleLogin(formattedId).then(() => {
+              console.warn("User logged in successfully after purchase");
+              onClose(formattedId);
+            }
+            );
           }
+          
           setVisibility(false);
         }
       })
