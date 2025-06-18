@@ -253,6 +253,7 @@ function ProfileSettings({ route }) {
         setVisibility={setEditSubscriptionModalVisible}
         subscription={userObj.subscription}
         onClose={() => setEditSubscriptionModalVisible(false)}
+        isSignUp={false}
       />
       <TherapistEditServicesModal
         therapist={therapist}

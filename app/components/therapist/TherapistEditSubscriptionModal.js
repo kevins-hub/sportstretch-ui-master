@@ -14,10 +14,7 @@ const productIds = ["pro_upgrade"];
 export default function TherapistEditSubscriptionModal({
   visible,
   setVisibility,
-  setSubscribed,
-  // setRcCustomerId,
   onClose,
-  // signUpValues,
   isSignUp = false,
 }) {
   const [selectedPlan, setSelectedPlan] = useState("pro"); // 'basic' or 'pro'
@@ -93,7 +90,6 @@ export default function TherapistEditSubscriptionModal({
       .then((result) => {
         console.warn("Purchase result:", result);
         if (result.success) {
-          setSubscribed(true);
           const rcCustId = result.customerInfo?.originalAppUserId;
           if (isSignUp) {
             onClose(rcCustId);
@@ -114,9 +110,15 @@ export default function TherapistEditSubscriptionModal({
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.container}>
         <View style={styles.modalContent}>
-          <Text style={styles.title}>Choose Your Plan</Text>
-          <Text style={styles.optionTitle}>Your first month is on us!</Text>
-          <Text>Cancel / downgrade any time.</Text>
+          {isSignUp ? (
+            <>
+              <Text style={styles.title}>Choose Your Plan</Text>
+              <Text style={styles.optionTitle}>Your first month is on us!</Text>
+              <Text>Cancel / downgrade any time.</Text>
+            </>
+          ) : (
+            <Text style={styles.title}>Edit Your Subscription</Text>
+          )}
 
           {/* {basicPackages.map((pkg) => (
             <TouchableOpacity
@@ -146,14 +148,32 @@ export default function TherapistEditSubscriptionModal({
               }}
             >
               <View style={styles.titlePriceContainer}>
-                <Text style={styles.optionTitle}>{pkg.product.title}</Text>
                 <View>
+                  <Text style={styles.optionTitle}>Pro</Text>
+                  <Text style={styles.optionTitle}>Membership</Text>
+                </View>
+
+                {isSignUp ? (
+                  <View>
+                    <Text style={styles.promoText}>First month free</Text>
+                    <Text style={styles.priceText}>
+                      {pkg.product.priceString}/month
+                    </Text>
+                    <Text>after</Text>
+                  </View>
+                ) : (
+                  <Text style={styles.priceText}>
+                    {pkg.product.priceString}/month
+                  </Text>
+                )}
+
+                {/* <View>
                   <Text style={styles.promoText}>First month free</Text>
                   <Text style={styles.priceText}>
                     {pkg.product.priceString}/month
                   </Text>
                   <Text>after</Text>
-                </View>
+                </View> */}
               </View>
               <Text>{pkg.product.description}</Text>
 
@@ -187,14 +207,23 @@ export default function TherapistEditSubscriptionModal({
               }}
             >
               <View style={styles.titlePriceContainer}>
-                <Text style={styles.optionTitle}>{pkg.product.title}</Text>
-                <View>
-                  <Text style={styles.promoText}>First month free</Text>
+              <View>
+                  <Text style={styles.optionTitle}>Basic</Text>
+                  <Text style={styles.optionTitle}>Membership</Text>
+                </View>
+                {isSignUp ? (
+                  <View>
+                    <Text style={styles.promoText}>First month free</Text>
+                    <Text style={styles.priceText}>
+                      {pkg.product.priceString}/month
+                    </Text>
+                    <Text>after</Text>
+                  </View>
+                ) : (
                   <Text style={styles.priceText}>
                     {pkg.product.priceString}/month
                   </Text>
-                  <Text>after</Text>
-                </View>
+                )}
               </View>
               <Text>{pkg.product.description}</Text>
 
@@ -208,30 +237,6 @@ export default function TherapistEditSubscriptionModal({
               ))}
             </TouchableOpacity>
           ))}
-
-          {/* 
-          <TouchableOpacity
-              style={[
-                styles.option,
-                selectedPlan === "basic" && styles.selected,
-              ]}
-              onPress={() => {
-                setSelectedPlan("basic");
-                setSelectedPackage(null);
-              }}
-            >
-              <View style={styles.titlePriceContainer}>
-                <Text style={styles.optionTitle}>Basic Membership</Text>
-                <Text>Free</Text>
-              </View>
-              <Text>Everything you need to get started.</Text>
-              <Text style={{ marginTop: 10, fontWeight: "bold" }}>Basic Features:</Text>
-              {basicFeatures.map((feature, index) => (
-                <Text key={index} style={{ marginLeft: 12 }}>
-                  {'\u2022'} {feature}
-                </Text>
-              ))}
-            </TouchableOpacity> */}
 
           <TouchableOpacity
             style={styles.subscribeButton}

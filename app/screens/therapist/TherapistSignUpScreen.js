@@ -163,7 +163,6 @@ function TherapistForm(props) {
   const [showAboveAgeError, setShowAboveAgeError] = useState(false);
   const [statesModalVisible, setStatesModalVisible] = useState(false);
   const [professionModalVisible, setProfessionModalVisible] = useState(false);
-  const [subscribed, setSubscribed] = useState(false);
 
   const slideAnim = useRef(new Animated.Value(screenHeight)).current;
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false); // true for testing only, should be false
@@ -1143,7 +1142,6 @@ function TherapistForm(props) {
       <TherapistEditSubscriptionModal
         visible={showSubscriptionModal}
         setVisibility={setShowSubscriptionModal}
-        setSubscribed={setSubscribed}
         onClose={registerTherapist}
         isSignUp={true}
         
@@ -1222,44 +1220,11 @@ function TherapistForm(props) {
 
               try {
                 setShowSubscriptionModal(true);
-                // await setSubscription();
-                // console.warn("subscribed = ", subscribed);
-                // console.warn("rcCustomerId = ", rcCustomerId);
-                // if (subscribed === false) {
-                //   setShowSubmitError(true);
-                //   return;
-                // }
-                // values.rcCustomerId = rcCustomerId;
               } catch (error) {
                 console.warn("Error setting subscription: ", error);
                 setShowSubmitError(true);
                 return;
               }
-              
-
-              // try {
-              //   console.warn("stripe register");
-              //   const registerStripeResponse =
-              //     await payment.registerStripeAccount({
-              //       email: values.email.toLowerCase(),
-              //     });
-              //   if (handleError(registerStripeResponse)) return;
-              //   if (registerStripeResponse.status === 200) {
-              //     const stripeAccountId =
-              //       registerStripeResponse.data.account.id;
-              //     values.stripeAccountId = stripeAccountId;
-              //   }
-              // } catch (error) {
-              //   console.warn("Error registering stripe account: ", error);
-              // }
-
-              // try {
-              //   console.warn("therapist register");
-              //   await register_therapist(values);
-              // } catch (error) {
-              //   console.warn("Error registering therapist: ", error);
-              //   setShowSubmitError(true);
-              // }
             }}
           >
             {(props) => (
