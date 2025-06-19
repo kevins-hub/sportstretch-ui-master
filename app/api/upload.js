@@ -17,6 +17,11 @@ const uploadProfilePicture = (authId, image, imageFile) => {
   });
 };
 
+const deleteProfilePicture = (authId) => {
+  return apiClient.delete(endpoint + "/profile-picture/" + authId);
+}
+
 export default {
   uploadProfilePicture,
+  deleteProfilePicture,
 };

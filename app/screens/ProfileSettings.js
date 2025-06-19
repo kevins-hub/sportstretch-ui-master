@@ -35,6 +35,7 @@ import TherapistEditSubscriptionModal from "../components/therapist/TherapistEdi
 // import Purchases from "react-native-purchases";
 // import { REVENUE_CAT_IOS_KEY } from "@env";
 import { checkProEntitlement } from "../api/revenuecatService";
+import upload from "../api/upload";
 
 function ProfileSettings({ route }) {
   const [editContactInfoModalVisible, setEditContactInfoModalVisible] =
@@ -68,8 +69,6 @@ function ProfileSettings({ route }) {
 
   const { user } = route.params;
 
-  
-
   console.warn("user = ", user);
 
   let userObj = user.userObj;
@@ -84,20 +83,48 @@ function ProfileSettings({ route }) {
 
   const [stripeOnboardLink, setStripeOnboardLink] = useState("");
 
-
   useEffect(() => {
     // wait 30 seconds minute before calling the function
     if (user.role === "therapist") {
-       checkForProEntitlement()
+      checkForProEntitlement();
     }
   }, []);
 
   const checkForProEntitlement = async () => {
-    checkProEntitlement().then((res) => {
+    const isPro = checkProEntitlement().then((res) => {
       console.warn("checkProEntitlement res = ", res);
       setHasProEntitlement(res);
+      return res;
     });
-  }
+    return isPro;
+  };
+
+  const clearProfilePicture = async () => {
+    try{
+      console.warn("clearProfilePicture called");
+      const deleteResult = await upload.deleteProfilePicture(user.authorization_id).then(() => {
+        console.warn("Profile picture deleted due to lack of Pro entitlement");
+        setProfilePictureUrl("");
+      });
+      console.warn("deleteResult = ", deleteResult);
+    } catch (error) {
+      console.error("Error clearing profile picture:", error);
+      Alert.alert("Error", "Failed to clear profile picture.");
+    }
+    return;
+
+    
+  };
+
+  const editSubscriptionOnClose = async () => {
+    const isPro = await checkForProEntitlement();
+    console.warn("isPro = ", isPro);
+    if (isPro === false) {
+      clearProfilePicture();
+    }
+    return;
+  };
+
   const getStripeOnboardLink = async () => {
     const response = await payment.getStripeOnboardLink(userObj.therapist_id);
     await setStripeOnboardLink(response.data.url.toString());
@@ -270,7 +297,7 @@ function ProfileSettings({ route }) {
         visible={editSubscriptionModalVisible}
         setVisibility={setEditSubscriptionModalVisible}
         subscription={userObj.subscription}
-        onClose={checkForProEntitlement}
+        onClose={editSubscriptionOnClose}
         isSignUp={false}
       />
       <TherapistEditServicesModal
@@ -306,7 +333,7 @@ function ProfileSettings({ route }) {
             <TouchableOpacity
               onPress={() => {
                 if (hasProEntitlement) {
-                  setProfilePictureModalVisible(true)
+                  setProfilePictureModalVisible(true);
                 } else {
                   Alert.alert(
                     "Upgrade to Pro",
@@ -325,7 +352,6 @@ function ProfileSettings({ route }) {
                     ]
                   );
                 }
-
               }}
             >
               {/* <MaterialCommunityIcons
@@ -627,12 +653,16 @@ function ProfileSettings({ route }) {
                     <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>Professional Bio: </Text>
                       <Text>{therapist.summary}</Text>
-                      {therapist.summary.length >100  && !hasProEntitlement ? (
+                      {therapist.summary.length > 100 && !hasProEntitlement ? (
                         <Text style={styles.errorText}>
-                          Professional Bio for users on the Basic subscription are limited to 100 characters. Please upgrade your subscription to Pro or reduce the length of your bio to 100 characters or less to enable services.
+                          Professional Bio for users on the Basic subscription
+                          are limited to 100 characters. Please upgrade your
+                          subscription to Pro or reduce the length of your bio
+                          to 100 characters or less to enable services.
                         </Text>
-                      ) : (<></>)}
-
+                      ) : (
+                        <></>
+                      )}
                     </View>
                     <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>Hourly Rate: </Text>
@@ -792,7 +822,10 @@ function ProfileSettings({ route }) {
                       businessHours["1"].length > 0 ? (
                         businessHours["1"].map((hours) => {
                           return (
-                            <Text key={`1-${hoursTupleToTimeString}`} style={styles.hoursText}>
+                            <Text
+                              key={`1-${hoursTupleToTimeString}`}
+                              style={styles.hoursText}
+                            >
                               {hoursTupleToTimeString(hours)}
                             </Text>
                           );
@@ -810,7 +843,10 @@ function ProfileSettings({ route }) {
                       businessHours["2"].length > 0 ? (
                         businessHours["2"].map((hours) => {
                           return (
-                            <Text key={`2-${hoursTupleToTimeString}`} style={styles.hoursText}>
+                            <Text
+                              key={`2-${hoursTupleToTimeString}`}
+                              style={styles.hoursText}
+                            >
                               {hoursTupleToTimeString(hours)}
                             </Text>
                           );
@@ -828,7 +864,10 @@ function ProfileSettings({ route }) {
                       businessHours["3"].length > 0 ? (
                         businessHours["3"].map((hours) => {
                           return (
-                            <Text key={`3-${hoursTupleToTimeString}`} style={styles.hoursText}>
+                            <Text
+                              key={`3-${hoursTupleToTimeString}`}
+                              style={styles.hoursText}
+                            >
                               {hoursTupleToTimeString(hours)}
                             </Text>
                           );
@@ -846,7 +885,10 @@ function ProfileSettings({ route }) {
                       businessHours["4"].length > 0 ? (
                         businessHours["4"].map((hours) => {
                           return (
-                            <Text key={`4-${hoursTupleToTimeString}`} style={styles.hoursText}>
+                            <Text
+                              key={`4-${hoursTupleToTimeString}`}
+                              style={styles.hoursText}
+                            >
                               {hoursTupleToTimeString(hours)}
                             </Text>
                           );
@@ -864,7 +906,10 @@ function ProfileSettings({ route }) {
                       businessHours["5"].length > 0 ? (
                         businessHours["5"].map((hours) => {
                           return (
-                            <Text key={`5-${hoursTupleToTimeString}`} style={styles.hoursText}>
+                            <Text
+                              key={`5-${hoursTupleToTimeString}`}
+                              style={styles.hoursText}
+                            >
                               {hoursTupleToTimeString(hours)}
                             </Text>
                           );
@@ -882,7 +927,10 @@ function ProfileSettings({ route }) {
                       businessHours["6"].length > 0 ? (
                         businessHours["6"].map((hours) => {
                           return (
-                            <Text key={`6-${hoursTupleToTimeString}`} style={styles.hoursText}>
+                            <Text
+                              key={`6-${hoursTupleToTimeString}`}
+                              style={styles.hoursText}
+                            >
                               {hoursTupleToTimeString(hours)}
                             </Text>
                           );
@@ -900,7 +948,10 @@ function ProfileSettings({ route }) {
                       businessHours["0"].length > 0 ? (
                         businessHours["0"].map((hours) => {
                           return (
-                            <Text key={`0-${hoursTupleToTimeString}`} style={styles.hoursText}>
+                            <Text
+                              key={`0-${hoursTupleToTimeString}`}
+                              style={styles.hoursText}
+                            >
                               {hoursTupleToTimeString(hours)}
                             </Text>
                           );
@@ -937,39 +988,41 @@ function ProfileSettings({ route }) {
                 </View>
               </View>
             </View>
-            { /* only display if therapist */}
+            {/* only display if therapist */}
             {user.role === "therapist" ? (
               <View style={styles.cardOutterContainer}>
-              <View style={styles.cardInnerContainer}>
-                <Text style={styles.cardTitle}>Subscription</Text>
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={() => setEditSubscriptionModalVisible(true)}
-                >
-                  <View>
-                    <Text style={styles.buttonText}>Edit</Text>
-                  </View>
-                </TouchableOpacity>
-                {hasProEntitlement ? (
-                  <View>
-                    <Text>
-                      Pro subscription is active. You have access to all features.
-                    </Text>
-                  </View>
-                ): (
-                  <View>
-                  <Text>
-                    You are currently on the basic subscription. Upgrade to Pro to access additional features.
-                  </Text>
-                </View>
-                )}
-                {/* <View>
+                <View style={styles.cardInnerContainer}>
+                  <Text style={styles.cardTitle}>Subscription</Text>
+                  <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => setEditSubscriptionModalVisible(true)}
+                  >
+                    <View>
+                      <Text style={styles.buttonText}>Edit</Text>
+                    </View>
+                  </TouchableOpacity>
+                  {hasProEntitlement ? (
+                    <View>
+                      <Text>
+                        Pro subscription is active. You have access to all
+                        features.
+                      </Text>
+                    </View>
+                  ) : (
+                    <View>
+                      <Text>
+                        You are currently on the basic subscription. Upgrade to
+                        Pro to access additional features.
+                      </Text>
+                    </View>
+                  )}
+                  {/* <View>
                   <Text>
                     Based on the data, we should check to see what the users
                     subscription is
                   </Text>
                 </View> */}
-                {/* <View style={styles.cardContent}>
+                  {/* <View style={styles.cardContent}>
                   <View style={styles.propContainer}>
                     <Text style={styles.propLabel}>Phone number:</Text>
                     <Text>{contactObj.mobile}</Text>
@@ -979,9 +1032,11 @@ function ProfileSettings({ route }) {
                     <Text>{contactObj.email}</Text>
                   </View>
                 </View> */}
+                </View>
               </View>
-            </View>
-            ): <></>}
+            ) : (
+              <></>
+            )}
           </View>
           <View style={styles.buttonContainer}>
             <LogOutButton />
@@ -1180,6 +1235,11 @@ const styles = StyleSheet.create({
     width: 73,
     height: 73,
     borderRadius: 100,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 12,
+    marginTop: 5,
   },
 
   // accountIcon: {
