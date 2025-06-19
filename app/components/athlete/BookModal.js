@@ -103,7 +103,7 @@ function BookModal({
       );
       return response.data;
     } catch (error) {
-      console.warn("Error getting bookings on date", error);
+      console.error("Error getting bookings on date", error);
     }
   };
 
@@ -373,7 +373,7 @@ function BookModal({
       setPaymentIntentId(res.data.paymentIntent.id);
       return res.data.paymentIntent.client_secret;
     } catch (error) {
-      console.warn("Error getting client secret", error);
+      console.error("Error getting client secret", error);
     }
   };
 
@@ -450,12 +450,12 @@ function BookModal({
         });
 
         if (error) {
-          console.warn("Error initializing PaymentSheet", error);
+          console.error("Error initializing PaymentSheet", error);
         } else {
           setCurrentStep(3);
         }
       } catch (error) {
-        console.warn("Error initializing PaymentSheet", error);
+        console.error("Error initializing PaymentSheet", error);
       }
     }
   };
@@ -478,14 +478,14 @@ function BookModal({
         const { error } = await presentPaymentSheet();
 
         if (error) {
-          console.warn("Error opening PaymentSheet", error);
+          console.error("Error opening PaymentSheet", error);
         } else {
           // post payment operations
           console.log("Payment successful");
           createBooking();
         }
       } catch (error) {
-        console.warn("Error opening PaymentSheet", error);
+        console.error("Error opening PaymentSheet", error);
       }
     }
   };

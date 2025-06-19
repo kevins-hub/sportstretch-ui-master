@@ -79,7 +79,7 @@ function EditContactInfoModal({
       const response = await registerApi.checkPhone(phone);
       return response.data === "Phone already registered." ? false : true;
     } catch (error) {
-      console.warn("Error checking phone availability: ", error);
+      console.error("Error checking phone availability: ", error);
       return false;
     }
   };
@@ -89,7 +89,7 @@ function EditContactInfoModal({
       const response = await auth.checkEmail(email);
       return response.data === "Email already registered." ? false : true;
     } catch (error) {
-      console.warn("Error checking email availability: ", error);
+      console.error("Error checking email availability: ", error);
       return false;
     }
   };
@@ -115,7 +115,7 @@ function EditContactInfoModal({
           return false;
         }
       } catch (error) {
-        console.warn("Error checking email availability: ", error);
+        console.error("Error checking email availability: ", error);
         return false;
       }
     }
@@ -128,7 +128,7 @@ function EditContactInfoModal({
           return false;
         }
       } catch (error) {
-        console.warn("Error checking phone availability: ", error);
+        console.error("Error checking phone availability: ", error);
         return false;
       }
     }

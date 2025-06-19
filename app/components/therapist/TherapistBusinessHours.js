@@ -125,7 +125,6 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
         break;
     }
     setBusinessHours(newBusinessHours);
-    // console.warn("businessHours = ", newBusinessHours);
   };
 
   useEffect(() => {
@@ -457,7 +456,6 @@ function TherapistBusinessHours({ businessHours, setBusinessHours }) {
       for (let day in operatingHours) {
         initialValues[day] = operatingHours[day].length > 0 ? true : false;
       }
-      // console.warn("initialValues = ", initialValues);
       return initialValues;
     }
     return {

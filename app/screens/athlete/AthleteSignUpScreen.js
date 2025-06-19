@@ -121,13 +121,8 @@ function AthleteForm(props) {
       try {
         let emailVerificationCode = { email: athleteForm.email, token: code };
         let res = await register.verifyEmail(emailVerificationCode);
-        if (!!res) {
-          console.warn("It worked");
-        } else {
-          console.warn("error in verifying email");
-        }
       } catch (error) {
-        console.warn(error);
+        console.error(error);
       }
     }
   };
@@ -154,7 +149,7 @@ function AthleteForm(props) {
       );
       setDob(selectedDateLocal);
     } catch (error) {
-      console.warn("Error setting date of birth: ", error);
+      console.error("Error setting date of birth: ", error);
     }
   };
 
@@ -240,7 +235,7 @@ function AthleteForm(props) {
       const response = await auth.checkEmail(email);
       return response.data === "Email already registered." ? false : true;
     } catch (error) {
-      console.warn("Error checking email availability: ", error);
+      console.error("Error checking email availability: ", error);
       return false;
     }
   };
@@ -250,7 +245,7 @@ function AthleteForm(props) {
       const response = await registerApi.checkPhone(phone);
       return response.data === "Phone already registered." ? false : true;
     } catch (error) {
-      console.warn("Error checking phone availability: ", error);
+      console.error("Error checking phone availability: ", error);
       return false;
     }
   };

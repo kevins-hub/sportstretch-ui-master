@@ -7,6 +7,7 @@ import authStorage from "./app/auth/storage";
 import AppContainer from "./app/screens/AppContainer";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as SplashScreen from "expo-splash-screen";
+import { InitRevenueCat } from "./app/api/revenuecatService";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -20,12 +21,16 @@ function App() {
   // };
 
   useEffect(() => {
+    InitRevenueCat(); // Initialize RevenueCat once
+  }, []);
+
+  useEffect(() => {
     const prepareApp = async () => {
       try {
         const user = await authStorage.getUser();
         if (user) setUser(user);
       } catch (error) {
-        console.warn(error);
+        console.error(error);
       } finally {
         setIsReady(true);
       }
@@ -43,6 +48,8 @@ function App() {
   if (!isReady) {
     return null;
   }
+
+  useEffect;
 
   // if (!isReady)
   //   return (
