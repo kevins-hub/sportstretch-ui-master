@@ -126,17 +126,6 @@ function SearchTherapist({
         </Animated.View>
       </Modal>
     </View>
-    // <View style={styles.pickerContainer}>
-    //   <Text style={{ fontSize: 14, fontWeight: "bold" }}>
-    //     Show Recovery Specialists in:
-    //   </Text>
-
-    //   <FlatList
-    //     data={{}}
-    //     keyExtractor={(item) => item.id}
-    //     renderItem={({ item }) => <Text>{item.title}</Text>}
-    //   />
-    // </View>
   );
 }
 

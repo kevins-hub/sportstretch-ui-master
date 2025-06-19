@@ -7,7 +7,11 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import { getOfferings, handleLogin, PurchasePackage } from "../../api/revenuecatService";
+import {
+  getOfferings,
+  handleLogin,
+  PurchasePackage,
+} from "../../api/revenuecatService";
 
 const productIds = ["pro_upgrade"];
 
@@ -21,6 +25,7 @@ export default function TherapistEditSubscriptionModal({
   const [basicPackages, setBasicPackages] = useState([]);
   const [proPackages, setProPackages] = useState([]);
   const [selectedPackage, setSelectedPackage] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // - Create a professional bio for athletes to find
   // - View and Accept or Decline booking requests for services
@@ -76,58 +81,60 @@ export default function TherapistEditSubscriptionModal({
     fetchOfferings();
   }, []);
 
-  // const mergeRCUser = async (rcCustomerId) => {
-  //   try {
-  //     console.warn("Merging RevenueCat user with ID:", rcCustomerId);
-  //     await handleLogin(rcCustomerId);
-  //     console.warn("User merged successfully");
-  //   } catch (e) {
-  //     console.warn("Error merging user", e);
-  //     Alert.alert(
-  //       "Error",
-  //       "An error occurred while merging your account. Please try again later."
-  //     );
-  //   }
-  // };
+  const showBasicPanWarning = async () => {
+      // warn user that their profile picture will be deleted and they will need to update their bio to be under 100 characters before athletes are able to book with them again
+      // wait for user to acknowledge the warning
+      Alert.alert(
+        "Warning: Switching to Basic Plan",
+        "By switching to the Basic plan, your profile picture will be removed automatically and your bio will need to be edited to under 100 characters (if currently over the 100 character limit), and re-submitted for approval. Please update your profile accordingly.",
+        [
+          {
+            text: "Dismiss",
+            style: "cancel",
+          },
+        ]
+      );
+    }
 
   const handleSubmit = async () => {
-    // if (selectedPlan == "basic") {
-    //   Alert.alert(
-    //     "Basic Membership",
-    //     "You have selected the Basic Membership. You will be able to upgrade to Pro at any time in the Profile tab."
-    //   );
-    //   setVisibility(false);
-    //   return;
-    // }
-    console.warn("selectedPackage = ", selectedPackage);
+
+    // show warning if switching to basic plan, require user to dismiss before proceeding
+    if (selectedPlan === "basic") {
+      await showBasicPanWarning();
+    }
+
+    setLoading(true);
     PurchasePackage(selectedPackage)
       .then((result) => {
         console.warn("Purchase result:", result);
         if (result.success) {
           const rcCustId = result.customerInfo?.originalAppUserId;
-          const formattedId = rcCustId.startsWith("$RCAnonymousID:") ? rcCustId.replace("$RCAnonymousID:", "") : rcCustId;
+          const formattedId = rcCustId.startsWith("$RCAnonymousID:")
+            ? rcCustId.replace("$RCAnonymousID:", "")
+            : rcCustId;
           console.warn("RevenueCat Customer ID:", formattedId);
 
           if (isSignUp) {
             handleLogin(formattedId).then(() => {
               console.warn("User logged in successfully after purchase");
               onClose(formattedId);
-            }
-            );
+            });
           } else {
             onClose();
           }
-          
+          setLoading(false);
           setVisibility(false);
         }
       })
       .catch((error) => {
+        setLoading(false);
         console.warn("Purchase error:", error);
         Alert.alert(
           "Error",
           "An error occurred while processing your purchase. Please try again later."
         );
       });
+      setLoading(false);
   };
 
   return (
@@ -231,7 +238,7 @@ export default function TherapistEditSubscriptionModal({
               }}
             >
               <View style={styles.titlePriceContainer}>
-              <View>
+                <View>
                   <Text style={styles.optionTitle}>Basic</Text>
                   <Text style={styles.optionTitle}>Membership</Text>
                 </View>
@@ -261,8 +268,25 @@ export default function TherapistEditSubscriptionModal({
               ))}
             </TouchableOpacity>
           ))}
+          {!loading ? (
+            <>
+              <TouchableOpacity
+                style={styles.subscribeButton}
+                onPress={() => {
+                  handleSubmit();
+                }}
+              >
+                <Text style={styles.subscribeText}>Continue</Text>
+              </TouchableOpacity>
 
-          <TouchableOpacity
+              <TouchableOpacity onPress={() => setVisibility(false)}>
+                <Text style={styles.closeText}>Cancel</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <></>
+          )}
+          {/* <TouchableOpacity
             style={styles.subscribeButton}
             onPress={() => {
               handleSubmit();
@@ -273,7 +297,7 @@ export default function TherapistEditSubscriptionModal({
 
           <TouchableOpacity onPress={() => setVisibility(false)}>
             <Text style={styles.closeText}>Cancel</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           {/* <TouchableOpacity
             style={[styles.option, selectedPlan === "basic" && styles.selected]}

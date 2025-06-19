@@ -31,9 +31,6 @@ import payment from "../api/payment";
 import ProfilePictureUploadModal from "../components/shared/ProfilePictureUploadModal";
 import profilePicture from "../api/profilePicture";
 import TherapistEditSubscriptionModal from "../components/therapist/TherapistEditSubscriptionModal";
-// import { getOfferings } from "../api/revenuecatService";
-// import Purchases from "react-native-purchases";
-// import { REVENUE_CAT_IOS_KEY } from "@env";
 import { checkProEntitlement } from "../api/revenuecatService";
 import upload from "../api/upload";
 
