@@ -10,7 +10,7 @@ const TherapistDashboard = () => {
   return (
     <View style={styles.container}>
       <TherapistHeader />
-      <TherapistAvailability />
+      {/* <TherapistAvailability /> */}
       <NavigationContainer>
         <TherapistNavigator />
       </NavigationContainer>

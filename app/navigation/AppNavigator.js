@@ -30,7 +30,7 @@ function AppNavigator({ user }) {
   return (
     <>
       <GeneralHeader />
-      {user.role === "therapist" && <TherapistAvailability />}
+      {/* {user.role === "therapist" && <TherapistAvailability />} */}
       <appTabs.Navigator
         initialRouteName={user.role === "athlete" ? "Make an Appointment" : "Upcoming Appointments"}
         screenOptions={({ route }) => ({

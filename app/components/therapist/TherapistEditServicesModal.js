@@ -30,7 +30,7 @@ const SERVICES_STEP = 1;
 const LICENSE_STEP = 2;
 const { height: screenHeight } = Dimensions.get("window");
 
-function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
+function TherapistEditServicesModal({ therapist, visible, setVisibility, hasProEntitlement }) {
   if (!visible) return null;
 
   const navigation = useNavigation();
@@ -63,7 +63,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
     { label: "Pilates Instructor", value: "Pilates Instructor" },
   ];
 
-  const bioMaxLength = 250;
+  const bioMaxLength = hasProEntitlement ? 500 : 100;
   const feesAndTaxesPercentage = 0.15;
 
   const addressRegExp = /^[a-zA-Z0-9\s,'.-]*$/;
@@ -118,7 +118,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility }) {
       .required(
         "Please provide a brief summary of your professional experience."
       )
-      .max(250)
+      .max(bioMaxLength)
       .label("Summary"),
     hourlyRate: yup.number().required().label("Hourly Rate"),
     licenseUrl: yup
@@ -701,7 +701,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: Constants.statusBarHeight + 100,
+    marginTop: Constants.statusBarHeight,
     backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalView: {

@@ -277,6 +277,7 @@ function ProfileSettings({ route }) {
         therapist={therapist}
         visible={editTherapistServicesModalVisible}
         setVisibility={setEditTherapistServicesModalVisible}
+        hasProEntitlement={hasProEntitlement}
       />
       <ChangePasswordModal
         visible={changePasswordModalVisible}
@@ -626,6 +627,12 @@ function ProfileSettings({ route }) {
                     <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>Professional Bio: </Text>
                       <Text>{therapist.summary}</Text>
+                      {therapist.summary.length >100  && !hasProEntitlement ? (
+                        <Text style={styles.errorText}>
+                          Professional Bio for users on the Basic subscription are limited to 100 characters. Please upgrade your subscription to Pro or reduce the length of your bio to 100 characters or less to enable services.
+                        </Text>
+                      ) : (<></>)}
+
                     </View>
                     <View style={styles.propContainer}>
                       <Text style={styles.propLabel}>Hourly Rate: </Text>
@@ -785,7 +792,7 @@ function ProfileSettings({ route }) {
                       businessHours["1"].length > 0 ? (
                         businessHours["1"].map((hours) => {
                           return (
-                            <Text style={styles.hoursText}>
+                            <Text key={`1-${hoursTupleToTimeString}`} style={styles.hoursText}>
                               {hoursTupleToTimeString(hours)}
                             </Text>
                           );
@@ -803,7 +810,7 @@ function ProfileSettings({ route }) {
                       businessHours["2"].length > 0 ? (
                         businessHours["2"].map((hours) => {
                           return (
-                            <Text style={styles.hoursText}>
+                            <Text key={`2-${hoursTupleToTimeString}`} style={styles.hoursText}>
                               {hoursTupleToTimeString(hours)}
                             </Text>
                           );
@@ -821,7 +828,7 @@ function ProfileSettings({ route }) {
                       businessHours["3"].length > 0 ? (
                         businessHours["3"].map((hours) => {
                           return (
-                            <Text style={styles.hoursText}>
+                            <Text key={`3-${hoursTupleToTimeString}`} style={styles.hoursText}>
                               {hoursTupleToTimeString(hours)}
                             </Text>
                           );
@@ -839,7 +846,7 @@ function ProfileSettings({ route }) {
                       businessHours["4"].length > 0 ? (
                         businessHours["4"].map((hours) => {
                           return (
-                            <Text style={styles.hoursText}>
+                            <Text key={`4-${hoursTupleToTimeString}`} style={styles.hoursText}>
                               {hoursTupleToTimeString(hours)}
                             </Text>
                           );
@@ -857,7 +864,7 @@ function ProfileSettings({ route }) {
                       businessHours["5"].length > 0 ? (
                         businessHours["5"].map((hours) => {
                           return (
-                            <Text style={styles.hoursText}>
+                            <Text key={`5-${hoursTupleToTimeString}`} style={styles.hoursText}>
                               {hoursTupleToTimeString(hours)}
                             </Text>
                           );
@@ -875,7 +882,7 @@ function ProfileSettings({ route }) {
                       businessHours["6"].length > 0 ? (
                         businessHours["6"].map((hours) => {
                           return (
-                            <Text style={styles.hoursText}>
+                            <Text key={`6-${hoursTupleToTimeString}`} style={styles.hoursText}>
                               {hoursTupleToTimeString(hours)}
                             </Text>
                           );
@@ -893,7 +900,7 @@ function ProfileSettings({ route }) {
                       businessHours["0"].length > 0 ? (
                         businessHours["0"].map((hours) => {
                           return (
-                            <Text style={styles.hoursText}>
+                            <Text key={`0-${hoursTupleToTimeString}`} style={styles.hoursText}>
                               {hoursTupleToTimeString(hours)}
                             </Text>
                           );
