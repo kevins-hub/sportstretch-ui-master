@@ -16,8 +16,7 @@ export const InitRevenueCat = async () => {
     if (Platform.OS === "ios") {
       console.warn("configuring purchases for ios");
       Purchases.configure({
-        // apiKey: 'appl_JleRblwotkDjKkwYKZozPqcIfkT',
-        apiKey: process.env.REVENUECAT_IOS_KEY,
+        apiKey: 'appl_JleRblwotkDjKkwYKZozPqcIfkT',
       });
     }
     await getOfferings();
