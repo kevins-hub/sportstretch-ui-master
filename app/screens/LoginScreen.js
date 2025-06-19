@@ -44,7 +44,7 @@ function LoginScreen(props) {
       const user = jwtDecode(result.data);
       authContext.setUser(user);
       authStorage.storeToken(result.data);
-      if (user.role === "therapist" && user.userObj.rc_customer_id) {
+      if (user.role === "therapist" && user.userObj.rc_customer_id.length > 0) {
         // If the user is a therapist, handle RevenueCat subscription
         await handleLogin(user.userObj.rc_customer_id);
       }
