@@ -30,7 +30,7 @@ function App() {
         const user = await authStorage.getUser();
         if (user) setUser(user);
       } catch (error) {
-        console.warn(error);
+        console.error(error);
       } finally {
         setIsReady(true);
       }

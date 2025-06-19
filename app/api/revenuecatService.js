@@ -12,9 +12,9 @@ const PRO_ENTITLEMENT = "Pro access";
 
 export const InitRevenueCat = async () => {
   try{
-    console.warn("Initializing RevenueCat...");
+    console.log("Initializing RevenueCat...");
     if (Platform.OS === "ios") {
-      console.warn("configuring purchases for ios");
+      console.log("configuring purchases for ios");
       Purchases.configure({
         apiKey: 'appl_JleRblwotkDjKkwYKZozPqcIfkT',
       });
@@ -27,21 +27,21 @@ export const InitRevenueCat = async () => {
 
 export const handleLogin = async (rcCustomerId) => {
   try {
-    console.warn("Logging in user with RevenueCat ID:", rcCustomerId);
+    console.log("Logging in user with RevenueCat ID:", rcCustomerId);
     await Purchases.logIn(rcCustomerId);
-    console.warn("User logged in successfully (RevenueCat)");
+    console.log("User logged in successfully (RevenueCat)");
   } catch (e) {
-    console.warn("Error logging in user (RevenueCat)", e);
+    console.error("Error logging in user (RevenueCat)", e);
   }
 };
 
 export const handleLogout = async () => {
   try {
-    console.warn("Logging out user...");
+    console.log("Logging out user...");
     await Purchases.logOut();
-    console.warn("User logged out successfully (RevenueCat)");
+    console.log("User logged out successfully (RevenueCat)");
   } catch (e) {
-    console.warn("Error logging out user (RevenueCat)", e);
+    console.error("Error logging out user (RevenueCat)", e);
   }
 }
 
@@ -50,7 +50,7 @@ export const getOfferings = async () => {
     const offerings = await Purchases.getOfferings();
     return offerings;
   } catch (e) {
-    console.warn("Error fetching offerings", e);
+    console.error("Error fetching offerings", e);
     return null;
   }
 };
@@ -60,7 +60,7 @@ export const PurchasePackage = async (pkg) => {
     const { customerInfo } = await Purchases.purchasePackage(pkg);
     return { success: true, customerInfo };
   } catch (e) {
-    console.warn("Purchase error", e);
+    console.error("Purchase error", e);
     return { success: false, error: e };
   }
 };
@@ -68,7 +68,6 @@ export const PurchasePackage = async (pkg) => {
 export const checkProEntitlement = async () => {
   try {
     const customerInfo = await Purchases.getCustomerInfo();
-    console.warn("customerInfo = ", customerInfo);
 
     if (
       customerInfo.entitlements.active[PRO_ENTITLEMENT]

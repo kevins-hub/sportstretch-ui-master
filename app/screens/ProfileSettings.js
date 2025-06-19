@@ -66,10 +66,7 @@ function ProfileSettings({ route }) {
 
   const { user } = route.params;
 
-  console.warn("user = ", user);
-
   let userObj = user.userObj;
-  console.warn("userObj = ", userObj);
 
   const [therapist, setTherapist] = useState(
     user.role === "therapist" ? userObj : {}
@@ -89,7 +86,6 @@ function ProfileSettings({ route }) {
 
   const checkForProEntitlement = async () => {
     const isPro = checkProEntitlement().then((res) => {
-      console.warn("checkProEntitlement res = ", res);
       setHasProEntitlement(res);
       return res;
     });
@@ -98,12 +94,10 @@ function ProfileSettings({ route }) {
 
   const clearProfilePicture = async () => {
     try{
-      console.warn("clearProfilePicture called");
-      const deleteResult = await upload.deleteProfilePicture(user.authorization_id).then(() => {
-        console.warn("Profile picture deleted due to lack of Pro entitlement");
+      await upload.deleteProfilePicture(user.authorization_id).then(() => {
+        console.log("Profile picture deleted due to lack of Pro entitlement");
         setProfilePictureUrl("");
       });
-      console.warn("deleteResult = ", deleteResult);
     } catch (error) {
       console.error("Error clearing profile picture:", error);
       Alert.alert("Error", "Failed to clear profile picture.");
@@ -115,7 +109,6 @@ function ProfileSettings({ route }) {
 
   const editSubscriptionOnClose = async () => {
     const isPro = await checkForProEntitlement();
-    console.warn("isPro = ", isPro);
     if (isPro === false) {
       clearProfilePicture();
     }

@@ -46,7 +46,7 @@ export default function TherapistEditSubscriptionModal({
   useEffect(() => {
     const fetchOfferings = async () => {
       const offering = await getOfferings();
-      console.warn("Offering fetched:", offering);
+      console.log("Offering fetched:", offering);
       if (!offering) {
         Alert.alert(
           "Error",
@@ -54,8 +54,6 @@ export default function TherapistEditSubscriptionModal({
         );
         return;
       }
-      console.warn(typeof offering);
-      console.warn(typeof offering.all);
 
       const availableBasicPackages =
         offering?.all["Basic Recovery Specialist Subscription"]
@@ -99,24 +97,23 @@ export default function TherapistEditSubscriptionModal({
   const handleSubmit = async () => {
 
     // show warning if switching to basic plan, require user to dismiss before proceeding
-    if (selectedPlan === "basic") {
+    if (selectedPlan === "basic" && !isSignUp) {
       await showBasicPanWarning();
     }
 
     setLoading(true);
     PurchasePackage(selectedPackage)
       .then((result) => {
-        console.warn("Purchase result:", result);
         if (result.success) {
           const rcCustId = result.customerInfo?.originalAppUserId;
           const formattedId = rcCustId.startsWith("$RCAnonymousID:")
             ? rcCustId.replace("$RCAnonymousID:", "")
             : rcCustId;
-          console.warn("RevenueCat Customer ID:", formattedId);
+          console.log("RevenueCat Customer ID:", formattedId);
 
           if (isSignUp) {
             handleLogin(formattedId).then(() => {
-              console.warn("User logged in successfully after purchase");
+              console.log("User logged in successfully after purchase");
               onClose(formattedId);
             });
           } else {
@@ -128,7 +125,7 @@ export default function TherapistEditSubscriptionModal({
       })
       .catch((error) => {
         setLoading(false);
-        console.warn("Purchase error:", error);
+        console.error("Purchase error:", error);
         Alert.alert(
           "Error",
           "An error occurred while processing your purchase. Please try again later."

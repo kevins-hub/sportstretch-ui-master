@@ -157,7 +157,6 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility, hasProE
       })
       .catch((err) => {
         setShowInvalidFieldError(true);
-        // console.warn(err);
       });
   };
 
@@ -655,7 +654,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility, hasProE
                               actions.resetForm();
                               setVisibility(false);
                             } catch (e) {
-                              console.warn("Error updating therapist: ", e);
+                              console.error("Error updating therapist: ", e);
                             }
                           },
                         },
@@ -671,7 +670,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility, hasProE
                       actions.resetForm();
                       setVisibility(false);
                     } catch (e) {
-                      console.warn("Error updating therapist: ", e);
+                      console.error("Error updating therapist: ", e);
                     }
                   }
                 }}

@@ -47,7 +47,7 @@ function TherapistEditBusinessHoursModal({
       if (handleError(response)) return;
       setVisibility(false);
     } catch (e) {
-      console.warn("Error editing business hours: ", e);
+      console.error("Error editing business hours: ", e);
     }
   };
 

@@ -41,11 +41,8 @@ function LoginScreen(props) {
             : result.data
         );
       setErrorText("");
-      console.warn("result.data = ", result.data);
       const user = jwtDecode(result.data);
       authContext.setUser(user);
-      console.warn("user at log in = ", user);
-      console.warn("user.userObj = ", user.userObj);
       authStorage.storeToken(result.data);
       if (user.role === "therapist" && user.userObj.rc_customer_id) {
         // If the user is a therapist, handle RevenueCat subscription

@@ -55,7 +55,7 @@ const PASSWORD_STEP = 8;
 
 const MIN_AGE = 18;
 
-const bioMaxLength = 250;
+const bioMaxLength = 100;
 const feesAndTaxesPercentage = 0.15;
 const phoneRegExp =
   /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
@@ -181,7 +181,7 @@ function TherapistForm(props) {
         sendSMSVerification(email);
       }
     } catch (e) {
-      console.warn("Error sending verification code: ", e);
+      console.error("Error sending verification code: ", e);
       Alert.alert("Error", "Failed to send verification code. Please try again.");
     }
 
@@ -213,49 +213,11 @@ function TherapistForm(props) {
       );
       setDob(selectedDateLocal);
     } catch (error) {
-      console.warn("Error setting date of birth: ", error);
-    }
-  };
-
-  // const setSubscription = () => {
-  //   return new Promise(resolve => {
-  //     const interval = setInterval(() => {
-  //       if (!showSubscriptionModal) {
-  //         clearInterval(interval);
-  //         resolve();
-  //       }
-  //     }, 100); // Check every 100ms
-  //   });
-  // }
-
-  // const addRcCustomerIdToSignUpValues = (rcCustId) => {
-  //   console.warn("Adding RC Customer ID to signUpValues: ", rcCustId);
-  //   const updated = {
-  //     ...signUpValuesRef.current,
-  //     rcCustomerId: rcCustId,
-  //   };
-  //   setRcCustomerId(rcCustId);
-  //   setSignUpValues(updated);
-  //   console.warn("signUpValues updated: ", updated);
-  // }
-
-
-  const mergeRCUser = async (rcCustomerId) => {
-    try {
-      console.warn("Merging RevenueCat user with ID:", rcCustomerId);
-      await handleLogin(rcCustomerId);
-      console.warn("User merged successfully");
-    } catch (e) {
-      console.warn("Error merging user", e);
-      Alert.alert(
-        "Error",
-        "An error occurred while merging your account. Please try again later."
-      );
+      console.error("Error setting date of birth: ", error);
     }
   };
 
   const register_therapist = async (values) => {
-    console.warn("values = ", values);
     let registerSuccess = false;
     try {
       let register_response = await registerApi.registerTherapist(values);
@@ -311,7 +273,6 @@ function TherapistForm(props) {
         setShowPhoneExistsError(true);
         return;
       }
-      console.warn("email and phone available");
       Promise.all([
         ReviewSchema.validateAt("fname", values),
         ReviewSchema.validateAt("lname", values),
@@ -322,17 +283,14 @@ function TherapistForm(props) {
           setShowInvalidFieldError(false);
           setShowEmailExistsError(false);
           setShowPhoneExistsError(false);
-          // console.warn("current Step = ", currentStep);
           setPhoneNumber(values.phone);
           setEmail(values.email);
           setCurrentStep(currentStep + 1);
-          // console.warn("current Step = ", currentStep);
-          // setCurrentStep(5);
 
         })
         .catch((err) => {
           setShowInvalidFieldError(true);
-          console.warn("err: ", err);
+          console.error("Validation error: ", err);
         });
     } else if (currentStep === DOB_STEP) {
       if (checkAge(dob)) {
@@ -391,7 +349,7 @@ function TherapistForm(props) {
       const response = await auth.checkEmail(email);
       return response.data === "Email already registered." ? false : true;
     } catch (error) {
-      console.warn("Error checking email availability: ", error);
+      console.error("Error checking email availability: ", error);
       return false;
     }
   };
@@ -401,7 +359,7 @@ function TherapistForm(props) {
       const response = await registerApi.checkPhone(phone);
       return response.data === "Phone already registered." ? false : true;
     } catch (error) {
-      console.warn("Error checking phone availability: ", error);
+      console.error("Error checking phone availability: ", error);
       return false;
     }
   };
@@ -434,9 +392,7 @@ function TherapistForm(props) {
   };
 
   const sendSMSVerification = async (value) => {
-    console.warn("sending SMS");
     if (currentStep === SMS_VERIFICATION_STEP) {
-      console.warn("sms step");
       let code = Math.floor(100000 + Math.random() * 900000);
       setVerificationCode(code);
       console.log("code", code);
@@ -467,20 +423,13 @@ function TherapistForm(props) {
         console.error("Error sending SMS:", error);
       }
     } else if (currentStep === EMAIL_VERIFIACTION_STEP) {
-      console.warn("email step");
       try {
         const code = Math.floor(100000 + Math.random() * 900000);
-        console.warn("email code = ", code);
         setVerificationCode(code);
         let emailVerificationCode = { email: email, token: code };
         let res = await register.verifyEmail(emailVerificationCode);
-        if (!!res) {
-          console.warn("It worked");
-        } else {
-          console.warn("error in verifying email");
-        }
       } catch (error) {
-        console.warn(error);
+        console.error(error);
       }
     }
   };
@@ -541,12 +490,11 @@ function TherapistForm(props) {
   const registerTherapist = async (rcCustId) => {
     const values = signUpValues;
     values.rcCustomerId = rcCustId;
-    console.warn("signUpValues = ", values);
+    values.email = values.email.toLowerCase();
     try {
-      console.warn("stripe register");
       const registerStripeResponse =
         await payment.registerStripeAccount({
-          email: values.email.toLowerCase(),
+          email: values.email,
         });
       if (handleError(registerStripeResponse)) return;
       if (registerStripeResponse.status === 200) {
@@ -555,14 +503,13 @@ function TherapistForm(props) {
         values.stripeAccountId = stripeAccountId;
       }
     } catch (error) {
-      console.warn("Error registering stripe account: ", error);
+      console.error("Error registering stripe account: ", error);
     }
 
     try {
-      console.warn("therapist register");
       await register_therapist(values);
     } catch (error) {
-      console.warn("Error registering therapist: ", error);
+      console.error("Error registering therapist: ", error);
       setShowSubmitError(true);
     }
   }  
@@ -1237,7 +1184,7 @@ function TherapistForm(props) {
               try {
                 setShowSubscriptionModal(true);
               } catch (error) {
-                console.warn("Error setting subscription: ", error);
+                console.error("Error setting subscription: ", error);
                 setShowSubmitError(true);
                 return;
               }

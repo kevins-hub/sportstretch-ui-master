@@ -68,7 +68,7 @@ function AthleteBookNow(props) {
       await loadMarkers(therapistList);
       return therapistList;
     } catch (error) {
-      console.warn("Error on book now getTherapists", error);
+      console.error("Error on book now getTherapists", error);
     }
   };
 
