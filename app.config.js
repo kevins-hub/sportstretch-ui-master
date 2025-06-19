@@ -21,6 +21,7 @@ export default {
       infoPlist: {
         NSLocationWhenInUseUsageDescription:
           "This app uses the location to provide the client with a list of nearby service providers.",
+        NSCameraUsageDescription: "This app uses the camera to let therapists upload profile photos.",
       },
     },
     android: {
