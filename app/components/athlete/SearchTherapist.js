@@ -115,7 +115,7 @@ function SearchTherapist({
           <ScrollView>
             {statesList.map((opt) => (
               <TouchableOpacity
-                key={opt.label}
+                key={opt.value}
                 onPress={() => handleSelect(opt.value)}
                 style={styles.option}
               >
