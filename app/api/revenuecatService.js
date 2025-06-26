@@ -10,13 +10,14 @@ import { REVENUECAT_IOS_KEY } from "@env";
 
 const PRO_ENTITLEMENT = "Pro access";
 
-export const InitRevenueCat = async () => {
+export const InitRevenueCat = async (rcCustomerId = null) => {
   try{
     console.log("Initializing RevenueCat...");
     if (Platform.OS === "ios") {
       console.log("configuring purchases for ios");
       Purchases.configure({
         apiKey: 'appl_JleRblwotkDjKkwYKZozPqcIfkT',
+        appUserID: rcCustomerId || null,
       });
     }
     await getOfferings();

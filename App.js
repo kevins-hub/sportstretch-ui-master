@@ -49,16 +49,7 @@ function App() {
     return null;
   }
 
-  useEffect;
-
-  // if (!isReady)
-  //   return (
-  //     // <AppLoading
-  //     //   startAsync={restoreUser}
-  //     //   onFinish={() => setIsReady(true)}
-  //     //   onError={console.warn}
-  //     // />
-  //   );
+  //useEffect;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>

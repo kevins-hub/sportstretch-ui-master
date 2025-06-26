@@ -651,7 +651,11 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility, hasProE
                                 editTherapistObject
                               );
                               if (handleError(response)) return;
+                              await therapists.disableTherapist(
+                                therapist.therapist_id
+                              );
                               actions.resetForm();
+              
                               setVisibility(false);
                             } catch (e) {
                               console.error("Error updating therapist: ", e);

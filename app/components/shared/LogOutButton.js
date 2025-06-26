@@ -9,7 +9,10 @@ function LogOutButton(isAdmin = false) {
 
   const logOutUser = async () => {
     // Call the logout function from revenuecatService
-    await handleLogout();
+    if (!isAdmin) {
+      // If the user is not an admin, handle the logout process
+      await handleLogout();
+    }
     authContext.setUser(null);
   };
 
