@@ -20,21 +20,14 @@ function App() {
   //   if (user) setUser(user);
   // };
 
-  // useEffect(() => {
-  //   InitRevenueCat(); // Initialize RevenueCat once
-  // }, []);
+  useEffect(() => {
+    InitRevenueCat(); // Initialize RevenueCat once
+  }, []);
 
   useEffect(() => {
     const prepareApp = async () => {
       try {
         const user = await authStorage.getUser();
-        if (user.role !== "admin") {
-          if (user.userObj.rc_customer_id.length > 0) {
-            InitRevenueCat(user.userObj.rc_customer_id);
-          } else {
-            InitRevenueCat();
-          }
-        }
         if (user) setUser(user);
       } catch (error) {
         console.error(error);

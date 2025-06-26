@@ -93,7 +93,7 @@ function ProfileSettings({ route }) {
   };
 
   const clearProfilePicture = async () => {
-    try{
+    try {
       await upload.deleteProfilePicture(user.authorization_id).then(() => {
         console.log("Profile picture deleted due to lack of Pro entitlement");
         setProfilePictureUrl("");
@@ -103,14 +103,27 @@ function ProfileSettings({ route }) {
       Alert.alert("Error", "Failed to clear profile picture.");
     }
     return;
-
-    
   };
 
   const editSubscriptionOnClose = async () => {
     const isPro = await checkForProEntitlement();
+    console.warn("isPro = ", isPro);
     if (isPro === false) {
-      clearProfilePicture();
+
+      therapists.disableTherapist(userObj.therapist_id).then(() => {
+        Alert.alert(
+          "Subscription Update",
+          "Your subscription has been updated to Basic. Since your bio is currently greater than the basic character limit(100) it has been temporarily disabled. Please edit it, and re-submit review to re-enable your profile."
+        );
+        setTherapist({
+          ...therapist,
+          enabled: 0,
+        });
+      });
+      if (profilePictureUrl) {
+        await clearProfilePicture();
+      }
+      
     }
     return;
   };

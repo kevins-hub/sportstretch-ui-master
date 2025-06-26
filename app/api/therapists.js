@@ -23,6 +23,10 @@ const approveTherapist = (therapistId) => {
 };
 
 const denyTherapist = (therapistId) => {
+  return apiClient.put(endpoint + "/decline/" + therapistId);
+};
+
+const disableTherapist = (therapistId) => {
   return apiClient.put(endpoint + "/disable/" + therapistId);
 };
 
@@ -57,6 +61,7 @@ export default {
   setAvailability,
   getAllRequests,
   denyTherapist,
+  disableTherapist,
   approveTherapist,
   setToggle,
   getTherapist,
