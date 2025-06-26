@@ -105,25 +105,36 @@ function ProfileSettings({ route }) {
     return;
   };
 
+  const disableTherapist = async(showAlert = false) => {
+    therapists.disableTherapist(userObj.therapist_id).then(() => {
+      if (showAlert) {
+        Alert.alert(
+          "Subscription Update",
+          "Your subscription has been updated to Basic. Since your bio is currently greater than the basic character limit(100) it has been temporarily disabled. Please edit it, and re-submit for review. Once approved by our team, your profile will be re-enabled."
+        );
+      }
+      setTherapist({
+        ...therapist,
+        enabled: 0,
+      });
+    });
+  }
+
   const editSubscriptionOnClose = async () => {
     const isPro = await checkForProEntitlement();
     console.warn("isPro = ", isPro);
     if (isPro === false) {
-
-      therapists.disableTherapist(userObj.therapist_id).then(() => {
-        Alert.alert(
-          "Subscription Update",
-          "Your subscription has been updated to Basic. Since your bio is currently greater than the basic character limit(100) it has been temporarily disabled. Please edit it, and re-submit review to re-enable your profile."
-        );
-        setTherapist({
-          ...therapist,
-          enabled: 0,
-        });
-      });
-      if (profilePictureUrl) {
-        await clearProfilePicture();
+      try {
+        if (therapist.summary.length > 100) {
+          await disableTherapist(true);
+        }
+        if (profilePictureUrl) {
+          await clearProfilePicture();
+        }
+      } catch (error) {
+        console.error("Error disabling therapist or clearing profile picture:", error);
       }
-      
+    
     }
     return;
   };
