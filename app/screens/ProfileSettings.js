@@ -328,6 +328,7 @@ function ProfileSettings({ route }) {
         visible={deleteAccountModalVisible}
         setVisibility={setDeleteAccountModalVisible}
         authId={user.authorization_id}
+        isTherapist={user.role === "therapist"}
       />
       <TherapistEditBusinessHoursModal
         user={user}

@@ -12,6 +12,8 @@ import {
   handleLogin,
   PurchasePackage,
 } from "../../api/revenuecatService";
+import therapists from "../../api/therapists";
+import LogOutButton from "../shared/LogOutButton";
 
 const productIds = ["pro_upgrade"];
 
@@ -20,6 +22,7 @@ export default function TherapistEditSubscriptionModal({
   setVisibility,
   onClose,
   isSignUp = false,
+  inactiveSubscription = false,
 }) {
   const [selectedPlan, setSelectedPlan] = useState("pro"); // 'basic' or 'pro'
   const [basicPackages, setBasicPackages] = useState([]);
@@ -119,7 +122,6 @@ export default function TherapistEditSubscriptionModal({
           } else {
             onClose();
           }
-          setLoading(false);
           setVisibility(false);
         }
       })
@@ -138,7 +140,7 @@ export default function TherapistEditSubscriptionModal({
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.container}>
         <View style={styles.modalContent}>
-          {isSignUp ? (
+          {isSignUp && !inactiveSubscription ? (
             <>
               <Text style={styles.title}>Choose Your Plan</Text>
               <Text style={styles.optionTitle}>Your first month is on us!</Text>
@@ -147,24 +149,6 @@ export default function TherapistEditSubscriptionModal({
           ) : (
             <Text style={styles.title}>Edit Your Subscription</Text>
           )}
-
-          {/* {basicPackages.map((pkg) => (
-            <TouchableOpacity
-              key={pkg.identifier}
-              style={[
-                styles.option,
-                selectedPlan === "basic" && styles.selected,
-              ]}
-              onPress={() => {
-                setSelectedPlan("basic");
-                setSelectedPackage(pkg);
-              }}
-            >
-              <Text style={styles.optionTitle}>{pkg.product.title}</Text>
-              <Text>{pkg.product.description}</Text>
-              <Text>{pkg.product.priceString}</Text>
-            </TouchableOpacity>
-          ))} */}
 
           {proPackages.map((pkg) => (
             <TouchableOpacity
@@ -183,7 +167,7 @@ export default function TherapistEditSubscriptionModal({
 
                 {isSignUp ? (
                   <View>
-                    <Text style={styles.promoText}>First month free</Text>
+                    {!inactiveSubscription ? <Text style={styles.promoText}>First month free</Text> : null}
                     <Text style={styles.priceText}>
                       {pkg.product.priceString}/month
                     </Text>
@@ -241,7 +225,7 @@ export default function TherapistEditSubscriptionModal({
                 </View>
                 {isSignUp ? (
                   <View>
-                    <Text style={styles.promoText}>First month free</Text>
+                    {!inactiveSubscription ? <Text style={styles.promoText}>First month free</Text> : null}
                     <Text style={styles.priceText}>
                       {pkg.product.priceString}/month
                     </Text>
@@ -275,53 +259,22 @@ export default function TherapistEditSubscriptionModal({
               >
                 <Text style={styles.subscribeText}>Continue</Text>
               </TouchableOpacity>
-
+              
+              {!inactiveSubscription ? (
               <TouchableOpacity onPress={() => setVisibility(false)}>
                 <Text style={styles.closeText}>Cancel</Text>
               </TouchableOpacity>
+              ) : (
+                <LogOutButton />
+              )}
+
             </>
           ) : (
-            <></>
+            <>
+              <Text>Loading...</Text>
+            </>
           )}
-          {/* <TouchableOpacity
-            style={styles.subscribeButton}
-            onPress={() => {
-              handleSubmit();
-            }}
-          >
-            <Text style={styles.subscribeText}>Continue</Text>
-          </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => setVisibility(false)}>
-            <Text style={styles.closeText}>Cancel</Text>
-          </TouchableOpacity> */}
-
-          {/* <TouchableOpacity
-            style={[styles.option, selectedPlan === "basic" && styles.selected]}
-            onPress={() => setSelectedPlan("basic")}
-          >
-            <Text style={styles.optionTitle}>Basic</Text>
-            <Text>Free forever</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.option, selectedPlan === "pro" && styles.selected]}
-            onPress={() => setSelectedPlan("pro")}
-          >
-            <Text style={styles.optionTitle}>Pro</Text>
-            <Text>$20 monthly</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.subscribeButton}
-            // onPress={handleSubscribe}
-          >
-            <Text style={styles.subscribeText}>Continue</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => setVisibility(false)}>
-            <Text style={styles.closeText}>Cancel</Text>
-          </TouchableOpacity> */}
         </View>
       </View>
     </Modal>
