@@ -11,22 +11,20 @@ import { REVENUECAT_IOS_KEY } from "@env";
 const PRO_ENTITLEMENT = "Pro access";
 const BASIC_ENTITLEMENT = "Basic access";
 
-
 export const InitRevenueCat = async (rcCustomerId = null) => {
-  try{
+  try {
     console.log("Initializing RevenueCat...");
-    if (Platform.OS === "ios") {
-      console.log("configuring purchases for ios");
-      Purchases.configure({
-        apiKey: 'appl_JleRblwotkDjKkwYKZozPqcIfkT',
-        appUserID: rcCustomerId || null,
-      });
-    }
+    console.log("configuring purchases for ios");
+    Purchases.configure({
+      apiKey: "appl_JleRblwotkDjKkwYKZozPqcIfkT",
+      appUserID: rcCustomerId || null,
+    });
+
     await getOfferings();
   } catch (e) {
     console.error("Failed to initialize RevenueCat", e);
   }
-}
+};
 
 export const handleLogin = async (rcCustomerId) => {
   try {
@@ -46,7 +44,7 @@ export const handleLogout = async () => {
   } catch (e) {
     console.error("Error logging out user (RevenueCat)", e);
   }
-}
+};
 
 export const getOfferings = async () => {
   try {
@@ -72,9 +70,7 @@ export const checkProEntitlement = async () => {
   try {
     const customerInfo = await Purchases.getCustomerInfo();
 
-    if (
-      customerInfo.entitlements.active[PRO_ENTITLEMENT]
-    ) {
+    if (customerInfo.entitlements.active[PRO_ENTITLEMENT]) {
       return true;
     } else {
       return false;
@@ -91,8 +87,14 @@ export const checkProOrBasicEntitlement = async () => {
 
     console.warn("customerInfo", customerInfo);
     console.warn("active entitlements", customerInfo.entitlements.active);
-    console.warn("Pro entitlement", customerInfo.entitlements.active[PRO_ENTITLEMENT]);
-    console.warn("Basic entitlement", customerInfo.entitlements.active[BASIC_ENTITLEMENT]);
+    console.warn(
+      "Pro entitlement",
+      customerInfo.entitlements.active[PRO_ENTITLEMENT]
+    );
+    console.warn(
+      "Basic entitlement",
+      customerInfo.entitlements.active[BASIC_ENTITLEMENT]
+    );
 
     if (
       customerInfo.entitlements.active[PRO_ENTITLEMENT] ||
@@ -106,4 +108,4 @@ export const checkProOrBasicEntitlement = async () => {
     console.error("Failed to fetch entitlements", e);
     return false;
   }
-}
+};
