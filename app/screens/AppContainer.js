@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { Alert } from "react-native";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 import AthleteDashboard from "./athlete/AthleteDashboard";
@@ -9,13 +10,23 @@ import TherapistRegistrationPending from "./therapist/TherapistRegistrationPendi
 import TherapistDisabled from "./therapist/TherapistDisabledScreen";
 import AppNavigator from "../navigation/AppNavigator";
 import { NavigationContainer } from "@react-navigation/native";
+import { checkProOrBasicEntitlement, handleLogout } from "../api/revenuecatService";
+import TherapistEditSubscriptionModal from "../components/therapist/TherapistEditSubscriptionModal";
+import AuthContext from "../auth/context";
+
 
 export default function AppContainer({ user }) {
 
+  const authContext = useContext(AuthContext);
 
   useEffect(() => {
     registerForPushNotification();
+    if (user.role === "therapist") {
+      checkIfEntitlementExists();
+    }
   }, []);
+
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false); 
 
   const registerForPushNotification = async () => {
     try {
@@ -39,6 +50,37 @@ export default function AppContainer({ user }) {
     }
   };
 
+  const checkIfEntitlementExists = async () => {
+    const hasEntitlement = await checkProOrBasicEntitlement();
+    if (!hasEntitlement) {
+      console.log("User does not have Pro or Basic entitlement");
+      // Handle the case where the user does not have the entitlement
+      // Show alert, with options to subscribe or Log out
+      Alert.alert("Subscription Required", "We have detected that you don't have an active subscription, please subscribe to continue using the app or contact support if you think this is a mistake.", [
+        {
+          text: "Subscribe",
+          onPress: () => {
+            // Show subscription modal
+            setShowSubscriptionModal(true);
+          },
+        },
+        {
+          text: "Log Out",
+          onPress: () => {
+            // Log out user
+            handleLogout();
+            authContext.setUser(null);
+          },
+        },
+      ]);
+    } else {
+      console.log("User has Pro or Basic entitlement");
+      // Handle the case where the user has the entitlement
+    }
+  }
+
+  
+
   return (
     <>
       {/* {user.role === "athlete" && <AthleteDashboard />} */}
@@ -46,6 +88,13 @@ export default function AppContainer({ user }) {
       {user.role === "admin" ? (
         <AdminDashboard />
       ) : (
+        <>
+        <TherapistEditSubscriptionModal
+          visible={showSubscriptionModal}
+          setVisibility={setShowSubscriptionModal}
+          onClose = {() => setShowSubscriptionModal(false)}
+          isSignUp={true}
+        />
         <NavigationContainer
           linking={{
             prefixes: ["sportstretch://", "https://sportstretch.com"],
@@ -59,6 +108,7 @@ export default function AppContainer({ user }) {
         >
           <AppNavigator user={user} />
         </NavigationContainer>
+        </>
       )}
     </>
   );

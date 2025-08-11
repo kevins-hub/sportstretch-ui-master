@@ -9,6 +9,8 @@ import { REVENUECAT_IOS_KEY } from "@env";
 // };
 
 const PRO_ENTITLEMENT = "Pro access";
+const BASIC_ENTITLEMENT = "Basic access";
+
 
 export const InitRevenueCat = async (rcCustomerId = null) => {
   try{
@@ -82,3 +84,26 @@ export const checkProEntitlement = async () => {
     return false;
   }
 };
+
+export const checkProOrBasicEntitlement = async () => {
+  try {
+    const customerInfo = await Purchases.getCustomerInfo();
+
+    console.warn("customerInfo", customerInfo);
+    console.warn("active entitlements", customerInfo.entitlements.active);
+    console.warn("Pro entitlement", customerInfo.entitlements.active[PRO_ENTITLEMENT]);
+    console.warn("Basic entitlement", customerInfo.entitlements.active[BASIC_ENTITLEMENT]);
+
+    if (
+      customerInfo.entitlements.active[PRO_ENTITLEMENT] ||
+      customerInfo.entitlements.active[BASIC_ENTITLEMENT]
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (e) {
+    console.error("Failed to fetch entitlements", e);
+    return false;
+  }
+}

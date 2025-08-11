@@ -14,7 +14,7 @@ import { Formik } from "formik";
 import registerApi from "../../api/register";
 import authStorage from "../../auth/storage";
 
-function DeleteAccountModal({ visible, setVisibility, authId }) {
+function DeleteAccountModal({ visible, setVisibility, authId, isTherapist }) {
   if (!visible) return null;
 
   const navigation = useNavigation();
@@ -57,6 +57,13 @@ function DeleteAccountModal({ visible, setVisibility, authId }) {
                 Are you sure you want to delete your account? This action cannot
                 be undone.
               </Text>
+              {isTherapist ? (
+                <Text style={styles.modalText}>
+                  Deleting your account will not unsubscribe you from your monthly subscription. To cancel your subscription, please do so through the app store.
+                </Text>
+              ) : (
+                <></>
+              )}
               <Text style={styles.modalText}>Type 'delete' to confirm</Text>
               <TextInput
                 style={styles.input}
