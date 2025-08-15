@@ -15,7 +15,7 @@ export default {
     },
     assetBundlePatterns: ["**/*"],
     ios: {
-      buildNumber: "30",
+      buildNumber: "31",
       bundleIdentifier: "com.sportstretchusa.sportstretch",
       supportsTablet: true,
       infoPlist: {
