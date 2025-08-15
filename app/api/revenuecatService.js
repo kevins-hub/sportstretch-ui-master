@@ -16,7 +16,7 @@ export const InitRevenueCat = async (rcCustomerId = null) => {
     console.log("Initializing RevenueCat...");
     console.log("configuring purchases for ios");
     Purchases.configure({
-      apiKey: "appl_JleRblwotkDjKkwYKZozPqcIfkT",
+      apiKey: REVENUECAT_IOS_KEY || "appl_JleRblwotkDjKkwYKZozPqcIfkT",
       appUserID: rcCustomerId || null,
     });
 
@@ -84,18 +84,6 @@ export const checkProEntitlement = async () => {
 export const checkProOrBasicEntitlement = async () => {
   try {
     const customerInfo = await Purchases.getCustomerInfo();
-
-    console.warn("customerInfo", customerInfo);
-    console.warn("active entitlements", customerInfo.entitlements.active);
-    console.warn(
-      "Pro entitlement",
-      customerInfo.entitlements.active[PRO_ENTITLEMENT]
-    );
-    console.warn(
-      "Basic entitlement",
-      customerInfo.entitlements.active[BASIC_ENTITLEMENT]
-    );
-
     if (
       customerInfo.entitlements.active[PRO_ENTITLEMENT] ||
       customerInfo.entitlements.active[BASIC_ENTITLEMENT]

@@ -21,22 +21,41 @@ function App() {
   // };
 
   useEffect(() => {
-    InitRevenueCat(); // Initialize RevenueCat once
+    const initializeApp = async () => {
+      try {
+        console.log("Initializing RevenueCat...");
+        await InitRevenueCat(); // Initialize RevenueCat once
+        console.log("RevenueCat initialized successfully");
+      } catch (error) {
+        console.error("RevenueCat initialization failed:", error);
+        // Don't crash the app if RevenueCat fails to initialize
+        // RevenueCat features will just be unavailable
+      }
+    };
+    
+    initializeApp();
   }, []);
 
   useEffect(() => {
     const prepareApp = async () => {
       try {
+        console.log("Loading user from storage...");
         const user = await authStorage.getUser();
-        if (user) setUser(user);
+        if (user) {
+          console.log("User found:", user.id || "Unknown ID");
+          setUser(user);
+        } else {
+          console.log("No user found in storage");
+        }
       } catch (error) {
-        console.error(error);
+        console.error("Failed to load user from storage:", error);
       } finally {
         setIsReady(true);
       }
     };
 
     prepareApp();
+
   }, []);
 
   const onLayoutRootView = useCallback(async () => {
