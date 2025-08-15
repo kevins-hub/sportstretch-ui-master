@@ -25,29 +25,42 @@ function SearchTherapist({
   setModalVisibility,
   setAthleteRegion,
 }) {
-  const [statesList, setStatesList] = useState(["California"]);
+  const [statesList, setStatesList] = useState([{ label: "Loading...", value: "" }]);
   const [selectedState, setSelectedState] = useState(currentState);
   const [modalVisible, setModalVisible] = useState(false);
   const slideAnim = useRef(new Animated.Value(screenHeight)).current;
-  const options = [];
 
   const setStateOptions = (statesObjList) => {
-    if (statesObjList.length === 0) {
-      setStatesList([]);
+    console.log("Setting state options:", statesObjList);
+    if (!statesObjList || statesObjList.length === 0) {
+      setStatesList([{ label: "No states currently with active recovery specialists", value: "" }]);
       return;
     }
-    let states = statesObjList.map((states) => {
-      return { label: states.state, value: states.state };
+    let states = statesObjList.map((stateItem) => {
+      // Handle different possible response structures
+      if (typeof stateItem === 'string') {
+        return { label: stateItem, value: stateItem };
+      }
+      if (stateItem.state) {
+        return { label: stateItem.state, value: stateItem.state };
+      }
+      // Fallback for other structures
+      return { label: stateItem.label || stateItem.value || stateItem, value: stateItem.value || stateItem.label || stateItem };
     });
+    console.log("Processed states:", states);
     setStatesList(states);
   };
 
   const getStates = async () => {
     try {
+      console.log("Fetching therapist states...");
       const response = await therapists.getTherapistStates();
+      console.log("API response:", response);
       setStateOptions(response.data);
     } catch (error) {
       console.error("Error on getStates", error);
+      // Set error state to prevent crashes
+      setStatesList([{ label: "Error loading states", value: "" }]);
     }
   };
 
