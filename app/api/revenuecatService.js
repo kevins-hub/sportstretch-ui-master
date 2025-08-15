@@ -11,6 +11,8 @@ import { REVENUECAT_IOS_KEY } from "@env";
 const PRO_ENTITLEMENT = "Pro access";
 const BASIC_ENTITLEMENT = "Basic access";
 
+let isRevenueCatInitialized = false;
+
 export const InitRevenueCat = async (rcCustomerId = null) => {
   try {
     console.log("Initializing RevenueCat...");
@@ -21,8 +23,11 @@ export const InitRevenueCat = async (rcCustomerId = null) => {
     });
 
     await getOfferings();
+    isRevenueCatInitialized = true;
+    console.log("RevenueCat initialization completed successfully");
   } catch (e) {
     console.error("Failed to initialize RevenueCat", e);
+    throw e; // Re-throw to let App.js handle it
   }
 };
 
@@ -68,6 +73,11 @@ export const PurchasePackage = async (pkg) => {
 
 export const checkProEntitlement = async () => {
   try {
+    if (!isRevenueCatInitialized) {
+      console.warn("RevenueCat not initialized yet, returning false");
+      return false;
+    }
+    
     const customerInfo = await Purchases.getCustomerInfo();
 
     if (customerInfo.entitlements.active[PRO_ENTITLEMENT]) {
@@ -83,6 +93,11 @@ export const checkProEntitlement = async () => {
 
 export const checkProOrBasicEntitlement = async () => {
   try {
+    if (!isRevenueCatInitialized) {
+      console.warn("RevenueCat not initialized yet, returning false");
+      return false;
+    }
+    
     const customerInfo = await Purchases.getCustomerInfo();
     if (
       customerInfo.entitlements.active[PRO_ENTITLEMENT] ||

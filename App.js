@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { NavigationContainer } from "@react-navigation/native";
+import { Alert } from "react-native";
 // import AppLoading from "expo-app-loading";
 import AuthContext from "./app/auth/context";
 import AuthNavigator from "./app/navigation/AuthNavigator";
@@ -7,37 +8,43 @@ import authStorage from "./app/auth/storage";
 import AppContainer from "./app/screens/AppContainer";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as SplashScreen from "expo-splash-screen";
-import { InitRevenueCat } from "./app/api/revenuecatService";
+import { InitRevenueCat, checkProOrBasicEntitlement, handleLogout } from "./app/api/revenuecatService";
+import TherapistEditSubscriptionModal from "./app/components/therapist/TherapistEditSubscriptionModal";
 
 SplashScreen.preventAutoHideAsync();
 
 function App() {
   const [user, setUser] = useState();
   const [isReady, setIsReady] = useState(false);
+  const [revenueCatReady, setRevenueCatReady] = useState(false);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
   // const restoreUser = async () => {
   //   const user = await authStorage.getUser();
   //   if (user) setUser(user);
   // };
 
+  // First useEffect: Initialize RevenueCat
   useEffect(() => {
-    const initializeApp = async () => {
+    const initializeRevenueCat = async () => {
       try {
         console.log("Initializing RevenueCat...");
-        await InitRevenueCat(); // Initialize RevenueCat once
+        await InitRevenueCat();
         console.log("RevenueCat initialized successfully");
+        setRevenueCatReady(true);
       } catch (error) {
         console.error("RevenueCat initialization failed:", error);
         // Don't crash the app if RevenueCat fails to initialize
-        // RevenueCat features will just be unavailable
+        setRevenueCatReady(true); // Continue anyway
       }
     };
-    
-    initializeApp();
+
+    initializeRevenueCat();
   }, []);
 
+  // Second useEffect: Load user from storage
   useEffect(() => {
-    const prepareApp = async () => {
+    const loadUser = async () => {
       try {
         console.log("Loading user from storage...");
         const user = await authStorage.getUser();
@@ -54,17 +61,53 @@ function App() {
       }
     };
 
-    prepareApp();
-
+    loadUser();
   }, []);
 
+  // Third useEffect: Check subscription ONLY after RevenueCat is ready AND user is loaded
+  useEffect(() => {
+    if (revenueCatReady && user && user.role === "therapist") {
+      console.log("RevenueCat ready and therapist user loaded, checking subscription...");
+      checkIfEntitlementExists();
+    }
+  }, [revenueCatReady, user]);
+
+  const checkIfEntitlementExists = async () => {
+    try {
+      const hasEntitlement = await checkProOrBasicEntitlement();
+      if (!hasEntitlement) {
+        console.log("User does not have Pro or Basic entitlement");
+        // Show alert with options to subscribe or Log out
+        Alert.alert("Subscription Required", "We have detected that you don't have an active subscription, please subscribe to continue using the app or contact support if you think this is a mistake.", [
+          {
+            text: "Subscribe",
+            onPress: () => {
+              setShowSubscriptionModal(true);
+            },
+          },
+          {
+            text: "Log Out",
+            onPress: () => {
+              handleLogout();
+              setUser(null);
+            },
+          },
+        ]);
+      } else {
+        console.log("User has Pro or Basic entitlement");
+      }
+    } catch (error) {
+      console.error("Error checking entitlements:", error);
+    }
+  };
+
   const onLayoutRootView = useCallback(async () => {
-    if (isReady) {
+    if (isReady && revenueCatReady) {
       await SplashScreen.hideAsync();
     }
-  }, [isReady]);
+  }, [isReady, revenueCatReady]);
 
-  if (!isReady) {
+  if (!isReady || !revenueCatReady) {
     return null;
   }
 
@@ -73,6 +116,13 @@ function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <AuthContext.Provider value={{ user, setUser }}>
+        <TherapistEditSubscriptionModal
+          visible={showSubscriptionModal}
+          setVisibility={setShowSubscriptionModal}
+          onClose={() => setShowSubscriptionModal(false)}
+          isSignUp={true}
+          inactiveSubscription={true}
+        />
         {user ? (
           <>
             <AppContainer user={user} />
