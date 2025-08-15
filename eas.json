@@ -62,9 +62,6 @@
         "appleId": "sportstretchapp@gmail.com",
         "ascAppId": "6624313855",
         "appleTeamId": "NLY6C5D66U"
-      },
-      "android": {
-        "buildType": "app-bundle"
       }
     },
     "production-beta": {
