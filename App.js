@@ -10,6 +10,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as SplashScreen from "expo-splash-screen";
 import { InitRevenueCat, checkProOrBasicEntitlement, handleLogout } from "./app/api/revenuecatService";
 import TherapistEditSubscriptionModal from "./app/components/therapist/TherapistEditSubscriptionModal";
+import ErrorBoundary from "./app/components/shared/ErrorBoundary";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -74,6 +75,7 @@ function App() {
 
   const checkIfEntitlementExists = async () => {
     try {
+      console.log("Checking user entitlements...");
       const hasEntitlement = await checkProOrBasicEntitlement();
       if (!hasEntitlement) {
         console.log("User does not have Pro or Basic entitlement");
@@ -98,6 +100,8 @@ function App() {
       }
     } catch (error) {
       console.error("Error checking entitlements:", error);
+      // Don't show alerts for entitlement errors in production
+      // Just log and continue - user can still use the app
     }
   };
 
@@ -114,26 +118,28 @@ function App() {
   //useEffect;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
-      <AuthContext.Provider value={{ user, setUser }}>
-        <TherapistEditSubscriptionModal
-          visible={showSubscriptionModal}
-          setVisibility={setShowSubscriptionModal}
-          onClose={() => setShowSubscriptionModal(false)}
-          isSignUp={true}
-          inactiveSubscription={true}
-        />
-        {user ? (
-          <>
-            <AppContainer user={user} />
-          </>
-        ) : (
-          <NavigationContainer>
-            <AuthNavigator />
-          </NavigationContainer>
-        )}
-      </AuthContext.Provider>
-    </GestureHandlerRootView>
+    <ErrorBoundary>
+      <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
+        <AuthContext.Provider value={{ user, setUser }}>
+          <TherapistEditSubscriptionModal
+            visible={showSubscriptionModal}
+            setVisibility={setShowSubscriptionModal}
+            onClose={() => setShowSubscriptionModal(false)}
+            isSignUp={true}
+            inactiveSubscription={true}
+          />
+          {user ? (
+            <>
+              <AppContainer user={user} />
+            </>
+          ) : (
+            <NavigationContainer>
+              <AuthNavigator />
+            </NavigationContainer>
+          )}
+        </AuthContext.Provider>
+      </GestureHandlerRootView>
+    </ErrorBoundary>
   );
 }
 

@@ -9,9 +9,26 @@ const apiClient = create({
 });
 
 apiClient.addAsyncRequestTransform(async (request) => {
-  const authToken = await authStorage.getToken();
-  if (!authToken) return;
-  request.headers["x-auth-token"] = authToken;
+  try {
+    const authToken = await authStorage.getToken();
+    if (!authToken) return;
+    request.headers["x-auth-token"] = authToken;
+  } catch (error) {
+    console.error("Failed to get auth token:", error);
+    // Don't crash if auth token retrieval fails
+  }
+});
+
+// Add response transform to handle common errors
+apiClient.addResponseTransform((response) => {
+  if (!response.ok) {
+    console.log("API Error:", {
+      status: response.status,
+      problem: response.problem,
+      url: response.config?.url,
+      data: response.data,
+    });
+  }
 });
 
 export default apiClient;
