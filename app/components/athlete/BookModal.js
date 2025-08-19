@@ -622,7 +622,7 @@ function BookModal({
                 therapistBusinessHours["1"].length > 0 ? (
                   therapistBusinessHours["1"].map((hours) => {
                     return (
-                      <Text style={styles.hoursText}>
+                      <Text key="1" style={styles.hoursText}>
                         {hoursTupleToTimeString(hours)}
                       </Text>
                     );
@@ -640,7 +640,7 @@ function BookModal({
                 therapistBusinessHours["2"].length > 0 ? (
                   therapistBusinessHours["2"].map((hours) => {
                     return (
-                      <Text style={styles.hoursText}>
+                      <Text key="2" style={styles.hoursText}>
                         {hoursTupleToTimeString(hours)}
                       </Text>
                     );
@@ -658,7 +658,7 @@ function BookModal({
                 therapistBusinessHours["3"].length > 0 ? (
                   therapistBusinessHours["3"].map((hours) => {
                     return (
-                      <Text style={styles.hoursText}>
+                      <Text key="3"style={styles.hoursText}>
                         {hoursTupleToTimeString(hours)}
                       </Text>
                     );
@@ -676,7 +676,7 @@ function BookModal({
                 therapistBusinessHours["4"].length > 0 ? (
                   therapistBusinessHours["4"].map((hours) => {
                     return (
-                      <Text style={styles.hoursText}>
+                      <Text key="4" style={styles.hoursText}>
                         {hoursTupleToTimeString(hours)}
                       </Text>
                     );
@@ -694,7 +694,7 @@ function BookModal({
                 therapistBusinessHours["5"].length > 0 ? (
                   therapistBusinessHours["5"].map((hours) => {
                     return (
-                      <Text style={styles.hoursText}>
+                      <Text key="5" style={styles.hoursText}>
                         {hoursTupleToTimeString(hours)}
                       </Text>
                     );
@@ -712,7 +712,7 @@ function BookModal({
                 therapistBusinessHours["6"].length > 0 ? (
                   therapistBusinessHours["6"].map((hours) => {
                     return (
-                      <Text style={styles.hoursText}>
+                      <Text key="6" style={styles.hoursText}>
                         {hoursTupleToTimeString(hours)}
                       </Text>
                     );
@@ -730,7 +730,7 @@ function BookModal({
                 therapistBusinessHours["0"].length > 0 ? (
                   therapistBusinessHours["0"].map((hours) => {
                     return (
-                      <Text style={styles.hoursText}>
+                      <Text key="0" style={styles.hoursText}>
                         {hoursTupleToTimeString(hours)}
                       </Text>
                     );
