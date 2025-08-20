@@ -8,7 +8,6 @@ import {
   Linking,
   TouchableOpacity,
 } from "react-native";
-import { Card } from "react-native-paper";
 import colors from "../../config/colors";
 import ApproveButton from "../../components/admin/ApproveButton";
 import DenyButton from "../../components/admin/DenyButton";
@@ -64,7 +63,7 @@ export default function AdminApprovalsCard({
   };
 
   return (
-    <Card style={styles.card}>
+    <View style={styles.card}>
       <View style={{ flex: 1, paddingLeft: "1%" }}>
         <View>
           <Text
@@ -147,7 +146,7 @@ export default function AdminApprovalsCard({
           ></DenyButton>
         </View>
       </View>
-    </Card>
+    </View>
   );
 }
 const styles = StyleSheet.create({
@@ -162,5 +161,8 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     elevation: 4,
     shadowColor: "#373737",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
 });
