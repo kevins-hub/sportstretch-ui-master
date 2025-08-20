@@ -26,6 +26,7 @@ function TherapistUpcomingPendingCard({ therapistData, loadUpcomingBookings }) {
     bookings_id,
     athlete_location,
     booking_time,
+    duration,
     profile_picture_url,
   } = therapistData;
   const location = athlete_location
@@ -34,6 +35,23 @@ function TherapistUpcomingPendingCard({ therapistData, loadUpcomingBookings }) {
   const [declineModal, setDeclineModal] = useState(false);
 
   const abbrevBookingMonth = booking_month.substring(0, 3);
+
+    const formattedDuration = (() => {
+    const hours = Math.floor(duration);
+    const minutes = Math.round((duration - hours) * 60);
+    if (hours > 0 && minutes > 0) {
+      return `${hours} hour${hours > 1 ? "s" : ""} ${
+        minutes
+      } minute${minutes > 1 ? "s" : ""}`;
+    } else if (hours > 0) {
+      return `${hours} hour${hours > 1 ? "s" : ""}`;
+    } else if (minutes > 0) {
+      return `${minutes} minute${minutes > 1 ? "s" : ""}`;
+    } else {
+      return "0 minutes";
+    }
+  })();
+  
 
   const approveBooking = async () => {
     try {
@@ -133,6 +151,14 @@ function TherapistUpcomingPendingCard({ therapistData, loadUpcomingBookings }) {
             </View>
             <View style={styles.dynamicText}>
               <Text style={styles.dynamicTextFont}>{booking_time}</Text>
+            </View>
+          </View>
+          <View style={styles.right}>
+            <View style={styles.staticText}>
+              <Text style={styles.staticLabel}>Duration</Text>
+            </View>
+            <View style={styles.dynamicText}>
+              <Text style={styles.dynamicTextFont}>{formattedDuration}</Text>
             </View>
           </View>
           <View style={styles.right}>
