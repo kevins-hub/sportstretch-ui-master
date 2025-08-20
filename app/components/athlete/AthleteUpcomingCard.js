@@ -7,10 +7,28 @@ function AthleteUpcomingCard({
   BookingMonth,
   BookingDay,
   BookingTime,
+  duration,
   fname,
   bookingId,
   confirmationStatus,
 }) {
+  // duration string is in hours, e.g. "1.5" for 1 hour and 30 minutes
+  // format duration to at most 1 decimal place e.g. "2 hours", "2.5 hours", "30 minutes", "1 hour"
+  const formattedDuration = (() => {
+    const hours = Math.floor(duration);
+    const minutes = Math.round((duration - hours) * 60);
+    if (hours > 0 && minutes > 0) {
+      return `${hours} hour${hours > 1 ? "s" : ""} ${
+        minutes
+      } minute${minutes > 1 ? "s" : ""}`;
+    } else if (hours > 0) {
+      return `${hours} hour${hours > 1 ? "s" : ""}`;
+    } else if (minutes > 0) {
+      return `${minutes} minute${minutes > 1 ? "s" : ""}`;
+    } else {
+      return "0 minutes";
+    }
+  })();
   return (
     <View style={styles.OuterContainer}>
       <View style={styles.Container}>
@@ -25,6 +43,10 @@ function AthleteUpcomingCard({
           <View style={styles.DetailsContainer}>
             <Text>Appointment Time (local) : </Text>
             <Text>{BookingTime}</Text>
+          </View>
+          <View style={styles.DetailsContainer}>
+            <Text>Duration : </Text>
+            <Text>{formattedDuration}</Text>
           </View>
           <View style={styles.DetailsContainer}>
             <Text>Recovery Specialist : </Text>

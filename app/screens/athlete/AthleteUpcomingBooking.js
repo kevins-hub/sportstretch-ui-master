@@ -93,6 +93,7 @@ function AthleteUpcomingBooking(props) {
                 BookingMonth={item.booking_month}
                 BookingDay={item.booking_day}
                 BookingTime={item.booking_time}
+                duration={item.duration}
                 fname={item.first_name}
                 bookingId={item.bookings_id}
                 confirmationStatus={(() => {

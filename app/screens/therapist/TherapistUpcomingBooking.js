@@ -60,8 +60,10 @@ function TherapistUpcomingBooking(props) {
           minute: "numeric",
           hour12: true,
         }),
+        duration: booking.duration, // Assuming duration is in hours
       };
     });
+    console.warn("formattedBookings", formattedBookings);
     setUpcomingBookings(formattedBookings);
     // console.log(formattedBookings)
     // #logic to separate the list and set it in the useState Hook

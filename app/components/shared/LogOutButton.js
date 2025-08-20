@@ -4,7 +4,7 @@ import colors from "../../config/colors";
 import AuthContext from "../../auth/context";
 import { handleLogout } from "../../api/revenuecatService";
 
-function LogOutButton(isAdmin = false) {
+function LogOutButton({ isAdmin = false }) {
   const authContext = useContext(AuthContext);
 
   const logOutUser = async () => {
