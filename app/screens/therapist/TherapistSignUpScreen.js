@@ -1107,7 +1107,6 @@ function TherapistForm(props) {
         setVisibility={setShowSubscriptionModal}
         onClose={registerTherapist}
         isSignUp={true}
-        
       />
       <KeyboardAvoidingView
         // change padding to height for android devices  platform === ios ? padding : height

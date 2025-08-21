@@ -66,7 +66,16 @@ function ProfileSettings({ route }) {
 
   const { user } = route.params;
 
-  let userObj = user.userObj;
+  let userObj = user.userObj || {};
+
+  // Early return if user data is not properly loaded
+  if (!user || !userObj) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Loading user data...</Text>
+      </View>
+    );
+  }
 
   const [therapist, setTherapist] = useState(
     user.role === "therapist" ? userObj : {}
@@ -105,7 +114,12 @@ function ProfileSettings({ route }) {
     return;
   };
 
-  const disableTherapist = async(showAlert = false) => {
+  const disableTherapist = async (showAlert = false) => {
+    if (!userObj?.therapist_id) {
+      console.warn("No therapist_id found in userObj for disableTherapist");
+      return;
+    }
+    
     therapists.disableTherapist(userObj.therapist_id).then(() => {
       if (showAlert) {
         Alert.alert(
@@ -118,7 +132,7 @@ function ProfileSettings({ route }) {
         enabled: 0,
       });
     });
-  }
+  };
 
   const editSubscriptionOnClose = async () => {
     const isPro = await checkForProEntitlement();
@@ -132,20 +146,32 @@ function ProfileSettings({ route }) {
           await clearProfilePicture();
         }
       } catch (error) {
-        console.error("Error disabling therapist or clearing profile picture:", error);
+        console.error(
+          "Error disabling therapist or clearing profile picture:",
+          error
+        );
       }
-    
     }
     return;
   };
 
   const getStripeOnboardLink = async () => {
+    if (!userObj?.therapist_id) {
+      console.warn("No therapist_id found in userObj for getStripeOnboardLink");
+      return;
+    }
+    
     const response = await payment.getStripeOnboardLink(userObj.therapist_id);
     await setStripeOnboardLink(response.data.url.toString());
     return response.data.url;
   };
 
   const getStripePaymentsEnabled = async () => {
+    if (!userObj?.therapist_id) {
+      console.warn("No therapist_id found in userObj for getStripePaymentsEnabled");
+      return false;
+    }
+    
     const response = await payment.getStripeAccount(userObj.therapist_id);
     getStripeSetupStarted(response);
     setIsPaymentsEnabled(response.data.payouts_enabled === true ? true : false);
@@ -170,6 +196,11 @@ function ProfileSettings({ route }) {
   };
 
   const getTherapist = async () => {
+    if (!userObj?.therapist_id) {
+      console.warn("No therapist_id found in userObj");
+      return;
+    }
+    
     therapists.getTherapist(userObj.therapist_id).then((res) => {
       setTherapist(res.data[0]);
       setBusinessHours(res.data[0].business_hours);
@@ -247,7 +278,9 @@ function ProfileSettings({ route }) {
 
   useEffect(() => {
     (async () => {
+      if (user.role === "therapist") {
       await getStripePaymentsStatus();
+      }
     })();
   }, []);
 
@@ -306,20 +339,30 @@ function ProfileSettings({ route }) {
         setContactObj={setContactObj}
         onClose={handleModalClose}
       />
-      <TherapistEditSubscriptionModal
-        user={user}
-        visible={editSubscriptionModalVisible}
-        setVisibility={setEditSubscriptionModalVisible}
-        subscription={userObj.subscription}
-        onClose={editSubscriptionOnClose}
-        isSignUp={false}
-      />
-      <TherapistEditServicesModal
-        therapist={therapist}
-        visible={editTherapistServicesModalVisible}
-        setVisibility={setEditTherapistServicesModalVisible}
-        hasProEntitlement={hasProEntitlement}
-      />
+      {user.role === "therapist" ? (
+        <TherapistEditSubscriptionModal
+          user={user}
+          visible={editSubscriptionModalVisible}
+          setVisibility={setEditSubscriptionModalVisible}
+          subscription={userObj.subscription}
+          onClose={editSubscriptionOnClose}
+          isSignUp={false}
+        />
+      ) : (
+        <> </>
+      )}
+
+      {user.role === "therapist" ? (
+        <TherapistEditServicesModal
+          therapist={therapist}
+          visible={editTherapistServicesModalVisible}
+          setVisibility={setEditTherapistServicesModalVisible}
+          hasProEntitlement={hasProEntitlement}
+        />
+      ) : (
+        <></>
+      )}
+
       <ChangePasswordModal
         visible={changePasswordModalVisible}
         setVisibility={setChangePasswordModalVisible}
@@ -330,12 +373,16 @@ function ProfileSettings({ route }) {
         authId={user.authorization_id}
         isTherapist={user.role === "therapist"}
       />
-      <TherapistEditBusinessHoursModal
-        user={user}
-        visible={editBusinessHoursModalVisible}
-        setVisibility={setEditBusinessHoursModalVisible}
-        businessHours={businessHours}
-      />
+      {user.role === "therapist" ? (
+        <TherapistEditBusinessHoursModal
+          user={user}
+          visible={editBusinessHoursModalVisible}
+          setVisibility={setEditBusinessHoursModalVisible}
+          businessHours={businessHours}
+        />
+      ) : (
+        <></>
+      )}
       <ScrollView style={styles.scrollViewStyle}>
         <View style={styles.container}>
           {/* <Text>Profile settings</Text> */}
@@ -817,7 +864,7 @@ function ProfileSettings({ route }) {
               </View>
             )}
 
-            {user.role === "therapist" && (
+            {user.role === "therapist" ? (
               <View style={styles.cardOutterContainer}>
                 <View style={styles.cardInnerContainer}>
                   <Text style={styles.cardTitle}>Availability</Text>
@@ -835,10 +882,10 @@ function ProfileSettings({ route }) {
                       {businessHours &&
                       businessHours["1"] &&
                       businessHours["1"].length > 0 ? (
-                        businessHours["1"].map((hours) => {
+                        businessHours["1"].map((hours, index) => {
                           return (
                             <Text
-                              key={`1-${hoursTupleToTimeString}`}
+                              key={`monday-${index}`}
                               style={styles.hoursText}
                             >
                               {hoursTupleToTimeString(hours)}
@@ -856,10 +903,10 @@ function ProfileSettings({ route }) {
                       {businessHours &&
                       businessHours["2"] &&
                       businessHours["2"].length > 0 ? (
-                        businessHours["2"].map((hours) => {
+                        businessHours["2"].map((hours, index) => {
                           return (
                             <Text
-                              key={`2-${hoursTupleToTimeString}`}
+                              key={`tuesday-${index}`}
                               style={styles.hoursText}
                             >
                               {hoursTupleToTimeString(hours)}
@@ -877,10 +924,10 @@ function ProfileSettings({ route }) {
                       {businessHours &&
                       businessHours["3"] &&
                       businessHours["3"].length > 0 ? (
-                        businessHours["3"].map((hours) => {
+                        businessHours["3"].map((hours, index) => {
                           return (
                             <Text
-                              key={`3-${hoursTupleToTimeString}`}
+                              key={`wednesday-${index}`}
                               style={styles.hoursText}
                             >
                               {hoursTupleToTimeString(hours)}
@@ -898,10 +945,10 @@ function ProfileSettings({ route }) {
                       {businessHours &&
                       businessHours["4"] &&
                       businessHours["4"].length > 0 ? (
-                        businessHours["4"].map((hours) => {
+                        businessHours["4"].map((hours, index) => {
                           return (
                             <Text
-                              key={`4-${hoursTupleToTimeString}`}
+                              key={`thursday-${index}`}
                               style={styles.hoursText}
                             >
                               {hoursTupleToTimeString(hours)}
@@ -919,10 +966,10 @@ function ProfileSettings({ route }) {
                       {businessHours &&
                       businessHours["5"] &&
                       businessHours["5"].length > 0 ? (
-                        businessHours["5"].map((hours) => {
+                        businessHours["5"].map((hours, index) => {
                           return (
                             <Text
-                              key={`5-${hoursTupleToTimeString}`}
+                              key={`friday-${index}`}
                               style={styles.hoursText}
                             >
                               {hoursTupleToTimeString(hours)}
@@ -940,10 +987,10 @@ function ProfileSettings({ route }) {
                       {businessHours &&
                       businessHours["6"] &&
                       businessHours["6"].length > 0 ? (
-                        businessHours["6"].map((hours) => {
+                        businessHours["6"].map((hours, index) => {
                           return (
                             <Text
-                              key={`6-${hoursTupleToTimeString}`}
+                              key={`saturday-${index}`}
                               style={styles.hoursText}
                             >
                               {hoursTupleToTimeString(hours)}
@@ -961,10 +1008,10 @@ function ProfileSettings({ route }) {
                       {businessHours &&
                       businessHours["0"] &&
                       businessHours["0"].length > 0 ? (
-                        businessHours["0"].map((hours) => {
+                        businessHours["0"].map((hours, index) => {
                           return (
                             <Text
-                              key={`0-${hoursTupleToTimeString}`}
+                              key={`sunday-${index}`}
                               style={styles.hoursText}
                             >
                               {hoursTupleToTimeString(hours)}
@@ -978,7 +1025,7 @@ function ProfileSettings({ route }) {
                   </View>
                 </View>
               </View>
-            )}
+            ) : (<></>)}
 
             <View style={styles.cardOutterContainer}>
               <View style={styles.cardInnerContainer}>
