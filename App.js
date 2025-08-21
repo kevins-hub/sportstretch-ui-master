@@ -8,7 +8,11 @@ import authStorage from "./app/auth/storage";
 import AppContainer from "./app/screens/AppContainer";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as SplashScreen from "expo-splash-screen";
-import { InitRevenueCat, checkProOrBasicEntitlement, handleLogout } from "./app/api/revenuecatService";
+import {
+  InitRevenueCat,
+  checkProOrBasicEntitlement,
+  handleLogout,
+} from "./app/api/revenuecatService";
 import TherapistEditSubscriptionModal from "./app/components/therapist/TherapistEditSubscriptionModal";
 import ErrorBoundary from "./app/components/shared/ErrorBoundary";
 
@@ -29,19 +33,40 @@ function App() {
   useEffect(() => {
     const initializeRevenueCat = async () => {
       try {
-        console.log("Initializing RevenueCat...");
-        await InitRevenueCat();
-        console.log("RevenueCat initialized successfully");
-        setRevenueCatReady(true);
+        if (user && user.role === "therapist") {
+          console.log("Initializing RevenueCat...");
+          await InitRevenueCat();
+          console.log("RevenueCat initialized successfully");
+          setRevenueCatReady(true);
+          return;
+        } else {
+          console.warn("Skipping RevenueCat initialization for athlete");
+          setRevenueCatReady(true);
+          return
+        }
       } catch (error) {
         console.error("RevenueCat initialization failed:", error);
         // Don't crash the app if RevenueCat fails to initialize
+        // This is especially important in production
+        console.log("Continuing without RevenueCat to prevent app hanging");
         setRevenueCatReady(true); // Continue anyway
       }
     };
 
-    initializeRevenueCat();
-  }, []);
+    // Add timeout failsafe for RevenueCat initialization
+    const initTimeout = setTimeout(() => {
+      console.warn(
+        "RevenueCat initialization taking too long, force continuing..."
+      );
+      setRevenueCatReady(true);
+    }, 20000); // 20 second failsafe
+
+    initializeRevenueCat().finally(() => {
+      clearTimeout(initTimeout);
+    });
+
+    return () => clearTimeout(initTimeout);
+  }, [user]);
 
   // Second useEffect: Load user from storage
   useEffect(() => {
@@ -68,7 +93,9 @@ function App() {
   // Third useEffect: Check subscription ONLY after RevenueCat is ready AND user is loaded
   useEffect(() => {
     if (revenueCatReady && user && user.role === "therapist") {
-      console.log("RevenueCat ready and therapist user loaded, checking subscription...");
+      console.log(
+        "RevenueCat ready and therapist user loaded, checking subscription..."
+      );
       checkIfEntitlementExists();
     }
   }, [revenueCatReady, user]);
@@ -80,21 +107,25 @@ function App() {
       if (!hasEntitlement) {
         console.log("User does not have Pro or Basic entitlement");
         // Show alert with options to subscribe or Log out
-        Alert.alert("Subscription Required", "We have detected that you don't have an active subscription, please subscribe to continue using the app or contact support if you think this is a mistake.", [
-          {
-            text: "Subscribe",
-            onPress: () => {
-              setShowSubscriptionModal(true);
+        Alert.alert(
+          "Subscription Required",
+          "We have detected that you don't have an active subscription, please subscribe to continue using the app or contact support if you think this is a mistake. If you are using a different Apple ID, please sign out and sign in with the correct Apple ID.",
+          [
+            {
+              text: "Subscribe",
+              onPress: () => {
+                setShowSubscriptionModal(true);
+              },
             },
-          },
-          {
-            text: "Log Out",
-            onPress: () => {
-              handleLogout();
-              setUser(null);
+            {
+              text: "Log Out",
+              onPress: () => {
+                handleLogout();
+                setUser(null);
+              },
             },
-          },
-        ]);
+          ]
+        );
       } else {
         console.log("User has Pro or Basic entitlement");
       }
@@ -121,13 +152,18 @@ function App() {
     <ErrorBoundary>
       <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
         <AuthContext.Provider value={{ user, setUser }}>
-          <TherapistEditSubscriptionModal
-            visible={showSubscriptionModal}
-            setVisibility={setShowSubscriptionModal}
-            onClose={() => setShowSubscriptionModal(false)}
-            isSignUp={true}
-            inactiveSubscription={true}
-          />
+          {user && user.role === "therapist" ? (
+            <TherapistEditSubscriptionModal
+              visible={showSubscriptionModal}
+              setVisibility={setShowSubscriptionModal}
+              onClose={() => setShowSubscriptionModal(false)}
+              isSignUp={true}
+              inactiveSubscription={true}
+            />
+          ) : (
+            <></>
+          )}
+
           {user ? (
             <>
               <AppContainer user={user} />
