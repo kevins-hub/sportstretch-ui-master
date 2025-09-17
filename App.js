@@ -96,16 +96,16 @@ function App() {
       console.log(
         "RevenueCat ready and therapist user loaded, checking subscription..."
       );
-      checkIfEntitlementExists();
+      // checkIfEntitlementExists();
     }
   }, [revenueCatReady, user]);
 
   const checkIfEntitlementExists = async () => {
     try {
-      console.log("Checking user entitlements...");
+      console.warn("Checking user entitlements...");
       const hasEntitlement = await checkProOrBasicEntitlement();
       if (!hasEntitlement) {
-        console.log("User does not have Pro or Basic entitlement");
+        console.warn("User does not have Pro or Basic entitlement");
         // Show alert with options to subscribe or Log out
         Alert.alert(
           "Subscription Required",
@@ -152,7 +152,7 @@ function App() {
     <ErrorBoundary>
       <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
         <AuthContext.Provider value={{ user, setUser }}>
-          {user && user.role === "therapist" ? (
+          {user && user.role === "therapist" && showSubscriptionModal? (
             <TherapistEditSubscriptionModal
               visible={showSubscriptionModal}
               setVisibility={setShowSubscriptionModal}

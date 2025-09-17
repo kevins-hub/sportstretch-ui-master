@@ -3,7 +3,7 @@ import Purchases, { LOG_LEVEL } from "react-native-purchases";
 import { Platform } from "react-native";
 import { REVENUECAT_IOS_KEY } from "@env";
 
-// const apiKeys = {
+// const apiKeys = {git s
 //   ios: 'your_revenuecat_ios_key',
 //   android: 'your_revenuecat_android_key',
 // };
@@ -16,17 +16,39 @@ let isRevenueCatInitialized = false;
 export const InitRevenueCat = async (rcCustomerId = null) => {
   try {
     console.log("Initializing RevenueCat...");
+    console.log("Environment - REVENUECAT_IOS_KEY available:", !!REVENUECAT_IOS_KEY);
     console.log("configuring purchases for ios");
+    
+    const apiKey = REVENUECAT_IOS_KEY || "appl_JleRblwotkDjKkwYKZozPqcIfkT";
+    console.log("Using API key (first 10 chars):", apiKey.substring(0, 10));
+    
     Purchases.configure({
-      apiKey: REVENUECAT_IOS_KEY || "appl_JleRblwotkDjKkwYKZozPqcIfkT",
+      apiKey: apiKey,
       appUserID: rcCustomerId || null,
     });
 
-    await getOfferings();
+    // Mark as initialized immediately after configure
     isRevenueCatInitialized = true;
+    console.log("RevenueCat configured, fetching offerings...");
+    
+    // Add timeout wrapper for getOfferings to prevent hanging in production
+    const offeringsPromise = getOfferings();
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('RevenueCat getOfferings timeout after 15s')), 15000)
+    );
+    
+    try {
+      await Promise.race([offeringsPromise, timeoutPromise]);
+    } catch (timeoutError) {
+      console.warn("RevenueCat getOfferings timed out, continuing anyway:", timeoutError.message);
+      // Don't throw - continue with initialization
+    }
+    
     console.log("RevenueCat initialization completed successfully");
   } catch (e) {
     console.error("Failed to initialize RevenueCat", e);
+    // Mark as initialized even on error to prevent hanging
+    isRevenueCatInitialized = true;
     throw e; // Re-throw to let App.js handle it
   }
 };
@@ -73,13 +95,13 @@ export const PurchasePackage = async (pkg) => {
 
 export const checkProEntitlement = async () => {
   try {
-    if (!isRevenueCatInitialized) {
-      console.warn("RevenueCat not initialized yet, returning false");
-      return false;
-    }
+    // if (!isRevenueCatInitialized) {
+    //   console.warn("RevenueCat not initialized yet, returning false");
+    //   return false;
+    // }
     
     const customerInfo = await Purchases.getCustomerInfo();
-
+    
     if (customerInfo.entitlements.active[PRO_ENTITLEMENT]) {
       return true;
     } else {
@@ -99,6 +121,7 @@ export const checkProOrBasicEntitlement = async () => {
     }
     
     const customerInfo = await Purchases.getCustomerInfo();
+    console.log("Customer Info:", customerInfo);
     if (
       customerInfo.entitlements.active[PRO_ENTITLEMENT] ||
       customerInfo.entitlements.active[BASIC_ENTITLEMENT]
