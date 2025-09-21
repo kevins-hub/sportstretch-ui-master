@@ -30,16 +30,15 @@ function SetStateModal({
           <Text style={styles.modalText}>Oops!</Text>
           <Text style={styles.labelText}>
             We have detected that you currently have location services disabled.
-            Please enable and restart app for the best experience or choose the
-            state you are looking for treatment in.
+            Please enable and restart app for the best experience or dismiss this window and select the state you are looking for treatment in.
           </Text>
-          <SearchTherapist
-            getTherapists={getTherapists}
-            isInModal={true}
-            setModalVisibility={setVisibility}
-            setAthleteRegion={setAthleteRegion}
-            currentState={athleteRegion}
-          ></SearchTherapist>
+          
+          <TouchableOpacity
+            style={styles.dismissButton}
+            onPress={() => setVisibility(false)}
+          >
+            <Text style={styles.dismissButtonText}>Dismiss</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -180,6 +179,22 @@ const styles = StyleSheet.create({
     fontSize: 10,
     position: "absolute",
     bottom: -16,
+  },
+  dismissButton: {
+    backgroundColor: colors.secondary,
+    borderColor: colors.primary,
+    borderWidth: 1,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    width: "80%",
+    height: 35,
+    marginTop: 10,
+  },
+  dismissButtonText: {
+    color: colors.primary,
+    fontSize: 14,
+    fontWeight: "500",
   },
 });
 

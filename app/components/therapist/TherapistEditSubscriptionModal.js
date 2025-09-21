@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Linking,
+  ActivityIndicator,
 } from "react-native";
 import {
   getOfferings,
@@ -83,57 +85,56 @@ export default function TherapistEditSubscriptionModal({
   }, []);
 
   const showBasicPanWarning = async () => {
-      // warn user that their profile picture will be deleted and they will need to update their bio to be under 100 characters before athletes are able to book with them again
-      // wait for user to acknowledge the warning
-      Alert.alert(
-        "Warning: Switching to Basic Plan",
-        "By switching to the Basic plan, your profile picture will be removed automatically and your bio will need to be edited to under 100 characters (if currently over the 100 character limit), and re-submitted for approval. Please update your profile accordingly.",
-        [
-          {
-            text: "Dismiss",
-            style: "cancel",
-          },
-        ]
-      );
-    }
+    // warn user that their profile picture will be deleted and they will need to update their bio to be under 100 characters before athletes are able to book with them again
+    // wait for user to acknowledge the warning
+    Alert.alert(
+      "Warning: Switching to Basic Plan",
+      "By switching to the Basic plan, your profile picture will be removed automatically and your bio will need to be edited to under 100 characters (if currently over the 100 character limit), and re-submitted for approval. Please update your profile accordingly.",
+      [
+        {
+          text: "Dismiss",
+          style: "cancel",
+        },
+      ]
+    );
+  };
 
   const handleSubmit = async () => {
-
     // show warning if switching to basic plan, require user to dismiss before proceeding
     if (selectedPlan === "basic" && !isSignUp) {
       await showBasicPanWarning();
     }
 
     setLoading(true);
-    PurchasePackage(selectedPackage)
-      .then((result) => {
-        if (result.success) {
-          const rcCustId = result.customerInfo?.originalAppUserId;
-          const formattedId = rcCustId.startsWith("$RCAnonymousID:")
-            ? rcCustId.replace("$RCAnonymousID:", "")
-            : rcCustId;
-          console.log("RevenueCat Customer ID:", formattedId);
+    
+    try {
+      const result = await PurchasePackage(selectedPackage);
+      
+      if (result.success) {
+        const rcCustId = result.customerInfo?.originalAppUserId;
+        const formattedId = rcCustId.startsWith("$RCAnonymousID:")
+          ? rcCustId.replace("$RCAnonymousID:", "")
+          : rcCustId;
+        console.log("RevenueCat Customer ID:", formattedId);
 
-          if (isSignUp) {
-            handleLogin(formattedId).then(() => {
-              console.log("User logged in successfully after purchase");
-              onClose(formattedId);
-            });
-          } else {
-            onClose();
-          }
-          setVisibility(false);
+        if (isSignUp) {
+          await handleLogin(formattedId);
+          console.log("User logged in successfully after purchase");
+          onClose(formattedId);
+        } else {
+          onClose();
         }
-      })
-      .catch((error) => {
-        setLoading(false);
-        console.error("Purchase error:", error);
-        Alert.alert(
-          "Error",
-          "An error occurred while processing your purchase. Please try again later."
-        );
-      });
+        setVisibility(false);
+      }
+    } catch (error) {
+      console.error("Purchase error:", error);
+      Alert.alert(
+        "Error",
+        "An error occurred while processing your purchase. Please try again later."
+      );
+    } finally {
       setLoading(false);
+    }
   };
 
   return (
@@ -161,22 +162,27 @@ export default function TherapistEditSubscriptionModal({
             >
               <View style={styles.titlePriceContainer}>
                 <View>
-                  <Text style={styles.optionTitle}>Pro</Text>
-                  <Text style={styles.optionTitle}>Membership</Text>
+                  <Text style={styles.optionTitle}>Pro Membership</Text>
                 </View>
 
                 {isSignUp ? (
                   <View>
-                    {!inactiveSubscription ? <Text style={styles.promoText}>First month free</Text> : null}
+                    {!inactiveSubscription ? (
+                      <Text style={styles.promoText}>First month free</Text>
+                    ) : null}
                     <Text style={styles.priceText}>
                       {pkg.product.priceString}/month
                     </Text>
-                    <Text>after</Text>
+                    {!inactiveSubscription ? <Text>after</Text> : null}
+                    <Text style={styles.billingText}>billed monthly</Text>
                   </View>
                 ) : (
-                  <Text style={styles.priceText}>
-                    {pkg.product.priceString}/month
-                  </Text>
+                  <View>
+                    <Text style={styles.priceText}>
+                      {pkg.product.priceString}/month
+                    </Text>
+                    <Text style={styles.billingText}>billed monthly</Text>
+                  </View>
                 )}
 
                 {/* <View>
@@ -220,21 +226,26 @@ export default function TherapistEditSubscriptionModal({
             >
               <View style={styles.titlePriceContainer}>
                 <View>
-                  <Text style={styles.optionTitle}>Basic</Text>
-                  <Text style={styles.optionTitle}>Membership</Text>
+                  <Text style={styles.optionTitle}>Basic Membership</Text>
                 </View>
                 {isSignUp ? (
                   <View>
-                    {!inactiveSubscription ? <Text style={styles.promoText}>First month free</Text> : null}
+                    {!inactiveSubscription ? (
+                      <Text style={styles.promoText}>First month free</Text>
+                    ) : null}
                     <Text style={styles.priceText}>
                       {pkg.product.priceString}/month
                     </Text>
-                    <Text>after</Text>
+                    {!inactiveSubscription ? <Text>after</Text> : null}
+                    <Text style={styles.billingText}>billed monthly</Text>
                   </View>
                 ) : (
-                  <Text style={styles.priceText}>
-                    {pkg.product.priceString}/month
-                  </Text>
+                  <View>
+                    <Text style={styles.priceText}>
+                      {pkg.product.priceString}/month
+                    </Text>
+                    <Text style={styles.billingText}>billed monthly</Text>
+                  </View>
                 )}
               </View>
               <Text>{pkg.product.description}</Text>
@@ -249,6 +260,21 @@ export default function TherapistEditSubscriptionModal({
               ))}
             </TouchableOpacity>
           ))}
+
+          <TouchableOpacity
+            style={styles.termsLink}
+            onPress={() => {
+              const url =
+                "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/";
+              Linking.openURL(url).catch((err) => {
+                console.error("Failed to open URL:", err);
+                Alert.alert("Error", "Failed to open Terms of Use");
+              });
+            }}
+          >
+            <Text style={styles.termsText}>Terms of Use</Text>
+          </TouchableOpacity>
+
           {!loading ? (
             <>
               <TouchableOpacity
@@ -259,22 +285,21 @@ export default function TherapistEditSubscriptionModal({
               >
                 <Text style={styles.subscribeText}>Continue</Text>
               </TouchableOpacity>
-              
+
               {!inactiveSubscription ? (
-              <TouchableOpacity onPress={() => setVisibility(false)}>
-                <Text style={styles.closeText}>Cancel</Text>
-              </TouchableOpacity>
+                <TouchableOpacity onPress={() => setVisibility(false)}>
+                  <Text style={styles.closeText}>Cancel</Text>
+                </TouchableOpacity>
               ) : (
                 <LogOutButton />
               )}
-
             </>
           ) : (
-            <>
-              <Text>Loading...</Text>
-            </>
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#007AFF" />
+              <Text style={styles.loadingText}>Processing...</Text>
+            </View>
           )}
-
         </View>
       </View>
     </Modal>
@@ -292,25 +317,25 @@ const styles = StyleSheet.create({
     width: "85%",
     backgroundColor: "#fff",
     borderRadius: 20,
-    padding: 20,
+    padding: 16,
     alignItems: "center",
   },
   titlePriceContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
-    marginBottom: 10,
+    marginBottom: 8,
     alignItems: "center",
   },
   title: {
-    fontSize: 22,
-    marginBottom: 20,
+    fontSize: 16,
+    marginBottom: 8,
     fontWeight: "bold",
   },
   option: {
     width: "100%",
     padding: 15,
-    marginVertical: 5,
+    marginVertical: 2,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "#aaa",
@@ -321,11 +346,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#e0f0ff",
   },
   optionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "600",
   },
   subscribeButton: {
-    marginTop: 20,
+    marginTop: 8,
     backgroundColor: "#007AFF",
     paddingVertical: 12,
     paddingHorizontal: 30,
@@ -336,7 +361,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   closeText: {
-    marginTop: 15,
+    marginTop: 12,
     color: "#666",
   },
   promoText: {
@@ -348,5 +373,30 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
     marginTop: 4,
+  },
+  billingText: {
+    fontSize: 12,
+    color: "#666",
+    marginTop: 2,
+  },
+  termsLink: {
+    marginTop: 4,
+    marginBottom: 4,
+    paddingVertical: 4,
+  },
+  termsText: {
+    color: "#007AFF",
+    fontSize: 12,
+    textDecorationLine: "underline",
+  },
+  loadingContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 20,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#666",
   },
 });
