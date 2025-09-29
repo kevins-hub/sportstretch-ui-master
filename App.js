@@ -24,6 +24,22 @@ function App() {
   const [revenueCatReady, setRevenueCatReady] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
+  // Failsafe: Force app to be ready after 30 seconds to prevent infinite loading
+  useEffect(() => {
+    const failsafeTimeout = setTimeout(() => {
+      console.warn("Failsafe triggered: Forcing app to be ready after 30 seconds");
+      setIsReady(true);
+      setRevenueCatReady(true);
+    }, 30000);
+
+    // Clear timeout if app becomes ready naturally
+    if (isReady && revenueCatReady) {
+      clearTimeout(failsafeTimeout);
+    }
+
+    return () => clearTimeout(failsafeTimeout);
+  }, [isReady, revenueCatReady]);
+
   // const restoreUser = async () => {
   //   const user = await authStorage.getUser();
   //   if (user) setUser(user);
@@ -37,19 +53,17 @@ function App() {
           console.log("Initializing RevenueCat...");
           await InitRevenueCat();
           console.log("RevenueCat initialized successfully");
-          setRevenueCatReady(true);
-          return;
         } else {
-          console.warn("Skipping RevenueCat initialization for athlete");
-          setRevenueCatReady(true);
-          return
+          console.warn("Skipping RevenueCat initialization for athlete or no user");
         }
       } catch (error) {
         console.error("RevenueCat initialization failed:", error);
         // Don't crash the app if RevenueCat fails to initialize
         // This is especially important in production
         console.log("Continuing without RevenueCat to prevent app hanging");
-        setRevenueCatReady(true); // Continue anyway
+      } finally {
+        // Always set RevenueCat as ready, regardless of success/failure
+        setRevenueCatReady(true);
       }
     };
 
@@ -61,12 +75,15 @@ function App() {
       setRevenueCatReady(true);
     }, 20000); // 20 second failsafe
 
-    initializeRevenueCat().finally(() => {
-      clearTimeout(initTimeout);
-    });
+    // Only initialize RevenueCat after user state is determined (including null)
+    if (isReady) {
+      initializeRevenueCat().finally(() => {
+        clearTimeout(initTimeout);
+      });
+    }
 
     return () => clearTimeout(initTimeout);
-  }, [user]);
+  }, [user, isReady]);
 
   // Second useEffect: Load user from storage
   useEffect(() => {
@@ -79,9 +96,11 @@ function App() {
           setUser(user);
         } else {
           console.log("No user found in storage");
+          setUser(null); // Explicitly set to null if no user
         }
       } catch (error) {
         console.error("Failed to load user from storage:", error);
+        setUser(null); // Set to null on error to ensure app continues
       } finally {
         setIsReady(true);
       }
