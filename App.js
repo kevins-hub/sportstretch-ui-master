@@ -25,25 +25,20 @@ function App() {
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
   // Failsafe: Force app to be ready after 10 seconds to prevent infinite loading
-  useEffect(() => {
-    const failsafeTimeout = setTimeout(() => {
-      console.warn("Failsafe triggered: Forcing app to be ready after 10 seconds");
-      if (!isReady) {
-        console.warn("Setting isReady to true via failsafe");
-        setIsReady(true);
-      }
-      if (!revenueCatReady) {
-        console.warn("Setting revenueCatReady to true via failsafe");
-        setRevenueCatReady(true);
-      }
-      if (user === undefined) {
-        console.warn("Setting user to null via failsafe");
-        setUser(null);
-      }
-    }, 10000);
+  // useEffect(() => {
+  //   console.warn("user = ", user);
+  //   if (user) return;
+  //   const failsafeTimeout = setTimeout(() => {
+  //     console.warn("Failsafe triggered: Forcing app to be ready after 10 seconds");
+  //     if (!isReady && !user) {
+  //       console.warn("Setting isReady to true via failsafe");
+  //       setUser(null)
+  //       setIsReady(true);
+  //     }
+  //   }, 12000);
 
-    return () => clearTimeout(failsafeTimeout);
-  }, []); // Empty dependency array so it only runs once
+  //   return () => clearTimeout(failsafeTimeout);
+  // }, []); // Empty dependency array so it only runs once
 
   // const restoreUser = async () => {
   //   const user = await authStorage.getUser();
@@ -110,19 +105,8 @@ function App() {
         setIsReady(true);
       }
     };
-
     loadUser();
   }, []);
-
-  // Third useEffect: Check subscription ONLY after RevenueCat is ready AND user is loaded
-  useEffect(() => {
-    if (revenueCatReady && user && user.role === "therapist") {
-      console.log(
-        "RevenueCat ready and therapist user loaded, checking subscription..."
-      );
-      // checkIfEntitlementExists();
-    }
-  }, [revenueCatReady, user]);
 
   const checkIfEntitlementExists = async () => {
     try {
