@@ -25,25 +25,24 @@ function App() {
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
   // Failsafe: Force app to be ready after 10 seconds to prevent infinite loading
-  // useEffect(() => {
-  //   console.warn("user = ", user);
-  //   if (user) return;
-  //   const failsafeTimeout = setTimeout(() => {
-  //     console.warn("Failsafe triggered: Forcing app to be ready after 10 seconds");
-  //     if (!isReady && !user) {
-  //       console.warn("Setting isReady to true via failsafe");
-  //       setUser(null)
-  //       setIsReady(true);
-  //     }
-  //   }, 12000);
+  useEffect(() => {
+    if (user) return;
+    const failsafeTimeout = setTimeout(() => {
+      console.warn("Failsafe triggered: Forcing app to be ready after 10 seconds");
+      if (!user) {
+        console.warn("Setting isReady to true via failsafe");
+        setUser(null)
+        setIsReady(true);
+      }
+    }, 12000);
 
-  //   return () => clearTimeout(failsafeTimeout);
-  // }, []); // Empty dependency array so it only runs once
+    return () => clearTimeout(failsafeTimeout);
+  }, [isReady]);
 
-  // const restoreUser = async () => {
-  //   const user = await authStorage.getUser();
-  //   if (user) setUser(user);
-  // };
+  const restoreUser = async () => {
+    const user = await authStorage.getUser();
+    if (user) setUser(user);
+  };
 
   // First useEffect: Initialize RevenueCat
   useEffect(() => {
