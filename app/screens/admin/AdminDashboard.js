@@ -1,5 +1,4 @@
 import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
 import AdminNavigator from "../../navigation/AdminNavigator";
 import AdminHeader from "../../components/shared/GeneralHeader";
 import { StatusBar, View, StyleSheet } from "react-native";
@@ -8,9 +7,7 @@ function AdminDashboard(props) {
   return (
     <>
       <AdminHeader />
-      <NavigationContainer>
-        <AdminNavigator />
-      </NavigationContainer>
+      <AdminNavigator />
       <View style={styles.logOutButtonContainer}>
         <LogOutButton isAdmin={true} />
       </View>

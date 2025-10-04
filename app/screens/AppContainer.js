@@ -1,13 +1,8 @@
-import React, { useEffect, useState, useContext } from "react";
-import { Alert } from "react-native";
+import { useEffect, useContext } from "react";
 import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
-import AthleteDashboard from "./athlete/AthleteDashboard";
-import TherapistDashboard from "./therapist/TherapistDashboard";
 import AdminDashboard from "./admin/AdminDashboard";
 import expoPushTokensApi from "../api/expoPushTokens";
-import TherapistRegistrationPending from "./therapist/TherapistRegistrationPending";
-import TherapistDisabled from "./therapist/TherapistDisabledScreen";
 import AppNavigator from "../navigation/AppNavigator";
 import { NavigationContainer } from "@react-navigation/native";
 import AuthContext from "../auth/context";
@@ -47,27 +42,23 @@ export default function AppContainer({ user }) {
 
   return (
     <>
-      {/* {user.role === "athlete" && <AthleteDashboard />} */}
-      {/* {user.role === "therapist" && ((user.userObj.enabled === -1 && <TherapistRegistrationPending/>) || (user.userObj.enabled === 0 && <TherapistDisabled/>) || <TherapistDashboard/>)} */}
-      {user.role === "admin" ? (
-        <AdminDashboard />
-      ) : (
-        <>
-        <NavigationContainer
-          linking={{
-            prefixes: ["sportstretch://", "https://sportstretch.com"],
-            config: {
-              screens: {
-                Profile: "profile",
-                // Add other screens and paths as needed
-              },
+      <NavigationContainer
+        linking={{
+          prefixes: ["sportstretch://", "https://sportstretch.com"],
+          config: {
+            screens: {
+              Profile: "profile",
+              // Add other screens and paths as needed
             },
-          }}
-        >
+          },
+        }}
+      >
+        {user.role === "admin" ? (
+          <AdminDashboard />
+        ) : (
           <AppNavigator user={user} />
-        </NavigationContainer>
-        </>
-      )}
+        )}
+      </NavigationContainer>
     </>
   );
 }
