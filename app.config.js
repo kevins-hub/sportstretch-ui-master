@@ -2,7 +2,7 @@ export default {
   expo: {
     name: "SportStretch",
     slug: "sportstretch",
-    version: "1.0.0",
+    version: "1.0.1",
     orientation: "portrait",
     icon: "./app/assets/icon.png",
     splash: {
@@ -15,7 +15,7 @@ export default {
     },
     assetBundlePatterns: ["**/*"],
     ios: {
-      buildNumber: "36",
+      buildNumber: "38",
       bundleIdentifier: "com.sportstretchusa.sportstretch",
       supportsTablet: true,
       infoPlist: {
