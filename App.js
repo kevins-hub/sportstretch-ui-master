@@ -24,20 +24,31 @@ function App() {
   const [revenueCatReady, setRevenueCatReady] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
-  // Failsafe: Force app to be ready after 10 seconds to prevent infinite loading
+  // Simple failsafe: Force app to be ready after reasonable time
   useEffect(() => {
-    if (user) return;
+    // Only start failsafe timer if app is not ready yet
+    if (isReady && revenueCatReady) return;
+    
+    console.log("Starting failsafe timer...");
     const failsafeTimeout = setTimeout(() => {
-      console.warn("Failsafe triggered: Forcing app to be ready after 10 seconds");
-      if (!user) {
+      console.warn("Failsafe triggered: Forcing app to be ready after 15 seconds");
+      
+      if (!isReady) {
         console.warn("Setting isReady to true via failsafe");
-        setUser(null)
         setIsReady(true);
       }
-    }, 12000);
+      
+      if (!revenueCatReady) {
+        console.warn("Setting revenueCatReady to true via failsafe");
+        setRevenueCatReady(true);
+      }
+    }, 15000); // 15 second failsafe
 
-    return () => clearTimeout(failsafeTimeout);
-  }, [isReady]);
+    return () => {
+      console.log("Clearing failsafe timer");
+      clearTimeout(failsafeTimeout);
+    };
+  }, [isReady, revenueCatReady]);
 
   const restoreUser = async () => {
     const user = await authStorage.getUser();
@@ -126,9 +137,14 @@ function App() {
             },
             {
               text: "Log Out",
-              onPress: () => {
-                handleLogout();
-                setUser(null);
+              onPress: async () => {
+                try {
+                  await handleLogout();
+                  setUser(null);
+                } catch (error) {
+                  console.error("Logout error:", error);
+                  setUser(null); // Force logout even if RevenueCat fails
+                }
               },
             },
           ]
@@ -145,11 +161,18 @@ function App() {
 
   const onLayoutRootView = useCallback(async () => {
     if (isReady && revenueCatReady) {
-      await SplashScreen.hideAsync();
+      try {
+        await SplashScreen.hideAsync();
+        console.log("Splash screen hidden successfully");
+      } catch (error) {
+        console.error("Error hiding splash screen:", error);
+        // Continue anyway - this shouldn't block the app
+      }
     }
   }, [isReady, revenueCatReady]);
 
   if (!isReady || !revenueCatReady) {
+    console.log(`Loading... isReady: ${isReady}, revenueCatReady: ${revenueCatReady}`);
     return null;
   }
 
@@ -159,7 +182,7 @@ function App() {
     <ErrorBoundary>
       <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
         <AuthContext.Provider value={{ user, setUser }}>
-          {user && user.role === "therapist" && showSubscriptionModal? (
+          {user && user.role === "therapist" && showSubscriptionModal && (
             <TherapistEditSubscriptionModal
               visible={showSubscriptionModal}
               setVisibility={setShowSubscriptionModal}
@@ -167,8 +190,6 @@ function App() {
               isSignUp={true}
               inactiveSubscription={true}
             />
-          ) : (
-            <></>
           )}
 
           {user ? (
