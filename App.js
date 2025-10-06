@@ -14,7 +14,6 @@ import {
   handleLogout,
 } from "./app/api/revenuecatService";
 import TherapistEditSubscriptionModal from "./app/components/therapist/TherapistEditSubscriptionModal";
-import ErrorBoundary from "./app/components/shared/ErrorBoundary";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -179,31 +178,29 @@ function App() {
   //useEffect;
 
   return (
-    <ErrorBoundary>
-      <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
-        <AuthContext.Provider value={{ user, setUser }}>
-          {user && user.role === "therapist" && showSubscriptionModal && (
-            <TherapistEditSubscriptionModal
-              visible={showSubscriptionModal}
-              setVisibility={setShowSubscriptionModal}
-              onClose={() => setShowSubscriptionModal(false)}
-              isSignUp={true}
-              inactiveSubscription={true}
-            />
-          )}
+    <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
+      <AuthContext.Provider value={{ user, setUser }}>
+        {user && user.role === "therapist" && showSubscriptionModal && (
+          <TherapistEditSubscriptionModal
+            visible={showSubscriptionModal}
+            setVisibility={setShowSubscriptionModal}
+            onClose={() => setShowSubscriptionModal(false)}
+            isSignUp={true}
+            inactiveSubscription={true}
+          />
+        )}
 
-          {user ? (
-            <>
-              <AppContainer user={user} />
-            </>
-          ) : (
-            <NavigationContainer>
-              <AuthNavigator />
-            </NavigationContainer>
-          )}
-        </AuthContext.Provider>
-      </GestureHandlerRootView>
-    </ErrorBoundary>
+        {user ? (
+          <>
+            <AppContainer user={user} />
+          </>
+        ) : (
+          <NavigationContainer>
+            <AuthNavigator />
+          </NavigationContainer>
+        )}
+      </AuthContext.Provider>
+    </GestureHandlerRootView>
   );
 }
 
