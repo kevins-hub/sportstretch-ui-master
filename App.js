@@ -1,3 +1,4 @@
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import React, { useState, useEffect, useCallback } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { Alert } from "react-native";
@@ -6,7 +7,6 @@ import AuthContext from "./app/auth/context";
 import AuthNavigator from "./app/navigation/AuthNavigator";
 import authStorage from "./app/auth/storage";
 import AppContainer from "./app/screens/AppContainer";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as SplashScreen from "expo-splash-screen";
 import {
   InitRevenueCat,
@@ -141,7 +141,7 @@ function App() {
                   await handleLogout();
                   setUser(null);
                 } catch (error) {
-                  console.error("Logout error:", error);
+                  console.warn("Logout error:", error);
                   setUser(null); // Force logout even if RevenueCat fails
                 }
               },

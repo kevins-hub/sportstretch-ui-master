@@ -69,7 +69,7 @@ export const handleLogout = async () => {
     await Purchases.logOut();
     console.log("User logged out successfully (RevenueCat)");
   } catch (e) {
-    console.error("Error logging out user (RevenueCat)", e);
+    console.warn("Error logging out user (RevenueCat)", e);
   }
 };
 
