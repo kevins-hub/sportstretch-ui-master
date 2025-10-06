@@ -12,16 +12,10 @@ function AdminNavigator() {
   return (
     <Tab.Navigator
       initialRouteName="Approvals"
-      tabBarLabelOptions={{
-        labelStyle: { textTransform: "lowercase" },
-
-        UpperCaseLabel: false,
-      }}
       screenOptions={{
-        style: {
+        tabBarStyle: {
           width: "98%",
           height: "10%",
-          //flex:1.4,
           backgroundColor: "#F8F7F7",
           borderColor: "#C4C4C4",
           borderWidth: 1,
@@ -37,8 +31,6 @@ function AdminNavigator() {
           shadowOpacity: 0.5,
           shadowRadius: 20,
         },
-        labelStyle: { textTransform: "lowercase" },
-
         tabBarActiveTintColor: colors.secondary,
         tabBarInactiveTintColor: "#383838",
         tabBarIndicatorStyle: {
@@ -53,6 +45,7 @@ function AdminNavigator() {
           fontWeight: "300",
           marginTop: 5,
           paddingTop: 4,
+          textTransform: "lowercase",
         },
       }}
     >
