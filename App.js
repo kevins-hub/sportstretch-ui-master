@@ -27,13 +27,9 @@ function App() {
   useEffect(() => {
     const initializeRevenueCat = async () => {
       try {
-        if (user && user.role === "therapist") {
-          console.log("Initializing RevenueCat...");
-          await InitRevenueCat();
-          console.log("RevenueCat initialized successfully");
-        } else {
-          console.warn("Skipping RevenueCat initialization for athlete or no user");
-        }
+        console.log("Initializing RevenueCat...");
+        await InitRevenueCat();
+        console.log("RevenueCat initialized successfully");
       } catch (error) {
         console.error("RevenueCat initialization failed:", error);
         // Don't crash the app if RevenueCat fails to initialize
