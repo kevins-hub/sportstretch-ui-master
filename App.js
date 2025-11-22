@@ -15,44 +15,13 @@ import {
 } from "./app/api/revenuecatService";
 import TherapistEditSubscriptionModal from "./app/components/therapist/TherapistEditSubscriptionModal";
 
-SplashScreen.preventAutoHideAsync();
+// SplashScreen.preventAutoHideAsync();
 
 function App() {
   const [user, setUser] = useState();
   const [isReady, setIsReady] = useState(false);
   const [revenueCatReady, setRevenueCatReady] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
-
-  // Simple failsafe: Force app to be ready after reasonable time
-  useEffect(() => {
-    // Only start failsafe timer if app is not ready yet
-    if (isReady && revenueCatReady) return;
-    
-    console.log("Starting failsafe timer...");
-    const failsafeTimeout = setTimeout(() => {
-      console.warn("Failsafe triggered: Forcing app to be ready after 15 seconds");
-      
-      if (!isReady) {
-        console.warn("Setting isReady to true via failsafe");
-        setIsReady(true);
-      }
-      
-      if (!revenueCatReady) {
-        console.warn("Setting revenueCatReady to true via failsafe");
-        setRevenueCatReady(true);
-      }
-    }, 15000); // 15 second failsafe
-
-    return () => {
-      console.log("Clearing failsafe timer");
-      clearTimeout(failsafeTimeout);
-    };
-  }, [isReady, revenueCatReady]);
-
-  const restoreUser = async () => {
-    const user = await authStorage.getUser();
-    if (user) setUser(user);
-  };
 
   // First useEffect: Initialize RevenueCat
   useEffect(() => {
@@ -72,113 +41,41 @@ function App() {
         console.log("Continuing without RevenueCat to prevent app hanging");
       } finally {
         // Always set RevenueCat as ready, regardless of success/failure
+        setIsReady(true)
         setRevenueCatReady(true);
       }
     };
-
-    // Add timeout failsafe for RevenueCat initialization
-    const initTimeout = setTimeout(() => {
-      console.warn(
-        "RevenueCat initialization taking too long, force continuing..."
-      );
-      setRevenueCatReady(true);
-    }, 20000); // 20 second failsafe
-
-    // Only initialize RevenueCat after user state is determined (including null)
-    if (isReady) {
-      initializeRevenueCat().finally(() => {
-        clearTimeout(initTimeout);
-      });
-    }
-
-    return () => clearTimeout(initTimeout);
-  }, [user, isReady]);
-
-  // Second useEffect: Load user from storage
-  useEffect(() => {
-    const loadUser = async () => {
-      try {
-        console.log("Loading user from storage...");
-        const user = await authStorage.getUser();
-        if (user) {
-          console.log("User found:", user.id || "Unknown ID");
-          setUser(user);
-        } else {
-          console.log("No user found in storage");
-          setUser(null); // Explicitly set to null if no user
-        }
-      } catch (error) {
-        console.error("Failed to load user from storage:", error);
-        setUser(null); // Set to null on error to ensure app continues
-      } finally {
-        setIsReady(true);
-      }
-    };
-    loadUser();
+    initializeRevenueCat();
   }, []);
 
-  const checkIfEntitlementExists = async () => {
-    try {
-      console.warn("Checking user entitlements...");
-      const hasEntitlement = await checkProOrBasicEntitlement();
-      if (!hasEntitlement) {
-        console.warn("User does not have Pro or Basic entitlement");
-        // Show alert with options to subscribe or Log out
-        Alert.alert(
-          "Subscription Required",
-          "We have detected that you don't have an active subscription, please subscribe to continue using the app or contact support if you think this is a mistake. If you are using a different Apple ID, please sign out and sign in with the correct Apple ID.",
-          [
-            {
-              text: "Subscribe",
-              onPress: () => {
-                setShowSubscriptionModal(true);
-              },
-            },
-            {
-              text: "Log Out",
-              onPress: async () => {
-                try {
-                  await handleLogout();
-                  setUser(null);
-                } catch (error) {
-                  console.warn("Logout error:", error);
-                  setUser(null); // Force logout even if RevenueCat fails
-                }
-              },
-            },
-          ]
-        );
-      } else {
-        console.log("User has Pro or Basic entitlement");
-      }
-    } catch (error) {
-      console.error("Error checking entitlements:", error);
-      // Don't show alerts for entitlement errors in production
-      // Just log and continue - user can still use the app
-    }
-  };
-
-  const onLayoutRootView = useCallback(async () => {
-    if (isReady && revenueCatReady) {
-      try {
-        await SplashScreen.hideAsync();
-        console.log("Splash screen hidden successfully");
-      } catch (error) {
-        console.error("Error hiding splash screen:", error);
-        // Continue anyway - this shouldn't block the app
-      }
-    }
-  }, [isReady, revenueCatReady]);
-
-  if (!isReady || !revenueCatReady) {
-    console.log(`Loading... isReady: ${isReady}, revenueCatReady: ${revenueCatReady}`);
-    return null;
-  }
+  // Second useEffect: Load user from storage
+  // useEffect(() => {
+  //   const loadUser = async () => {
+  //     try {
+  //       console.log("Loading user from storage...");
+  //       const user = await authStorage.getUser();
+  //       if (user) {
+  //         console.log("User found:", user.id || "Unknown ID");
+  //         setUser(user);
+  //       } else {
+  //         console.log("No user found in storage");
+  //         setUser(null); // Explicitly set to null if no user
+  //       }
+  //     } catch (error) {
+  //       console.error("Failed to load user from storage:", error);
+  //       setUser(null); // Set to null on error to ensure app continues
+  //     } finally {
+  //       setIsReady(true);
+  //       console.log("Splash screen hidden successfully");
+  //     }
+  //   };
+  //   loadUser();
+  // }, []);
 
   //useEffect;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthContext.Provider value={{ user, setUser }}>
         {user && user.role === "therapist" && showSubscriptionModal && (
           <TherapistEditSubscriptionModal
@@ -189,7 +86,6 @@ function App() {
             inactiveSubscription={true}
           />
         )}
-
         {user ? (
           <>
             <AppContainer user={user} />

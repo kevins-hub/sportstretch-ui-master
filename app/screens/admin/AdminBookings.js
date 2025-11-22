@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useContext, useEffect } from "react";
-import { View, FlatList } from "react-native";
+import { View, FlatList, Text } from "react-native";
 import bookingsApi from "../../api/bookings";
 import AdminBookingsCard from "../../components/admin/AdminBookingsCard";
 import { useFocusEffect } from "@react-navigation/native";
@@ -49,23 +49,29 @@ function AdminBookings(props) {
         backgroundColor: "#FAFAFA",
       }}
     >
-      <FlatList
-        data={AllBookings}
-        keyExtractor={(message) => message.bookings_id.toString()}
-        renderItem={({ item }) => {
-          return <AdminBookingsCard
-            BookingDay={item.booking_day}
-            BookingMonth={item.booking_month}
-            Afname={item.afname}
-            Alname={item.alname}
-            Tfname={item.tfname}
-            Tlname={item.tlname}
-            BookingsId={item.bookings_id}
-            athlete_id={item.fk_athlete_id}
-            therapist_id={item.fk_therapist_id}
-          />
-        }}
-      />
+      {AllBookings.length === 0 ? (
+        <Text>No bookings found. Bookings will appear here.</Text>
+      ) : (
+        <FlatList
+          data={AllBookings}
+          keyExtractor={(message) => message.bookings_id.toString()}
+          renderItem={({ item }) => {
+            return (
+              <AdminBookingsCard
+                BookingDay={item.booking_day}
+                BookingMonth={item.booking_month}
+                Afname={item.afname}
+                Alname={item.alname}
+                Tfname={item.tfname}
+                Tlname={item.tlname}
+                BookingsId={item.bookings_id}
+                athlete_id={item.fk_athlete_id}
+                therapist_id={item.fk_therapist_id}
+              />
+            );
+          }}
+        />
+      )}
     </View>
   );
 }

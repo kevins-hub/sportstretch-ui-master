@@ -394,7 +394,7 @@ function ProfileSettings({ route }) {
           <View style={styles.keyPropsContainer}>
             <TouchableOpacity
               onPress={() => {
-                if (hasProEntitlement) {
+                if (user.role !== "therapist" || hasProEntitlement) {
                   setProfilePictureModalVisible(true);
                 } else {
                   Alert.alert(

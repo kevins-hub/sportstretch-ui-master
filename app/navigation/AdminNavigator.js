@@ -1,6 +1,6 @@
 import React from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import AdminApprovals from "../screens/admin/AdminApprovals";
 import AdminTherapistsScreen from "../screens/admin/AdminTherapistsScreen";
 import AdminBookings from "../screens/admin/AdminBookings";
@@ -8,46 +8,58 @@ import colors from "../config/colors";
 
 const Tab = createMaterialTopTabNavigator();
 
+// Custom TabBar component to fix React 19 key prop spreading issue
+function CustomTabBar({ state, descriptors, navigation }) {
+  return (
+    <View style={styles.tabBarStyle}>
+      {state.routes.map((route, index) => {
+        const { options } = descriptors[route.key];
+        const label = options.tabBarLabel || route.name;
+        const isFocused = state.index === index;
+
+        const onPress = () => {
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
+          });
+
+          if (!isFocused && !event.defaultPrevented) {
+            navigation.navigate(route.name);
+          }
+        };
+
+        return (
+          <TouchableOpacity
+            key={route.key}
+            style={[
+              styles.tabItem,
+              isFocused && styles.activeTab
+            ]}
+            onPress={onPress}
+          >
+            <Text
+              style={[
+                styles.tabBarLabelStyle,
+                {
+                  color: isFocused ? colors.secondary : "#383838"
+                }
+              ]}
+            >
+              {label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
+
 function AdminNavigator() {
   return (
     <Tab.Navigator
       initialRouteName="Approvals"
-      screenOptions={{
-        tabBarStyle: {
-          width: "98%",
-          height: "10%",
-          backgroundColor: "#F8F7F7",
-          borderColor: "#C4C4C4",
-          borderWidth: 1,
-          borderRadius: 30,
-          marginTop: 2,
-          marginLeft: 1,
-          elevation: 4,
-          shadowColor: "#C4C4C4",
-          shadowOffset: {
-            width: 10,
-            height: 20,
-          },
-          shadowOpacity: 0.5,
-          shadowRadius: 20,
-        },
-        tabBarActiveTintColor: colors.secondary,
-        tabBarInactiveTintColor: "#383838",
-        tabBarIndicatorStyle: {
-          backgroundColor: colors.primary,
-          height: "99%",
-          borderRadius: 50,
-          marginLeft: 0,
-          width: "33.2%",
-        },
-        tabBarLabelStyle: {
-          fontSize: 16,
-          fontWeight: "300",
-          marginTop: 5,
-          paddingTop: 4,
-          textTransform: "lowercase",
-        },
-      }}
+      tabBar={(props) => <CustomTabBar {...props} />}
     >
       <Tab.Screen
         name="Approvals"
@@ -69,6 +81,42 @@ function AdminNavigator() {
 }
 
 const styles = StyleSheet.create({
+  tabBarStyle: {
+    flexDirection: 'row',
+    width: "98%",
+    height: "10%",
+    backgroundColor: "#F8F7F7",
+    borderColor: "#C4C4C4",
+    borderWidth: 1,
+    borderRadius: 30,
+    marginTop: 2,
+    marginLeft: 1,
+    elevation: 4,
+    shadowColor: "#C4C4C4",
+    shadowOffset: {
+      width: 10,
+      height: 20,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    alignSelf: 'center',
+  },
+  tabItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    marginHorizontal: 2,
+    borderRadius: 25,
+  },
+  activeTab: {
+    backgroundColor: colors.primary,
+  },
+  tabBarLabelStyle: {
+    fontSize: 16,
+    fontWeight: "300",
+    textTransform: "lowercase",
+  },
   tabPanel: {
     width: "100%",
     height: "9%",
