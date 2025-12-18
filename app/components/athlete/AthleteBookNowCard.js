@@ -35,6 +35,7 @@ function AthleteBookNowCard({ therapist, athleteAddress, selectedTherapist }) {
         therapistZipCode={therapist.zipcode}
         therapistProfilePictureUrl={therapist.profile_picture_url}
         therapistProfession={therapist.profession}
+        therapistApartmentNumber={therapist.apartment_no}
       />
       <View style={styles.OuterContainer}>
         <View
