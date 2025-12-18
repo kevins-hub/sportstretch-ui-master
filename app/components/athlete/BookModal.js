@@ -516,7 +516,7 @@ function BookModal({
       let athleteLocation = athleteAddress;
 
       if (selectedLocationOption === "1") {
-        athleteLocation = `${therapistStreet}${therapistApartmentNumber ? ', #' + therapistApartmentNumber : ''}, ${therapistCity}, ${therapistState} ${therapistZipCode}`;
+        athleteLocation = `${therapistStreet}${therapistApartmentNumber ? ', Unit ' + therapistApartmentNumber : ''}, ${therapistCity}, ${therapistState} ${therapistZipCode}`;
       }
 
       await bookingsApi.bookATherapist(
@@ -688,7 +688,7 @@ function BookModal({
               </View>
             </View>
             <View style={styles.dayHoursContainer}>
-              <Text>Friday:</</Text>
+              <Text>Friday:</Text>
               <View style={styles.hoursContainer}>
                 {therapistBusinessHours &&
                 therapistBusinessHours["5"] &&
