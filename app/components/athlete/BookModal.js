@@ -890,7 +890,7 @@ function BookModal({
                   style={styles.selector}
                   onPress={openAppointmentDurationModal}
                 >
-                  <Text style={!appointmentDuration ? styles.noSelectText : {}}>
+                  <Text style={{marginTop: 'auto', marginBottom: 'auto'}}>
                     {appointmentDuration
                       ? `${appointmentDuration} hours`
                       : "Appointment Duration"}
@@ -953,7 +953,7 @@ function BookModal({
                       name="address-book"
                       size={16}
                       color="black"
-                      style={{ paddingRight: "5%" }}
+                      style={{ paddingRight: "5%", marginTop: 'auto', marginBottom: 'auto' }}
                     />
                   </View>
                   <TextInput
@@ -994,8 +994,6 @@ function BookModal({
                         value={props.values.city}
                         onBlur={props.handleBlur("city")}
                         textContentType="addressCity"
-                        // Add this line to ensure placeholder shows up
-                        placeholderTextColor="#888"
                       />
                     </View>
                     {props.touched.city && props.errors.city && (
@@ -1005,7 +1003,7 @@ function BookModal({
                   <View style={{ marginHorizontal: "10%", width: "45%" }}>
                     <View style={styles.inputContainerState}>
                       <TouchableOpacity
-                        style={{ flex: 1, justifyContent: "center" }}
+                        style={Platform.OS === "ios" ? styles.selector : {height: 40, justifyContent: 'center'}}
                         onPress={openStatesModal}
                         activeOpacity={0.7}
                       >
@@ -1062,7 +1060,7 @@ function BookModal({
                       name="location-pin"
                       size={16}
                       color="black"
-                      style={{ paddingRight: "5%" }}
+                      style={{ paddingRight: "5%", marginTop: 'auto', marginBottom: 'auto' }}
                     />
                   </View>
                   <TextInput
@@ -1456,24 +1454,10 @@ const styles = StyleSheet.create({
     }),
   },
   inputContainerState: {
-    ...Platform.select({
-      ios: {
-        borderWidth: 1,
-        borderRadius: 12,
-        paddingVertical: "4%",
-        paddingHorizontal: "7%",
-      },
-      android: {
-        borderWidth: 1.1,
-        borderRadius: 12,
-        height: 44,
-        alignItems: "center",
-        borderColor: "#C0C0C0",
-        backgroundColor: "#FAFAFA",
-        marginBottom: 10,
-        paddingHorizontal: 12,
-      },
-    }),
+    borderWidth: 1,
+    borderRadius: 15,
+    paddingVertical: "4%",
+    paddingHorizontal: "7%",
   },
   inputContainerZip: {
     flexDirection: "row",
@@ -1683,6 +1667,9 @@ const styles = StyleSheet.create({
     borderColor: "#eee",
   },
   noSelectText: {
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    marginLeft: 4,
     color: colors.grey,
   },
 });
