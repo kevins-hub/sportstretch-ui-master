@@ -922,7 +922,7 @@ function TherapistForm(props) {
                       key={opt.label}
                       onPress={() => {
                         console.log("opt", opt);
-                        props.setFieldValue("state", opt.label);
+                        props.setFieldValue("state", opt.value);
                         closeStateModal(); // optionally close the modal
                       }}
                       style={styles.option}
