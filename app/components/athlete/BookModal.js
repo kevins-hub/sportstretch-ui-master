@@ -770,18 +770,35 @@ function BookModal({
   );
 
   const AppointmentDetailsStep = (props) => (
-    <View style={styles.modalContent}>
+    <View
+      style={[
+        styles.modalContent,
+        Platform.OS === "android" && { paddingBottom: 20, height: "95%" }
+      ]}
+    >
       <Text style={styles.modalText}>
         Book your appointment with {therapistName}!
       </Text>
       <KeyboardAvoidingView
-        // change padding to height for android devices  platform === ios ? padding : height
-        behavior="padding"
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={{ flex: 1 }}
       >
-        <View style={styles.appointmentScrollViewContainer}>
+        <View
+          style={[
+            styles.appointmentScrollViewContainer,
+            Platform.OS === "android" && { flex: 1 }
+          ]}
+        >
           <ScrollView
-            style={styles.appointmentDetailsScrollView}
+            style={[
+              styles.appointmentDetailsScrollView,
+              Platform.OS === "android" && { flexGrow: 1 }
+            ]}
+            contentContainerStyle={
+              Platform.OS === "android"
+                ? { paddingBottom: 40 }
+                : undefined
+            }
             keyboardShouldPersistTaps="handled"
           >
             <View style={styles.rateContainer}>
@@ -986,11 +1003,15 @@ function BookModal({
                   <View style={{ marginHorizontal: "10%", width: "45%" }}>
                     <View style={styles.inputContainerState}>
                       <TouchableOpacity
-                        style={styles.selector}
+                        style={{ flex: 1, justifyContent: "center" }}
                         onPress={openStatesModal}
+                        activeOpacity={0.7}
                       >
                         <Text
-                          style={!props.values.state ? styles.noSelectText : {}}
+                          style={[
+                            { paddingHorizontal: 4, paddingVertical: 8 },
+                            !props.values.state ? styles.noSelectText : {},
+                          ]}
                         >
                           {props.values.state ? props.values.state : "State"}
                         </Text>
@@ -1007,7 +1028,7 @@ function BookModal({
                           onPress={closeStatesModal}
                         />
                         <Animated.View
-                          style={[styles.sheet, { top: slideAnim }]}
+                          style={[styles.stateModalSheet, { top: slideAnim }]}
                         >
                           <ScrollView>
                             {statesItemsObj.map((opt) => (
@@ -1370,59 +1391,104 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     borderWidth: 1,
-    borderRadius: 15,
-    padding: "2%",
-    // marginHorizontal: "10%",
+    borderRadius: 12,
+    paddingHorizontal: 12,
     marginRight: "10%",
     marginTop: "4%",
+    backgroundColor: "#FAFAFA",
+    ...Platform.select({
+      android: {
+        height: 44,
+        paddingVertical: 0,
+        alignItems: "center",
+        borderWidth: 1.1,
+        borderColor: "#C0C0C0",
+        marginBottom: 10,
+        marginTop: 0,
+      },
+    }),
   },
   inputContainerAddress: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    paddingHorizontal: "2%",
-    paddingBottom: "2%",
-    // marginHorizontal: "10%",
+    paddingHorizontal: 12,
+    paddingBottom: 0,
     marginRight: "9%",
-    marginTop: "5%",
+    marginTop: 0,
+    backgroundColor: "#FAFAFA",
+    ...Platform.select({
+      android: {
+        height: 44,
+        alignItems: "center",
+        borderBottomWidth: 1.1,
+        borderColor: "#C0C0C0",
+        marginBottom: 10,
+      },
+    }),
   },
   inputContainerCity: {
     flexDirection: "row",
     borderWidth: 1,
-    borderRadius: 15,
-    paddingVertical: "4%",
-    paddingHorizontal: "5%",
-    // marginRight: "9%",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    backgroundColor: "#FAFAFA",
+    ...Platform.select({
+      android: {
+        height: 44,
+        alignItems: "center",
+        borderWidth: 1.1,
+        borderColor: "#C0C0C0",
+        marginBottom: 10,
+      },
+    }),
   },
   inputContainerCityState: {
     flexDirection: "row",
     marginRight: "9%",
-    // marginHorizontal: "10%",
-    marginTop: "5%",
+    marginTop: 0,
+    ...Platform.select({
+      android: {
+        marginBottom: 10,
+      },
+    }),
   },
   inputContainerState: {
     ...Platform.select({
       ios: {
         borderWidth: 1,
-        borderRadius: 15,
+        borderRadius: 12,
         paddingVertical: "4%",
         paddingHorizontal: "7%",
       },
       android: {
-        borderWidth: 1,
-        borderRadius: 15,
-        height: 40,
-        paddingBottom: 10,
+        borderWidth: 1.1,
+        borderRadius: 12,
+        height: 44,
+        alignItems: "center",
+        borderColor: "#C0C0C0",
+        backgroundColor: "#FAFAFA",
+        marginBottom: 10,
+        paddingHorizontal: 12,
       },
     }),
   },
   inputContainerZip: {
     flexDirection: "row",
     borderWidth: 1,
-    borderRadius: 15,
-    padding: "2%",
-    // marginHorizontal: "10%",
+    borderRadius: 12,
+    paddingHorizontal: 12,
     marginRight: "9%",
-    marginTop: "5%",
+    marginTop: 0,
+    backgroundColor: "#FAFAFA",
+    ...Platform.select({
+      android: {
+        height: 44,
+        alignItems: "center",
+        borderWidth: 1.1,
+        borderColor: "#C0C0C0",
+        marginBottom: 10,
+      },
+    }),
   },
   datePicker: {
     alignItems: "left",
@@ -1592,6 +1658,21 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     padding: 20,
+  },
+  stateModalSheet: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    height: screenHeight / 2.5,
+    backgroundColor: "white",
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    padding: 20,
+    elevation: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
   },
   option: {
     padding: 16,
