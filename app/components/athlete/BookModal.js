@@ -892,7 +892,7 @@ function BookModal({
                 >
                   <Text style={!appointmentDuration ? styles.noSelectText : {}}>
                     {appointmentDuration
-                      ? appointmentDuration
+                      ? `${appointmentDuration} hours`
                       : "Appointment Duration"}
                   </Text>
                 </TouchableOpacity>
@@ -994,6 +994,8 @@ function BookModal({
                         value={props.values.city}
                         onBlur={props.handleBlur("city")}
                         textContentType="addressCity"
+                        // Add this line to ensure placeholder shows up
+                        placeholderTextColor="#888"
                       />
                     </View>
                     {props.touched.city && props.errors.city && (
@@ -1065,12 +1067,13 @@ function BookModal({
                   </View>
                   <TextInput
                     style={{ flex: 1, flexWrap: "wrap" }}
-                    placeholder="Zipcode"
+                    placeholder="ZIP Code"
                     onChangeText={props.handleChange("zipcode")}
                     onBlur={props.handleBlur("zipcode")}
                     name="zipcode"
                     value={props.values.zipcode}
                     textContentType="postalCode"
+                    placeholderTextColor="#888"
                   />
                 </View>
                 {props.touched.zipcode && props.errors.zipcode && (
