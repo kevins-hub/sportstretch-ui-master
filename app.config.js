@@ -30,7 +30,9 @@ export default {
         foregroundImage: "./app/assets/adaptive-icon.png",
         backgroundColor: "#FFFFFF",
       },
+      versionCode: 2,
       package: "com.sportstretchusa.sportstretch",
+      permissions: [],
       config: {
         googleMaps: {
           apiKey: process.env.GOOGLE_MAPS_API_KEY,
