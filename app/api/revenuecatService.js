@@ -16,11 +16,9 @@ let isRevenueCatInitialized = false;
 export const InitRevenueCat = async (rcCustomerId = null) => {
   try {
     console.log("Initializing RevenueCat...");
-    console.log("Environment - REVENUECAT_IOS_KEY available:", !!REVENUECAT_IOS_KEY);
-    console.log("configuring purchases for ios");
+    console.log(`configuring purchases for platform: ${Platform.OS}`);
     
-    const apiKey = REVENUECAT_IOS_KEY || "appl_JleRblwotkDjKkwYKZozPqcIfkT";
-    console.log("Using API key (first 10 chars):", apiKey.substring(0, 10));
+    const apiKey = Platform.OS === "ios" ? REVENUECAT_IOS_KEY : REVENUECAT_GOOGLE_KEY;
     
     Purchases.configure({
       apiKey: apiKey,
