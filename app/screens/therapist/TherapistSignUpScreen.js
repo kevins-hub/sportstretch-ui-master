@@ -134,7 +134,7 @@ const ReviewSchema = yup.object({
   acceptsHouseCalls: yup.boolean().required().label("Accepts House Calls"),
 });
 
-let businessHoursObj = {
+const getInitialBusinessHours = () => ({
   0: [],
   1: [],
   2: [],
@@ -143,7 +143,7 @@ let businessHoursObj = {
   5: [],
   6: [],
   "utc-offset": 0,
-};
+});
 
 function TherapistForm(props) {
   const navigation = useNavigation();
@@ -153,7 +153,7 @@ function TherapistForm(props) {
   const [showPhoneExistsError, setShowPhoneExistsError] = useState(false);
   const [enableHouseCalls, setEnableHouseCalls] = useState(false);
   const [enableInClinic, setEnableInClinic] = useState(false);
-  const [businessHours, setBusinessHours] = useState(businessHoursObj);
+  const [businessHours, setBusinessHours] = useState(getInitialBusinessHours());
   const [termsAndConditionModal, setTermsAndConditionModal] = useState(false);
   const [hasAttempted, setHasAttempted] = useState(false);
   const [verified, setVerified] = useState(false);
