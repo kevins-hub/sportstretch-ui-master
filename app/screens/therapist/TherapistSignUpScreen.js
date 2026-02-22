@@ -14,6 +14,7 @@ import {
   KeyboardAvoidingView,
   Animated,
   Dimensions,
+  Platform,
 } from "react-native";
 import {
   FontAwesome,
@@ -35,7 +36,7 @@ import auth from "../../api/auth";
 import register from "../../api/register";
 import TermsAndConditions from "../../components/shared/TermsAndConditions";
 import { handleError } from "../../lib/error";
-import OTPInputView from "@twotalltotems/react-native-otp-input";
+import OTPInputView from "react-native-otp-textinput";
 import base64 from "react-native-base64";
 import DoneIndicator from "../../components/athlete/DoneIndicator";
 import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } from "@env";
@@ -164,13 +165,14 @@ function TherapistForm(props) {
   const [showAboveAgeError, setShowAboveAgeError] = useState(false);
   const [statesModalVisible, setStatesModalVisible] = useState(false);
   const [professionModalVisible, setProfessionModalVisible] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(Platform.OS === "ios");
+  const otpRef = useRef("");
 
   const slideAnim = useRef(new Animated.Value(screenHeight)).current;
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false); // true for testing only, should be false
   const [rcCustomerId, setRcCustomerId] = useState(null);
   const [signUpValues, setSignUpValues] = useState(null);
   const signUpValuesRef = useRef(signUpValues);
-
 
   useEffect(() => {
     try {
@@ -184,7 +186,6 @@ function TherapistForm(props) {
       console.error("Error sending verification code: ", e);
       Alert.alert("Error", "Failed to send verification code. Please try again.");
     }
-
   }, [currentStep]);
 
   useEffect(() => {
@@ -203,7 +204,10 @@ function TherapistForm(props) {
   };
 
   const handleDateChange = (event, selectedDate) => {
-    if (!selectedDate) {
+    if (Platform.OS === "android") {
+      setShowDatePicker(false);
+    }
+    if (event.type === "dismissed" || !selectedDate) {
       return;
     }
     try {
@@ -286,7 +290,6 @@ function TherapistForm(props) {
           setPhoneNumber(values.phone);
           setEmail(values.email);
           setCurrentStep(currentStep + 1);
-
         })
         .catch((err) => {
           setShowInvalidFieldError(true);
@@ -425,6 +428,7 @@ function TherapistForm(props) {
     } else if (currentStep === EMAIL_VERIFIACTION_STEP) {
       try {
         const code = Math.floor(100000 + Math.random() * 900000);
+        console.log("email verification code", code);
         setVerificationCode(code);
         let emailVerificationCode = { email: email, token: code };
         let res = await register.verifyEmail(emailVerificationCode);
@@ -446,6 +450,13 @@ function TherapistForm(props) {
       // setCurrentStep(currentStep + 1);
       setVerified(true);
       setTimeout(resetVerificationStep, 2000);
+    }
+  };
+
+  const handleOtpChange = (text) => {
+    otpRef.current = text;
+    if (text.length === 6) {
+      handleVerificationComplete(text);
     }
   };
 
@@ -514,8 +525,8 @@ function TherapistForm(props) {
     }
   }  
 
-  const ContactStep = (props) => (
-    // contact details
+  const renderContactStep = (props) => (
+    // contact details - same content as ContactStep
     <>
       <View style={styles.inputContainer}>
         <View>
@@ -609,7 +620,7 @@ function TherapistForm(props) {
     </>
   );
 
-  const DobStep = () => (
+  const renderDobStep = () => (
     <>
       <View style={styles.dobContainer}>
         <Text style={styles.disclaimerText}>
@@ -618,14 +629,28 @@ function TherapistForm(props) {
           Please do not use SportStretch if you are under 18.
         </Text>
         <Text style={styles.accountText}>Please enter your date of birth:</Text>
-        <DateTimePicker
-          value={dob || new Date()}
-          mode="date"
-          display="spinner"
-          onChange={handleDateChange}
-          style={styles.datePicker}
-          shouldCloseOnSelect={false}
-        />
+
+        {Platform.OS === "android" && (
+          <TouchableOpacity
+            style={styles.datePickerButton}
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Text style={styles.datePickerButtonText}>
+              {dob ? dob.toLocaleDateString() : "Select Date"}
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        {showDatePicker && (
+          <DateTimePicker
+            value={dob || new Date()}
+            mode="date"
+            display="spinner"
+            onChange={handleDateChange}
+            style={styles.datePicker}
+            shouldCloseOnSelect={false}
+          />
+        )}
 
         {showAboveAgeError && (
           <Text style={styles.errorText}>
@@ -636,7 +661,7 @@ function TherapistForm(props) {
     </>
   );
 
-  const VerificationStep = (props) => (
+  const renderVerificationStep = () => (
     <View style={{ flex: 1, alignItems: "center" }}>
       <Text>
         Your verification code has been sent to your{" "}
@@ -645,15 +670,24 @@ function TherapistForm(props) {
       </Text>
 
       <OTPInputView
-        style={{
-          width: "80%",
-          height: 200,
-          color: "black",
+        inputCount={6}
+        handleTextChange={handleOtpChange}
+        containerStyle={{
+          marginTop: 20,
+          marginBottom: 20,
         }}
-        pinCount={6}
-        codeInputFieldStyle={styles.verificationInputField}
-        codeInputHighlightStyle={styles.verificationHighlightField}
-        onCodeFilled={handleVerificationComplete}
+        textInputStyle={{
+          borderWidth: 1,
+          borderColor: "#000",
+          borderBottomWidth: 1,
+          color: "#000",
+          fontSize: 20,
+          width: 40,
+          height: 45,
+          borderRadius: 5,
+        }}
+        tintColor="#000"
+        offTintColor="#ccc"
       />
       {!!hasAttempted && !verified && (
         <Text style={styles.errorText}>
@@ -1189,7 +1223,7 @@ function TherapistForm(props) {
               }
             }}
           >
-            {(props) => (
+            {(formikProps) => (
               <View style={styles.propsContainer}>
                 {/* <DoneIndicator
               visible={
@@ -1197,15 +1231,11 @@ function TherapistForm(props) {
                 (currentStep === 3 && !!isVerified)
               }
             /> */}
-                {currentStep === CONTACT_STEP && <ContactStep {...props} />}
-                {currentStep === DOB_STEP && <DobStep {...props} />}
-                {currentStep === SMS_VERIFICATION_STEP && (
-                  <VerificationStep {...props} />
-                )}
-                {currentStep === EMAIL_VERIFIACTION_STEP && (
-                  <VerificationStep {...props} />
-                )}
-                {currentStep === SERVICES_STEP && <ServicesStep {...props} />}
+                {currentStep === CONTACT_STEP && renderContactStep(formikProps)}
+                {currentStep === DOB_STEP && renderDobStep()}
+                {currentStep === SMS_VERIFICATION_STEP && renderVerificationStep()}
+                {currentStep === EMAIL_VERIFIACTION_STEP && renderVerificationStep()}
+                {currentStep === SERVICES_STEP && <ServicesStep {...formikProps} />}
                 {currentStep === BUSINESS_HOURS_STEP && (
                   <>
                     <TherapistBusinessHours
@@ -1218,8 +1248,8 @@ function TherapistForm(props) {
                     </Text>
                   </>
                 )}
-                {currentStep === LICENSE_STEP && <LicenseStep {...props} />}
-                {currentStep === PASSWORD_STEP && <PasswordStep {...props} />}
+                {currentStep === LICENSE_STEP && <LicenseStep {...formikProps} />}
+                {currentStep === PASSWORD_STEP && <PasswordStep {...formikProps} />}
                 <View style={styles.buttonContainer}>
                   {showInvalidFieldError && (
                     <Text style={styles.errorText}>
@@ -1251,7 +1281,7 @@ function TherapistForm(props) {
                       <TouchableOpacity
                         style={styles.button}
                         onPress={() => {
-                          handleNext(props.values);
+                          handleNext(formikProps.values);
                         }}
                         type="button"
                       >
@@ -1278,7 +1308,7 @@ function TherapistForm(props) {
                   {currentStep === PASSWORD_STEP && (
                     <TouchableOpacity
                       style={styles.button}
-                      onPress={props.handleSubmit}
+                      onPress={formikProps.handleSubmit}
                     >
                       <Text style={styles.buttonText}>Finish Sign Up</Text>
                     </TouchableOpacity>
@@ -1541,6 +1571,20 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-around",
+  },
+  datePickerButton: {
+    borderWidth: 1,
+    borderColor: colors.grey,
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    marginVertical: 15,
+    alignSelf: "center",
+    backgroundColor: "white",
+  },
+  datePickerButtonText: {
+    color: colors.dullblack,
+    fontSize: 16,
   },
   backdrop: {
     position: "absolute",
