@@ -73,7 +73,7 @@ function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthContext.Provider value={{ user, setUser }}>
-        <StatusBar translucent backgroundColor="transparent" />
+        <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
         {user && user.role === "therapist" && showSubscriptionModal && (
           <TherapistEditSubscriptionModal
             visible={showSubscriptionModal}

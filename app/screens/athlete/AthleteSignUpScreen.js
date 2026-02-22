@@ -634,7 +634,7 @@ function AthleteForm(props) {
       style={{ flex: 1 }}
     >
       <View style={styles.container}>
-        <View style={styles.headerConatiner}>
+        <View style={styles.headerContainer}>
           <Image
             source={require("../../assets/logo_crop.png")}
             style={styles.logo}
@@ -682,7 +682,7 @@ const styles = StyleSheet.create({
     paddingTop: Constants.statusBarHeight,
     flex: 1,
   },
-  headerConatiner: {
+  headerContainer: {
     flexDirection: "row",
     width: "100%",
     height: "15%",
