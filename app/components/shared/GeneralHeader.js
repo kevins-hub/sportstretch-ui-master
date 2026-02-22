@@ -6,6 +6,7 @@ import Stars from "react-native-stars";
 import colors from "../../config/colors";
 import AuthContext from "../../auth/context";
 import { Image } from "react-native";
+import { Platform } from "react-native";
 
 function GeneralHeader(props) {
   const { user, setUser } = useContext(AuthContext);
@@ -59,7 +60,7 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: colors.primary,
     flexDirection: "row",
-    marginTop: Constants.statusBarHeight,
+    paddingTop: Constants.statusBarHeight,
     alignItems: "center",
   },
   detailsContainer: {

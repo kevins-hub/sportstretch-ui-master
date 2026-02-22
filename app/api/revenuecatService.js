@@ -1,7 +1,7 @@
 // revenuecatService.js
 import Purchases, { LOG_LEVEL } from "react-native-purchases";
 import { Platform } from "react-native";
-import { REVENUECAT_IOS_KEY } from "@env";
+import { REVENUECAT_IOS_KEY, REVENUECAT_GOOGLE_KEY } from "@env";
 
 // const apiKeys = {git s
 //   ios: 'your_revenuecat_ios_key',
@@ -17,6 +17,9 @@ export const InitRevenueCat = async (rcCustomerId = null) => {
   try {
     console.log("Initializing RevenueCat...");
     console.log(`configuring purchases for platform: ${Platform.OS}`);
+    
+    console.warn("RevenueCat API Keys - iOS:", REVENUECAT_IOS_KEY, "Android:", REVENUECAT_GOOGLE_KEY);
+    console.warn("process.env.REVENUECAT_GOOGLE_KEY:", process.env.REVENUECAT_GOOGLE_KEY);
     
     const apiKey = Platform.OS === "ios" ? REVENUECAT_IOS_KEY : REVENUECAT_GOOGLE_KEY;
     

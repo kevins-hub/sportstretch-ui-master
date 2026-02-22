@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Formik } from "formik";
 import {
   Modal,
@@ -11,6 +11,7 @@ import {
   Alert,
   Button,
   KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as yup from "yup";
@@ -22,13 +23,12 @@ import { ScrollView } from "react-native-gesture-handler";
 import auth from "../../api/auth";
 import TermsAndConditions from "../../components/shared/TermsAndConditions";
 import notifications from "../../api/notifications";
-import OTPInputView from "@twotalltotems/react-native-otp-input";
+import OTPInputView from "react-native-otp-textinput";
 import base64 from "react-native-base64";
 import DoneIndicator from "../../components/athlete/DoneIndicator";
 import register from "../../api/register";
 import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } from "@env";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { SMS } from "aws-sdk";
 
 const DETAILS_STEP = 1;
 const DOB_STEP = 2;
@@ -76,7 +76,10 @@ function AthleteForm(props) {
   const [dob, setDob] = useState(null);
   const [isAboveAge, setIsAboveAge] = useState(false);
   const [showAboveAgeError, setShowAboveAgeError] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(Platform.OS === "ios");
+  const otpRef = useRef("");
 
+  const isQA = process.env.NODE_ENV === 'qa';
 
   useEffect(() => {
     if (currentStep === SMS_VERIFICATION_STEP) {
@@ -90,7 +93,7 @@ function AthleteForm(props) {
     let code = Math.floor(100000 + Math.random() * 900000);
     setVerificationCode(code);
     if (currentStep === SMS_VERIFICATION_STEP) {
-      console.log("code", code);
+      if (isQA) console.log("code", code);
       const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
 
       const body = new URLSearchParams({
@@ -117,7 +120,8 @@ function AthleteForm(props) {
         console.error("Error sending SMS:", error);
       }
     } else if (currentStep === EMAIL_VERIFIACTION_STEP) {
-      console.log("step 3 is initated");
+      if (isQA) console.log("step 3 is initiated");
+      if (isQA) console.log("code", code);
       try {
         let emailVerificationCode = { email: athleteForm.email, token: code };
         let res = await register.verifyEmail(emailVerificationCode);
@@ -139,7 +143,7 @@ function AthleteForm(props) {
   };
 
   const handleDateChange = (event, selectedDate) => {
-    if (!selectedDate) {
+    if (event.type === "dismissed" || !selectedDate) {
       return;
     }
     try {
@@ -148,6 +152,9 @@ function AthleteForm(props) {
         selectedDate.getTime() + selectedDate.getTimezoneOffset() * 60000
       );
       setDob(selectedDateLocal);
+      if (Platform.OS === "android") {
+        setShowDatePicker(false);
+      }
     } catch (error) {
       console.error("Error setting date of birth: ", error);
     }
@@ -198,6 +205,13 @@ function AthleteForm(props) {
     }
   };
 
+  const handleOtpChange = (text) => {
+    otpRef.current = text;
+    if (text.length === 6) {
+      handleVerificationComplete(text);
+    }
+  };
+
   const handleNext = async (values) => {
     const emailAvailable = await checkEmailAvailable(
       values.email.toLowerCase()
@@ -216,6 +230,7 @@ function AthleteForm(props) {
   };
 
   const handleNextDob = async () => {
+    if (__DEV__) console.warn("handleNextDob");
     let aboveAge = await checkAge(dob);
     if (aboveAge) {
       setIsAboveAge(true);
@@ -250,7 +265,7 @@ function AthleteForm(props) {
     }
   };
 
-  const CreateAccount = () => (
+  const renderCreateAccount = () => (
     <>
       <View style={styles.CaptionContainer}>
         <Text style={styles.accountText}>Create your account</Text>
@@ -476,7 +491,7 @@ function AthleteForm(props) {
     </>
   );
 
-  const DobStep = () => (
+  const renderDobStep = () => (
     <>
       <View style={styles.dobContainer}>
         <Text style={styles.disclaimerText}>
@@ -485,14 +500,28 @@ function AthleteForm(props) {
           Please do not use SportStretch if you are under 18.
         </Text>
         <Text style={styles.accountText}>Please enter your date of birth:</Text>
-        <DateTimePicker
-          value={dob || new Date()}
-          mode="date"
-          display="spinner"
-          onChange={handleDateChange}
-          style={styles.datePicker}
-          shouldCloseOnSelect={false}
-        />
+
+        {Platform.OS === "android" && (
+          <TouchableOpacity
+            style={styles.datePickerButton}
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Text style={styles.datePickerButtonText}>
+              {dob ? dob.toLocaleDateString() : "Select Date"}
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        {showDatePicker && (
+          <DateTimePicker
+            value={dob || new Date()}
+            mode="date"
+            display="spinner"
+            onChange={handleDateChange}
+            style={styles.datePicker}
+            shouldCloseOnSelect={false}
+          />
+        )}
 
         {showAboveAgeError && (
           <Text style={styles.errorText}>
@@ -520,7 +549,7 @@ function AthleteForm(props) {
     </>
   );
 
-  const VerificationStep = (props) => (
+  const renderVerificationStep = () => (
     <ScrollView keyboardShouldPersistTaps="handled">
       <View style={styles.CaptionContainer}>
         <Text style={styles.accountText}>
@@ -542,15 +571,24 @@ function AthleteForm(props) {
           Please enter the 6-digit code below to complete your login.
         </Text>
         <OTPInputView
-          style={{
-            width: "80%",
-            height: 120,
-            color: "black",
+          inputCount={6}
+          handleTextChange={handleOtpChange}
+          containerStyle={{
+            marginTop: 20,
+            marginBottom: 20,
           }}
-          pinCount={6}
-          codeInputFieldStyle={styles.verificationInputField}
-          codeInputHighlightStyle={styles.verificationHighlightField}
-          onCodeFilled={handleVerificationComplete}
+          textInputStyle={{
+            borderWidth: 1,
+            borderColor: "#000",
+            borderBottomWidth: 1,
+            color: "#000",
+            fontSize: 20,
+            width: 40,
+            height: 45,
+            borderRadius: 5,
+          }}
+          tintColor="#000"
+          offTintColor="#ccc"
         />
         {!!hasAttempted && !verified && (
           <Text style={styles.errorText}>
@@ -596,17 +634,17 @@ function AthleteForm(props) {
       style={{ flex: 1 }}
     >
       <View style={styles.container}>
-        <View style={styles.headerConatiner}>
+        <View style={styles.headerContainer}>
           <Image
             source={require("../../assets/logo_crop.png")}
             style={styles.logo}
           />
           <Text style={styles.headerText}>Recovery On The Go</Text>
         </View>
-        {currentStep === DETAILS_STEP && <CreateAccount />}
-        {currentStep === DOB_STEP && <DobStep />}
-        {currentStep === SMS_VERIFICATION_STEP && <VerificationStep />}
-        {currentStep === EMAIL_VERIFIACTION_STEP && <VerificationStep />}
+        {currentStep === DETAILS_STEP && renderCreateAccount()}
+        {currentStep === DOB_STEP && renderDobStep()}
+        {currentStep === SMS_VERIFICATION_STEP && renderVerificationStep()}
+        {currentStep === EMAIL_VERIFIACTION_STEP && renderVerificationStep()}
       </View>
     </KeyboardAvoidingView>
   );
@@ -644,7 +682,7 @@ const styles = StyleSheet.create({
     paddingTop: Constants.statusBarHeight,
     flex: 1,
   },
-  headerConatiner: {
+  headerContainer: {
     flexDirection: "row",
     width: "100%",
     height: "15%",
@@ -741,6 +779,20 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: "100%",
+  },
+  datePickerButton: {
+    borderWidth: 1,
+    borderColor: colors.grey,
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    marginVertical: 15,
+    alignSelf: "center",
+    backgroundColor: "white",
+  },
+  datePickerButtonText: {
+    color: colors.dullblack,
+    fontSize: 16,
   },
 });
 

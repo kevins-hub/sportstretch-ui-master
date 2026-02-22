@@ -2,7 +2,7 @@ export default {
   expo: {
     name: "SportStretch",
     slug: "sportstretch",
-    version: "1.0.4",
+    version: "1.0.5",
     orientation: "portrait",
     icon: "./app/assets/icon.png",
     splash: {
@@ -15,7 +15,7 @@ export default {
     },
     assetBundlePatterns: ["**/*"],
     ios: {
-      buildNumber: "61",
+      buildNumber: "63",
       bundleIdentifier: "com.sportstretchusa.sportstretch",
       supportsTablet: true,
       infoPlist: {
@@ -30,9 +30,9 @@ export default {
         foregroundImage: "./app/assets/adaptive-icon.png",
         backgroundColor: "#FFFFFF",
       },
-      versionCode: 2,
+      versionCode: 5,
       package: "com.sportstretchusa.sportstretch",
-      permissions: [],
+      permissions: ["com.android.vending.BILLING"],
       config: {
         googleMaps: {
           apiKey: process.env.GOOGLE_MAPS_API_KEY,
@@ -40,17 +40,16 @@ export default {
       },
     },
 
-    plugins: ["expo-secure-store"],
-
-    // plugins: [
-    //   [
-    //     "react-native-purchases",
-    //     {
-    //       // This is the API key you get from RevenueCat
-    //       apiKey: "appl_JleRblwotkDjKkwYKZozPqcIfkT",
-    //     },
-    //   ],
-    // ],
+    plugins: [
+      "expo-secure-store",
+      // [
+      //   "react-native-purchases",
+      //   {
+      //     // This is the API key you get from RevenueCat
+      //     apiKey: "appl_JleRblwotkDjKkwYKZozPqcIfkT",
+      //   },
+      // ],
+    ],
     web: {
       favicon: "./app/assets/favicon.png",
     },
@@ -58,6 +57,7 @@ export default {
       eas: {
         projectId: "c5a66d1e-1ef2-4a47-8543-97fe5e83cdb2",
       },
+      revenuecatDebug: true,
     },
     owner: "kevohunch0",
   },
