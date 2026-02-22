@@ -134,7 +134,7 @@ const ReviewSchema = yup.object({
   acceptsHouseCalls: yup.boolean().required().label("Accepts House Calls"),
 });
 
-const getInitialBusinessHours = () => ({
+let businessHoursObj = {
   0: [],
   1: [],
   2: [],
@@ -143,7 +143,7 @@ const getInitialBusinessHours = () => ({
   5: [],
   6: [],
   "utc-offset": 0,
-});
+};
 
 function TherapistForm(props) {
   const navigation = useNavigation();
@@ -153,7 +153,7 @@ function TherapistForm(props) {
   const [showPhoneExistsError, setShowPhoneExistsError] = useState(false);
   const [enableHouseCalls, setEnableHouseCalls] = useState(false);
   const [enableInClinic, setEnableInClinic] = useState(false);
-  const [businessHours, setBusinessHours] = useState(getInitialBusinessHours());
+  const [businessHours, setBusinessHours] = useState(businessHoursObj);
   const [termsAndConditionModal, setTermsAndConditionModal] = useState(false);
   const [hasAttempted, setHasAttempted] = useState(false);
   const [verified, setVerified] = useState(false);
@@ -394,11 +394,13 @@ function TherapistForm(props) {
     }
   };
 
+  const isQA = process.env.NODE_ENV === 'qa';
+
   const sendSMSVerification = async (value) => {
     if (currentStep === SMS_VERIFICATION_STEP) {
       let code = Math.floor(100000 + Math.random() * 900000);
       setVerificationCode(code);
-      console.log("code", code);
+      if (isQA) console.log("code", code);
       const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
 
       const body = new URLSearchParams({
@@ -421,14 +423,14 @@ function TherapistForm(props) {
           body: body.toString(),
         });
         const data = await response.json();
-        console.log("data", data);
+        if (isQA) console.log("data", data);
       } catch (error) {
         console.error("Error sending SMS:", error);
       }
     } else if (currentStep === EMAIL_VERIFIACTION_STEP) {
       try {
         const code = Math.floor(100000 + Math.random() * 900000);
-        console.log("email verification code", code);
+        if (isQA) console.log("email verification code", code);
         setVerificationCode(code);
         let emailVerificationCode = { email: email, token: code };
         let res = await register.verifyEmail(emailVerificationCode);
@@ -955,7 +957,7 @@ function TherapistForm(props) {
                     <TouchableOpacity
                       key={opt.label}
                       onPress={() => {
-                        console.log("opt", opt);
+                        if (isQA) console.log("opt", opt);
                         props.setFieldValue("state", opt.value);
                         closeStateModal(); // optionally close the modal
                       }}

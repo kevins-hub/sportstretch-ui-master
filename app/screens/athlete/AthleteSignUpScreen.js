@@ -79,6 +79,8 @@ function AthleteForm(props) {
   const [showDatePicker, setShowDatePicker] = useState(Platform.OS === "ios");
   const otpRef = useRef("");
 
+  const isQA = process.env.NODE_ENV === 'qa';
+
   useEffect(() => {
     if (currentStep === SMS_VERIFICATION_STEP) {
       sendSMSVerification(athleteForm.phone);
@@ -91,7 +93,7 @@ function AthleteForm(props) {
     let code = Math.floor(100000 + Math.random() * 900000);
     setVerificationCode(code);
     if (currentStep === SMS_VERIFICATION_STEP) {
-      console.log("code", code);
+      if (isQA) console.log("code", code);
       const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
 
       const body = new URLSearchParams({
@@ -118,8 +120,8 @@ function AthleteForm(props) {
         console.error("Error sending SMS:", error);
       }
     } else if (currentStep === EMAIL_VERIFIACTION_STEP) {
-      console.log("step 3 is initated");
-      console.log("code", code);
+      if (isQA) console.log("step 3 is initiated");
+      if (isQA) console.log("code", code);
       try {
         let emailVerificationCode = { email: athleteForm.email, token: code };
         let res = await register.verifyEmail(emailVerificationCode);
@@ -228,7 +230,7 @@ function AthleteForm(props) {
   };
 
   const handleNextDob = async () => {
-    console.warn("handleNextDob");
+    if (__DEV__) console.warn("handleNextDob");
     let aboveAge = await checkAge(dob);
     if (aboveAge) {
       setIsAboveAge(true);
