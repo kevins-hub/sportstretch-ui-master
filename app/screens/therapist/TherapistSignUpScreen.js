@@ -542,6 +542,7 @@ function TherapistForm(props) {
         <TextInput
           style={{ flex: 1, flexWrap: "wrap" }}
           placeholder="First Name"
+          placeholderTextColor="#888"
           onChangeText={props.handleChange("fname")}
           value={props.values.fname}
           onBlur={props.handleBlur("fname")}
@@ -563,6 +564,7 @@ function TherapistForm(props) {
         <TextInput
           style={{ flex: 1, flexWrap: "wrap" }}
           placeholder="Last Name"
+          placeholderTextColor="#888"
           onChangeText={props.handleChange("lname")}
           value={props.values.lname}
           onBlur={props.handleBlur("lname")}
@@ -585,6 +587,7 @@ function TherapistForm(props) {
         <TextInput
           style={{ flex: 1, flexWrap: "wrap" }}
           placeholder="Email"
+          placeholderTextColor="#888"
           onChangeText={props.handleChange("email")}
           value={props.values.email}
           keyboardType="email-address"
@@ -609,6 +612,7 @@ function TherapistForm(props) {
         <TextInput
           style={{ flex: 1, flexWrap: "wrap" }}
           placeholder="Phone"
+          placeholderTextColor="#888"
           onChangeText={props.handleChange("phone")}
           value={props.values.phone}
           keyboardType="phone-pad"
@@ -762,6 +766,7 @@ function TherapistForm(props) {
         <TextInput
           style={{ flex: 1, flexWrap: "wrap" }}
           placeholder="Additional Services Offered"
+          placeholderTextColor="#888"
           onChangeText={props.handleChange("services")}
           value={props.values.services}
           onBlur={props.handleBlur("services")}
@@ -783,6 +788,7 @@ function TherapistForm(props) {
         <TextInput
           style={styles.summaryTextInput}
           placeholder="Professional Bio"
+          placeholderTextColor="#888"
           onChangeText={props.handleChange("summary")}
           value={props.values.summary}
           onBlur={props.handleBlur("summary")}
@@ -809,6 +815,7 @@ function TherapistForm(props) {
         <TextInput
           style={{ flex: 1, flexWrap: "wrap" }}
           placeholder="Hourly Rate"
+          placeholderTextColor="#888"
           onChangeText={props.handleChange("hourlyRate")}
           value={props.values.hourlyRate}
           onBlur={props.handleBlur("hourlyRate")}
@@ -873,6 +880,7 @@ function TherapistForm(props) {
         <TextInput
           style={{ flex: 1, flexWrap: "wrap" }}
           placeholder="Street Address"
+          placeholderTextColor="#888"
           onChangeText={props.handleChange("addressL1")}
           value={props.values.addressL1}
           onBlur={props.handleBlur("addressL1")}
@@ -891,6 +899,7 @@ function TherapistForm(props) {
         <TextInput
           style={{ flex: 1, flexWrap: "wrap" }}
           placeholder="Apt, Suite, Floor, Building"
+          placeholderTextColor="#888"
           onChangeText={props.handleChange("addressL2")}
           value={props.values.addressL2}
           onBlur={props.handleBlur("addressL2")}
@@ -918,6 +927,7 @@ function TherapistForm(props) {
             </View>
             <TextInput
               placeholder="City"
+              placeholderTextColor="#888"
               onChangeText={props.handleChange("city")}
               value={props.values.city}
               onBlur={props.handleBlur("city")}
@@ -988,6 +998,7 @@ function TherapistForm(props) {
         <TextInput
           style={{ flex: 1, flexWrap: "wrap" }}
           placeholder="Zipcode"
+          placeholderTextColor="#888"
           onChangeText={props.handleChange("zipcode")}
           value={props.values.zipcode}
           onBlur={props.handleBlur("zipcode")}
@@ -1016,6 +1027,7 @@ function TherapistForm(props) {
         <TextInput
           style={{ flex: 1, flexWrap: "wrap" }}
           placeholder="License URL"
+          placeholderTextColor="#888"
           onChangeText={props.handleChange("licenseUrl")}
           value={props.values.licenseUrl}
           onBlur={props.handleBlur("licenseUrl")}
@@ -1055,6 +1067,7 @@ function TherapistForm(props) {
           autoCorrect={false}
           autoCapitalize="none"
           placeholder="Password"
+          placeholderTextColor="#888"
           onChangeText={props.handleChange("password")}
           value={props.values.password}
           keyboardType="visible-password"
@@ -1082,6 +1095,7 @@ function TherapistForm(props) {
           autoCorrect={false}
           autoCapitalize="none"
           placeholder="Confirm Password"
+          placeholderTextColor="#888"
           onChangeText={props.handleChange("confirmPassword")}
           value={props.values.confirmPassword}
           keyboardType="visible-password"

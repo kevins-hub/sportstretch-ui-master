@@ -959,6 +959,7 @@ function BookModal({
                   <TextInput
                     style={{ flex: 1, flexWrap: "wrap" }}
                     placeholder="Address"
+                    placeholderTextColor="#888"
                     onChangeText={props.handleChange("addressL1")}
                     onBlur={props.handleBlur("addressL1")}
                     name="addressL1"
@@ -973,6 +974,7 @@ function BookModal({
                   <TextInput
                     style={{ flex: 1, flexWrap: "wrap" }}
                     placeholder="Apt, Suite, Floor, Building"
+                    placeholderTextColor="#888"
                     onChangeText={props.handleChange("addressL2")}
                     onBlur={props.handleBlur("addressL2")}
                     name="addressL2"
@@ -990,6 +992,7 @@ function BookModal({
                     <View style={styles.inputContainerCity}>
                       <TextInput
                         placeholder="City"
+                        placeholderTextColor="#888"
                         onChangeText={props.handleChange("city")}
                         value={props.values.city}
                         onBlur={props.handleBlur("city")}

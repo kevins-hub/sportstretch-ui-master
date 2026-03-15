@@ -109,6 +109,7 @@ function ChangePasswordModal({ visible, setVisibility }) {
                   <TextInput
                     style={{ flex: 1, flexWrap: "wrap" }}
                     placeholder="Old Password"
+                    placeholderTextColor="#888"
                     onChangeText={props.handleChange("oldPassword")}
                     value={props.values.oldPassword}
                     keyboardType="visible-password"
@@ -127,6 +128,7 @@ function ChangePasswordModal({ visible, setVisibility }) {
                   <TextInput
                     style={{ flex: 1, flexWrap: "wrap" }}
                     placeholder="New Password"
+                    placeholderTextColor="#888"
                     onChangeText={props.handleChange("newPassword")}
                     value={props.values.newPassword}
                     keyboardType="visible-password"
@@ -147,6 +149,7 @@ function ChangePasswordModal({ visible, setVisibility }) {
                     autoCorrect={false}
                     autoCapitalize="none"
                     placeholder="Confirm Password"
+                    placeholderTextColor="#888"
                     onChangeText={props.handleChange("confirmPassword")}
                     value={props.values.confirmPassword}
                     keyboardType="visible-password"

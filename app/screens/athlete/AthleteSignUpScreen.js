@@ -298,6 +298,7 @@ function AthleteForm(props) {
                 <TextInput
                   style={{ flex: 1, flexWrap: "wrap" }}
                   placeholder="First Name"
+                  placeholderTextColor="#888"
                   onChangeText={props.handleChange("fname")}
                   value={props.values.fname}
                   onBlur={props.handleBlur("fname")}
@@ -320,6 +321,7 @@ function AthleteForm(props) {
                 <TextInput
                   style={{ flex: 1, flexWrap: "wrap" }}
                   placeholder="Last Name"
+                  placeholderTextColor="#888"
                   onChangeText={props.handleChange("lname")}
                   value={props.values.lname}
                   onBlur={props.handleBlur("lname")}
@@ -343,6 +345,7 @@ function AthleteForm(props) {
                 <TextInput
                   style={{ flex: 1, flexWrap: "wrap" }}
                   placeholder="Email"
+                  placeholderTextColor="#888"
                   onChangeText={props.handleChange("email")}
                   value={props.values.email}
                   keyboardType="email-address"
@@ -370,6 +373,7 @@ function AthleteForm(props) {
                 <TextInput
                   style={{ flex: 1, flexWrap: "wrap" }}
                   placeholder="Password"
+                  placeholderTextColor="#888"
                   onChangeText={props.handleChange("password")}
                   value={props.values.password}
                   keyboardType="visible-password"
@@ -398,6 +402,7 @@ function AthleteForm(props) {
                   autoCorrect={false}
                   autoCapitalize="none"
                   placeholder="Confirm Password"
+                  placeholderTextColor="#888"
                   onChangeText={props.handleChange("confirmPassword")}
                   value={props.values.confirmPassword}
                   keyboardType="visible-password"
@@ -423,6 +428,7 @@ function AthleteForm(props) {
                 <TextInput
                   style={{ flex: 1, flexWrap: "wrap" }}
                   placeholder="Phone"
+                  placeholderTextColor="#888"
                   onChangeText={props.handleChange("phone")}
                   value={props.values.phone}
                   keyboardType="phone-pad"
