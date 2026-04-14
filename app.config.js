@@ -16,7 +16,7 @@ export default {
     },
     assetBundlePatterns: ["**/*"],
     ios: {
-      buildNumber: "63",
+      buildNumber: "64",
       bundleIdentifier: "com.sportstretchusa.sportstretch",
       supportsTablet: true,
       infoPlist: {
@@ -31,7 +31,7 @@ export default {
         foregroundImage: "./app/assets/adaptive-icon.png",
         backgroundColor: "#FFFFFF",
       },
-      versionCode: 6,
+      versionCode: 7,
       package: "com.sportstretchusa.sportstretch",
       permissions: ["com.android.vending.BILLING"],
       config: {
