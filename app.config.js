@@ -2,7 +2,7 @@ export default {
   expo: {
     name: "SportStretch",
     slug: "sportstretch",
-    version: "1.0.6",
+    version: "1.0.7",
     orientation: "portrait",
     userInterfaceStyle: "light",
     icon: "./app/assets/icon.png",
@@ -16,7 +16,7 @@ export default {
     },
     assetBundlePatterns: ["**/*"],
     ios: {
-      buildNumber: "64",
+      buildNumber: "65",
       bundleIdentifier: "com.sportstretchusa.sportstretch",
       supportsTablet: true,
       infoPlist: {
@@ -31,7 +31,7 @@ export default {
         foregroundImage: "./app/assets/adaptive-icon.png",
         backgroundColor: "#FFFFFF",
       },
-      versionCode: 7,
+      versionCode: 8,
       package: "com.sportstretchusa.sportstretch",
       permissions: ["com.android.vending.BILLING"],
       config: {
