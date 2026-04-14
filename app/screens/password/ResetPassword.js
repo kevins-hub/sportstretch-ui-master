@@ -84,6 +84,7 @@ function ResetPasswordForm(props) {
                 <TextInput
                   style={{ flex: 1, flexWrap: "wrap" }}
                   placeholder="New Password"
+                  placeholderTextColor="#888"
                   onChangeText={props.handleChange("newPassword")}
                   value={props.values.password}
                   keyboardType="visible-password"
@@ -104,6 +105,7 @@ function ResetPasswordForm(props) {
                   autoCorrect={false}
                   autoCapitalize="none"
                   placeholder="Confirm Password"
+                  placeholderTextColor="#888"
                   onChangeText={props.handleChange("confirmPassword")}
                   value={props.values.confirmPassword}
                   keyboardType="visible-password"

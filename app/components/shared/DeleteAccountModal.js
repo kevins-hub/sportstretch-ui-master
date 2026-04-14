@@ -71,6 +71,7 @@ function DeleteAccountModal({ visible, setVisibility, authId, isTherapist }) {
                 onChangeText={props.handleChange("delete")}
                 onBlur={props.handleBlur("delete")}
                 placeholder="Type here"
+                placeholderTextColor="#888"
               />
               <View style={styles.buttonContainer}>
                 <TouchableOpacity

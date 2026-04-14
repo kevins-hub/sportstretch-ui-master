@@ -260,6 +260,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility, hasProE
           <TextInput
             style={{ flex: 1, flexWrap: "wrap" }}
             placeholder="Additional Services Offered"
+            placeholderTextColor="#888"
             onChangeText={props.handleChange("services")}
             value={props.values.services}
             onBlur={props.handleBlur("services")}
@@ -281,6 +282,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility, hasProE
           <TextInput
             style={styles.summaryTextInput}
             placeholder="Professional Bio"
+            placeholderTextColor="#888"
             onChangeText={props.handleChange("summary")}
             value={props.values.summary}
             onBlur={props.handleBlur("summary")}
@@ -307,6 +309,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility, hasProE
           <TextInput
             style={{ flex: 1, flexWrap: "wrap" }}
             placeholder="Hourly Rate"
+            placeholderTextColor="#888"
             onChangeText={props.handleChange("hourlyRate")}
             value={props.values.hourlyRate}
             onBlur={props.handleBlur("hourlyRate")}
@@ -379,6 +382,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility, hasProE
           <TextInput
             style={{ flex: 1, flexWrap: "wrap" }}
             placeholder="Street Address"
+            placeholderTextColor="#888"
             onChangeText={props.handleChange("addressL1")}
             value={props.values.addressL1}
             onBlur={props.handleBlur("addressL1")}
@@ -393,6 +397,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility, hasProE
           <TextInput
             style={{ flex: 1, flexWrap: "wrap" }}
             placeholder="Apt, Suite, Floor, Building"
+            placeholderTextColor="#888"
             onChangeText={props.handleChange("addressL2")}
             value={props.values.addressL2}
             onBlur={props.handleBlur("addressL2")}
@@ -416,6 +421,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility, hasProE
               </View>
               <TextInput
                 placeholder="City"
+                placeholderTextColor="#888"
                 onChangeText={props.handleChange("city")}
                 value={props.values.city}
                 onBlur={props.handleBlur("city")}
@@ -498,6 +504,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility, hasProE
           <TextInput
             style={{ flex: 1, flexWrap: "wrap" }}
             placeholder="Zipcode"
+            placeholderTextColor="#888"
             onChangeText={props.handleChange("zipcode")}
             value={props.values.zipcode}
             onBlur={props.handleBlur("zipcode")}
@@ -547,6 +554,7 @@ function TherapistEditServicesModal({ therapist, visible, setVisibility, hasProE
           <TextInput
             style={{ flex: 1, flexWrap: "wrap" }}
             placeholder="License URL"
+            placeholderTextColor="#888"
             onChangeText={props.handleChange("licenseUrl")}
             value={props.values.licenseUrl}
             onBlur={props.handleBlur("licenseUrl")}

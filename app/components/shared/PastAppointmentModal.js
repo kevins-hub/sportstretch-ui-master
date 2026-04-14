@@ -84,6 +84,7 @@ function PastAppointmentModal({ booking, setVisibility, visible }) {
                   onChangeText={handleChange("reportIssue")}
                   onBlur={handleBlur("reportIssue")}
                   placeholder="Type here"
+                  placeholderTextColor="#888"
                   multiline={true}
                   maxLength={issueMaxLength}
                 />

@@ -16,7 +16,6 @@ import {
 import TherapistEditSubscriptionModal from "./app/components/therapist/TherapistEditSubscriptionModal";
 
 // SplashScreen.preventAutoHideAsync();
-
 function App() {
   const [user, setUser] = useState();
   const [isReady, setIsReady] = useState(false);

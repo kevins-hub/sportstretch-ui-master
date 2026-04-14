@@ -959,6 +959,7 @@ function BookModal({
                   <TextInput
                     style={{ flex: 1, flexWrap: "wrap" }}
                     placeholder="Address"
+                    placeholderTextColor="#888"
                     onChangeText={props.handleChange("addressL1")}
                     onBlur={props.handleBlur("addressL1")}
                     name="addressL1"
@@ -973,6 +974,7 @@ function BookModal({
                   <TextInput
                     style={{ flex: 1, flexWrap: "wrap" }}
                     placeholder="Apt, Suite, Floor, Building"
+                    placeholderTextColor="#888"
                     onChangeText={props.handleChange("addressL2")}
                     onBlur={props.handleBlur("addressL2")}
                     name="addressL2"
@@ -990,6 +992,7 @@ function BookModal({
                     <View style={styles.inputContainerCity}>
                       <TextInput
                         placeholder="City"
+                        placeholderTextColor="#888"
                         onChangeText={props.handleChange("city")}
                         value={props.values.city}
                         onBlur={props.handleBlur("city")}
@@ -1003,14 +1006,12 @@ function BookModal({
                   <View style={{ marginHorizontal: "10%", width: "45%" }}>
                     <View style={styles.inputContainerState}>
                       <TouchableOpacity
-                        style={Platform.OS === "ios" ? styles.selector : {height: 40, justifyContent: 'center'}}
                         onPress={openStatesModal}
                         activeOpacity={0.7}
                       >
                         <Text
                           style={[
-                            { paddingHorizontal: 4, paddingVertical: 8 },
-                            !props.values.state ? styles.noSelectText : {},
+                            !props.values.state ? styles.noSelectText : { marginTop: 'auto', marginBottom: 'auto', marginLeft: 4 },
                           ]}
                         >
                           {props.values.state ? props.values.state : "State"}
@@ -1396,14 +1397,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginRight: "10%",
     marginTop: "4%",
+    height: 44,
+    alignItems: "center",
     backgroundColor: "#FAFAFA",
+    borderColor: "#C0C0C0",
     ...Platform.select({
       android: {
-        height: 44,
         paddingVertical: 0,
-        alignItems: "center",
         borderWidth: 1.1,
-        borderColor: "#C0C0C0",
         marginBottom: 10,
         marginTop: 0,
       },
@@ -1416,13 +1417,13 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     marginRight: "9%",
     marginTop: 0,
+    height: 44,
+    alignItems: "center",
     backgroundColor: "#FAFAFA",
+    borderColor: "#C0C0C0",
     ...Platform.select({
       android: {
-        height: 44,
-        alignItems: "center",
         borderBottomWidth: 1.1,
-        borderColor: "#C0C0C0",
         marginBottom: 10,
       },
     }),
@@ -1432,13 +1433,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 12,
+    height: 44,
+    alignItems: "center",
     backgroundColor: "#FAFAFA",
+    borderColor: "#C0C0C0",
     ...Platform.select({
       android: {
-        height: 44,
-        alignItems: "center",
         borderWidth: 1.1,
-        borderColor: "#C0C0C0",
         marginBottom: 10,
       },
     }),
@@ -1446,7 +1447,8 @@ const styles = StyleSheet.create({
   inputContainerCityState: {
     flexDirection: "row",
     marginRight: "9%",
-    marginTop: 0,
+    marginTop: 4,
+    alignItems: "flex-start",
     ...Platform.select({
       android: {
         marginBottom: 10,
@@ -1455,9 +1457,12 @@ const styles = StyleSheet.create({
   },
   inputContainerState: {
     borderWidth: 1,
-    borderRadius: 15,
-    paddingVertical: "4%",
-    paddingHorizontal: "7%",
+    borderRadius: 12,
+    height: 44,
+    justifyContent: "center",
+    paddingHorizontal: 12,
+    backgroundColor: "#FAFAFA",
+    borderColor: "#C0C0C0",
   },
   inputContainerZip: {
     flexDirection: "row",
@@ -1465,14 +1470,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     marginRight: "9%",
-    marginTop: 0,
+    marginTop: 4,
+    height: 44,
+    alignItems: "center",
     backgroundColor: "#FAFAFA",
+    borderColor: "#C0C0C0",
     ...Platform.select({
       android: {
-        height: 44,
-        alignItems: "center",
         borderWidth: 1.1,
-        borderColor: "#C0C0C0",
         marginBottom: 10,
       },
     }),

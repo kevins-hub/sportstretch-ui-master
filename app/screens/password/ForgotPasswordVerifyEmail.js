@@ -67,6 +67,7 @@ function ForgotPasswordVerifyEmailForm(props) {
                 <TextInput
                   style={{ flex: 1, flexWrap: "wrap" }}
                   placeholder="Email"
+                  placeholderTextColor="#888"
                   onChangeText={props.handleChange("email")}
                   value={props.values.email}
                   keyboardType="email-address"

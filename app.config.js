@@ -2,8 +2,9 @@ export default {
   expo: {
     name: "SportStretch",
     slug: "sportstretch",
-    version: "1.0.5",
+    version: "1.0.6",
     orientation: "portrait",
+    userInterfaceStyle: "light",
     icon: "./app/assets/icon.png",
     splash: {
       image: "./app/assets/splash.png",
@@ -30,7 +31,7 @@ export default {
         foregroundImage: "./app/assets/adaptive-icon.png",
         backgroundColor: "#FFFFFF",
       },
-      versionCode: 5,
+      versionCode: 6,
       package: "com.sportstretchusa.sportstretch",
       permissions: ["com.android.vending.BILLING"],
       config: {
@@ -38,6 +39,7 @@ export default {
           apiKey: process.env.GOOGLE_MAPS_API_KEY,
         },
       },
+      forceDarkAllowed: false,
     },
 
     plugins: [

@@ -71,6 +71,7 @@ function ForgotPasswordVerifyResetTokenForm(props) {
                 <TextInput
                   style={{ flex: 1, flexWrap: "wrap" }}
                   placeholder="Passcode"
+                  placeholderTextColor="#888"
                   onChangeText={props.handleChange("resetToken")}
                   value={props.values.resetToken}
                   keyboardType="numeric"

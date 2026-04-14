@@ -211,6 +211,7 @@ function EditContactInfoModal({
                           <TextInput
                             style={{ flex: 1, flexWrap: "wrap" }}
                             placeholder="Email"
+                            placeholderTextColor="#888"
                             onChangeText={props.handleChange("email")}
                             value={props.values.email}
                             onBlur={props.handleBlur("email")}
@@ -230,6 +231,7 @@ function EditContactInfoModal({
                           <TextInput
                             style={{ flex: 1, flexWrap: "wrap" }}
                             placeholder="Phone"
+                            placeholderTextColor="#888"
                             onChangeText={props.handleChange("phone")}
                             value={props.values.phone}
                             onBlur={props.handleBlur("phone")}
@@ -252,6 +254,7 @@ function EditContactInfoModal({
                               <TextInput
                                 style={{ flex: 1, flexWrap: "wrap" }}
                                 placeholder="Address"
+                                placeholderTextColor="#888"
                                 onChangeText={props.handleChange("addressL1")}
                                 value={props.values.addressL1}
                                 onBlur={props.handleBlur("addressL1")}
@@ -268,6 +271,7 @@ function EditContactInfoModal({
                               <TextInput
                                 style={{ flex: 1, flexWrap: "wrap" }}
                                 placeholder="Address Line 2"
+                                placeholderTextColor="#888"
                                 onChangeText={props.handleChange("addressL2")}
                                 value={props.values.addressL2}
                                 onBlur={props.handleBlur("addressL2")}
@@ -282,6 +286,7 @@ function EditContactInfoModal({
                               <TextInput
                                 style={{ flex: 1, flexWrap: "wrap" }}
                                 placeholder="City"
+                                placeholderTextColor="#888"
                                 onChangeText={props.handleChange("city")}
                                 value={props.values.city}
                                 onBlur={props.handleBlur("city")}
@@ -296,6 +301,7 @@ function EditContactInfoModal({
                               <TextInput
                                 style={{ flex: 1, flexWrap: "wrap" }}
                                 placeholder="State"
+                                placeholderTextColor="#888"
                                 onChangeText={props.handleChange("state")}
                                 value={props.values.state}
                                 onBlur={props.handleBlur("state")}
@@ -310,6 +316,7 @@ function EditContactInfoModal({
                               <TextInput
                                 style={{ flex: 1, flexWrap: "wrap" }}
                                 placeholder="Zip Code"
+                                placeholderTextColor="#888"
                                 onChangeText={props.handleChange("zipcode")}
                                 value={props.values.zipcode}
                                 onBlur={props.handleBlur("zipcode")}
