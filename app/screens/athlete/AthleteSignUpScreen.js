@@ -33,7 +33,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 const DETAILS_STEP = 1;
 const DOB_STEP = 2;
 const SMS_VERIFICATION_STEP = 3;
-const EMAIL_VERIFIACTION_STEP = 4;
+const EMAIL_VERIFICATIOIN_STEP = 4;
 
 const MIN_AGE = 18;
 
@@ -83,16 +83,16 @@ function AthleteForm(props) {
 
   useEffect(() => {
     if (currentStep === SMS_VERIFICATION_STEP) {
-      sendSMSVerification(athleteForm.phone);
-    } else if (currentStep === EMAIL_VERIFIACTION_STEP) {
-      sendSMSVerification(athleteForm.email);
+      sendSMSVerification(athleteForm.phone, SMS_VERIFICATION_STEP);
+    } else if (currentStep === EMAIL_VERIFICATIOIN_STEP) {
+      sendSMSVerification(athleteForm.email, EMAIL_VERIFICATIOIN_STEP);
     }
   }, [currentStep]);
 
-  const sendSMSVerification = async (value) => {
+  const sendSMSVerification = async (value, step) => {
     let code = Math.floor(100000 + Math.random() * 900000);
     setVerificationCode(code);
-    if (currentStep === SMS_VERIFICATION_STEP) {
+    if (step === SMS_VERIFICATION_STEP) {
       if (isQA) console.log("code", code);
       const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
 
@@ -119,7 +119,7 @@ function AthleteForm(props) {
       } catch (error) {
         console.error("Error sending SMS:", error);
       }
-    } else if (currentStep === EMAIL_VERIFIACTION_STEP) {
+    } else if (step === EMAIL_VERIFICATIOIN_STEP) {
       if (isQA) console.log("step 3 is initiated");
       if (isQA) console.log("code", code);
       try {
@@ -189,15 +189,18 @@ function AthleteForm(props) {
   const resetVerificationStep = () => {
     setVerified(false);
     setHasAttempted(false);
-    if (currentStep <= SMS_VERIFICATION_STEP) {
-      setCurrentStep(currentStep + 1);
-    }
+    setCurrentStep((prev) => {
+      if (prev <= SMS_VERIFICATION_STEP) {
+        return prev + 1;
+      }
+      return prev;
+    });
   };
 
   const handleVerificationComplete = async (code) => {
     setHasAttempted(true);
     if (parseInt(code) === verificationCode) {
-      if (currentStep === EMAIL_VERIFIACTION_STEP) {
+      if (currentStep === EMAIL_VERIFICATIOIN_STEP) {
         await registerAthlete(athleteForm);
       }
       setVerified(true);
@@ -610,7 +613,8 @@ function AthleteForm(props) {
           sendSMSVerification(
             currentStep === SMS_VERIFICATION_STEP
               ? athleteForm.phone
-              : athleteForm.email
+              : athleteForm.email,
+            currentStep
           )
         }
         type="button"
@@ -650,7 +654,7 @@ function AthleteForm(props) {
         {currentStep === DETAILS_STEP && renderCreateAccount()}
         {currentStep === DOB_STEP && renderDobStep()}
         {currentStep === SMS_VERIFICATION_STEP && renderVerificationStep()}
-        {currentStep === EMAIL_VERIFIACTION_STEP && renderVerificationStep()}
+        {currentStep === EMAIL_VERIFICATIOIN_STEP && renderVerificationStep()}
       </View>
     </KeyboardAvoidingView>
   );
